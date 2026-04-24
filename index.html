@@ -382,10 +382,23 @@ function setInjResult(i,eid,val,btn){
   card.classList.remove('done-win','done-martin','done-lose');
   card.classList.add(val==='win'?'done-win':val==='martin'?'done-martin':'done-lose');
 }
+function doneCls(result){
+  if(result==='win')return'done-win';
+  if(result==='martin')return'done-martin';
+  if(result==='lose')return'done-lose';
+  return'';
+}
+function selCls(result){
+  if(result==='win')return'sel-win';
+  if(result==='martin')return'sel-martin';
+  if(result==='lose')return'sel-lose';
+  return'';
+}
 function renderInjBlock(i){
   const inj=INJS[i];
+  const saved=injEntries[i].map(e=>({id:e.id,pair:document.getElementById(`ep-${e.id}`)?.value,time:document.getElementById(`et-${e.id}`)?.value,dir:document.getElementById(`ed-${e.id}`)?.value,line:document.getElementById(`el-${e.id}`)?.value,memo:document.getElementById(`em-${e.id}`)?.value}));
   document.getElementById(`inj-entries-${i}`).innerHTML=injEntries[i].map(e=>`
-    <div class="entry-card">
+    <div class="entry-card ${doneCls(e.result)}" id="ec-${e.id}">
       <div class="entry-fields">
         <div class="fg"><label>通貨ペア</label><select id="ep-${e.id}">${PAIRS.map(p=>`<option>${p}</option>`).join('')}</select></div>
         <div class="fg"><label>時間</label><input type="time" id="et-${e.id}"></div>
@@ -394,12 +407,20 @@ function renderInjBlock(i){
         ${injEntries[i].length>1?`<button class="del-btn" onclick="removeInjEntry(${i},${e.id})">✕</button>`:''}
       </div>
       <div class="rbtn-row">
-        <button class="rbtn" onclick="setInjResult(${i},${e.id},'win',this)">○ 勝ち</button>
-        <button class="rbtn" onclick="setInjResult(${i},${e.id},'martin',this)">✕○ 1マーチン勝ち</button>
-        <button class="rbtn" onclick="setInjResult(${i},${e.id},'lose',this)">✕✕ 負け</button>
+        <button class="rbtn ${e.result==='win'?'sel-win':''}" onclick="setInjResult(${i},${e.id},'win',this)">○ 勝ち</button>
+        <button class="rbtn ${e.result==='martin'?'sel-martin':''}" onclick="setInjResult(${i},${e.id},'martin',this)">✕○ 1マーチン勝ち</button>
+        <button class="rbtn ${e.result==='lose'?'sel-lose':''}" onclick="setInjResult(${i},${e.id},'lose',this)">✕✕ 負け</button>
       </div>
       <div class="memo-area"><textarea id="em-${e.id}" placeholder="メモ・気づき"></textarea></div>
     </div>`).join('');
+  saved.forEach(s=>{
+    if(!s.id)return;
+    const pp=document.getElementById(`ep-${s.id}`);if(pp&&s.pair)pp.value=s.pair;
+    const pt=document.getElementById(`et-${s.id}`);if(pt&&s.time)pt.value=s.time;
+    const pd=document.getElementById(`ed-${s.id}`);if(pd&&s.dir)pd.value=s.dir;
+    const pl=document.getElementById(`el-${s.id}`);if(pl&&s.line)pl.value=s.line;
+    const pm=document.getElementById(`em-${s.id}`);if(pm&&s.memo)pm.value=s.memo;
+  });
 }
 
 function buildAnoRows(){
