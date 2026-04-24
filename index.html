@@ -64,13 +64,15 @@ textarea{min-height:36px;resize:vertical}
 .ano-btns{display:flex;gap:3px;flex-shrink:0}
 .opt-block{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f0f0f0}
 .opt-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
-.opt-name{font-size:12px;font-weight:500;color:#333;margin-bottom:5px}
-.opt-entry-card{border:1px solid #e8e8e8;border-radius:9px;margin-bottom:6px;overflow:hidden;position:relative;transition:background 0.2s,border-color 0.2s}
-.opt-entry-card.done-win{background:#f0fdf6;border-color:#1aaa6a}
-.opt-entry-card.done-lose{background:#fff5f3;border-color:#ee6a50}
-.opt-entry-row{display:grid;grid-template-columns:1fr auto auto auto;gap:7px;padding:7px 8px;background:#fafafa;align-items:end}
-.opt-entry-card.done-win .opt-entry-row{background:#e8f8f0}
-.opt-entry-card.done-lose .opt-entry-row{background:#fff0ee}
+.opt-name{font-size:12px;font-weight:500;color:#333;margin-bottom:6px}
+.opt-rounds{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:5px}
+.opt-round{display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:8px;border:1px solid #e8e8e8;background:#fafafa;transition:all 0.15s}
+.opt-round.done-win{background:#e8f8f0;border-color:#1aaa6a}
+.opt-round.done-lose{background:#fff0ee;border-color:#ee6a50}
+.opt-round-num{font-size:10px;color:#aaa;min-width:20px}
+.opt-round-del{font-size:10px;padding:0 3px;cursor:pointer;border:none;background:none;color:#ccc;margin-left:2px}
+.opt-round-del:hover{color:#ee6a50}
+.opt-memo-wrap{margin-top:4px}
 .entry-item{border:1px solid #e8e8e8;border-radius:10px;margin-bottom:7px;overflow:hidden;position:relative;transition:background 0.2s,border-color 0.2s}
 .entry-item-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:8px;background:#fafafa}
 .entry-item-fields2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:0 8px 7px;background:#fafafa}
@@ -134,6 +136,15 @@ textarea{min-height:36px;resize:vertical}
 .bar-fill{height:6px;border-radius:4px;display:inline-block;background:#1aaa6a}
 .bar-fill.blue{background:#5a8aee}
 .bar-fill.amber{background:#f0a020}
+.ai-card{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-left:4px solid #7c6af7}
+.ai-card h4{font-size:13px;font-weight:500;color:#7c6af7;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.ai-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;line-height:1.6}
+.ai-item:last-child{margin-bottom:0}
+.ai-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.ai-good{color:#1aaa6a;font-weight:500}
+.ai-warn{color:#ee6a50;font-weight:500}
+.ai-note{color:#5a8aee;font-weight:500}
+.ai-loading{text-align:center;padding:20px;color:#aaa;font-size:13px}
 </style>
 </head>
 <body>
@@ -225,6 +236,10 @@ textarea{min-height:36px;resize:vertical}
   </div>
   <div class="wr-block" id="ana-wr"></div>
   <div class="metrics" id="ana-metrics"></div>
+  <button onclick="runAI()" id="ai-btn" style="width:100%;padding:11px;font-size:14px;font-weight:500;border-radius:10px;cursor:pointer;border:none;background:linear-gradient(135deg,#7c6af7,#5a8aee);color:#fff;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:6px">
+    <span style="font-size:16px">✨</span> AI分析を実行する
+  </button>
+  <div id="ai-result" style="margin-bottom:12px"></div>
   <div id="ana-content"></div>
 </div>
 
@@ -380,50 +395,46 @@ function setAno(key,v,btn){
 }
 
 function buildOptBlocks(){
-  optBlocks=OPTIONS.map((name,i)=>({name,entries:[{id:Date.now()+i+1000,result:'none'}]}));
+  optBlocks=OPTIONS.map((name,i)=>({name,rounds:[{id:Date.now()+i+1000,result:'none'}],memo:''}));
   renderOptBlocks();
 }
-function addOptEntry(oi){
-  const saved=collectOptSaved();
-  optBlocks[oi].entries.push({id:Date.now(),result:'none'});
+function addOptRound(oi){
+  const memo=document.getElementById(`opt-memo-${oi}`)?.value||'';
+  optBlocks[oi].rounds.push({id:Date.now(),result:'none'});
+  optBlocks[oi].memo=memo;
   renderOptBlocks();
-  restoreOptSaved(saved);
 }
-function removeOptEntry(oi,eid){
-  const saved=collectOptSaved();
-  optBlocks[oi].entries=optBlocks[oi].entries.filter(e=>e.id!==eid);
+function removeOptRound(oi,rid){
+  const memo=document.getElementById(`opt-memo-${oi}`)?.value||'';
+  optBlocks[oi].rounds=optBlocks[oi].rounds.filter(r=>r.id!==rid);
+  optBlocks[oi].memo=memo;
   renderOptBlocks();
-  restoreOptSaved(saved);
 }
-function collectOptSaved(){return optBlocks.flatMap(ob=>ob.entries.map(e=>({id:e.id,time:document.getElementById(`ot-${e.id}`)?.value,dir:document.getElementById(`od-${e.id}`)?.value,memo:document.getElementById(`om-${e.id}`)?.value})));}
-function restoreOptSaved(saved){saved.forEach(s=>{const t=document.getElementById(`ot-${s.id}`);if(t&&s.time)t.value=s.time;const d=document.getElementById(`od-${s.id}`);if(d&&s.dir)d.value=s.dir;const m=document.getElementById(`om-${s.id}`);if(m&&s.memo)m.value=s.memo;});}
-function setOptResult(oi,eid,val,btn){
-  optBlocks[oi].entries.find(e=>e.id===eid).result=val;
-  const card=btn.closest('.opt-entry-card');
-  card.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
+function setOptResult(oi,rid,val,btn){
+  const round=optBlocks[oi].rounds.find(r=>r.id===rid);
+  round.result=val;
+  const wrap=btn.closest('.opt-round');
+  wrap.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
   btn.classList.add(val==='win'?'sel-win':'sel-lose');
-  card.className=`opt-entry-card ${val==='win'?'done-win':'done-lose'}`;
+  wrap.className=`opt-round ${val==='win'?'done-win':'done-lose'}`;
 }
 function renderOptBlocks(){
   document.getElementById('opt-blocks').innerHTML=optBlocks.map((ob,oi)=>`
     <div class="opt-block">
       <div class="opt-name">${ob.name}</div>
-      ${ob.entries.map(e=>`
-        <div class="opt-entry-card ${e.result==='win'?'done-win':e.result==='lose'?'done-lose':''}">
-          <div class="opt-entry-row">
-            <div class="fg"><label>メモ</label><input type="text" id="om-${e.id}" placeholder="メモ"></div>
-            <div class="fg"><label>時間</label><input type="time" id="ot-${e.id}" style="width:110px"></div>
-            <div class="fg"><label>方向</label><select id="od-${e.id}" style="width:90px"><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select></div>
-            <div class="fg" style="padding-top:16px">
-              <div style="display:flex;gap:3px;align-items:center">
-                <button class="rbtn ${e.result==='win'?'sel-win':''}" onclick="setOptResult(${oi},${e.id},'win',this)">○</button>
-                <button class="rbtn ${e.result==='lose'?'sel-lose':''}" onclick="setOptResult(${oi},${e.id},'lose',this)">✕</button>
-                ${ob.entries.length>1?`<button style="font-size:10px;padding:4px 6px;cursor:pointer;border:1px solid #ddd;border-radius:4px;background:#fff;color:#aaa" onclick="removeOptEntry(${oi},${e.id})">✕</button>`:''}
-              </div>
-            </div>
-          </div>
-        </div>`).join('')}
-      <button class="add-btn" style="margin-top:4px" onclick="addOptEntry(${oi})">＋ 追加</button>
+      <div class="opt-rounds">
+        ${ob.rounds.map((r,ri)=>`
+          <div class="opt-round ${r.result==='win'?'done-win':r.result==='lose'?'done-lose':''}">
+            <span class="opt-round-num">${ri+1}回目</span>
+            <button class="rbtn ${r.result==='win'?'sel-win':''}" style="padding:3px 8px;font-size:12px" onclick="setOptResult(${oi},${r.id},'win',this)">○</button>
+            <button class="rbtn ${r.result==='lose'?'sel-lose':''}" style="padding:3px 8px;font-size:12px" onclick="setOptResult(${oi},${r.id},'lose',this)">✕</button>
+            ${ob.rounds.length>1?`<button class="opt-round-del" onclick="removeOptRound(${oi},${r.id})">✕</button>`:''}
+          </div>`).join('')}
+        <button class="add-btn" style="width:auto;padding:4px 10px;font-size:11px;margin-top:0" onclick="addOptRound(${oi})">＋</button>
+      </div>
+      <div class="opt-memo-wrap">
+        <input type="text" id="opt-memo-${oi}" placeholder="メモ" value="${ob.memo||''}">
+      </div>
     </div>`).join('');
 }
 
@@ -469,9 +480,11 @@ function collectInjs(){
   return r;
 }
 function collectOpts(){
-  const r=[];
-  optBlocks.forEach(ob=>ob.entries.forEach(e=>r.push({name:ob.name,time:document.getElementById(`ot-${e.id}`)?.value||'',dir:document.getElementById(`od-${e.id}`)?.value||'up',result:e.result,memo:document.getElementById(`om-${e.id}`)?.value||''})));
-  return r;
+  return optBlocks.map(ob=>({
+    name:ob.name,
+    rounds:ob.rounds.map(r=>r.result),
+    memo:document.getElementById(`opt-memo-${optBlocks.indexOf(ob)}`)?.value||''
+  }));
 }
 function collectEntries(){
   return entryList.map(e=>({pair:document.getElementById(`enp-${e.id}`)?.value||'',time:document.getElementById(`ent-${e.id}`)?.value||'',dir:document.getElementById(`end-${e.id}`)?.value||'up',inj:document.getElementById(`eni-${e.id}`)?.value||'',opt:document.getElementById(`eno-${e.id}`)?.value||'',ano:document.getElementById(`ena-${e.id}`)?.value||'',result:e.result,memo:document.getElementById(`enm-${e.id}`)?.value||''}));
@@ -503,7 +516,7 @@ function calcWR(list){
   let t=0,w=0,m=0,l=0;
   list.forEach(tr=>{
     [...tr.injs,...(tr.entries||[])].forEach(e=>{if(!e.result||e.result==='none')return;t++;if(e.result==='win')w++;else if(e.result==='martin')m++;else if(e.result==='lose')l++;});
-    tr.opts.forEach(o=>{if(!o.result||o.result==='none')return;t++;if(o.result==='win')w++;else if(o.result==='lose')l++;});
+    tr.opts.forEach(o=>{(o.rounds||[o.result]).filter(r=>r&&r!=='none').forEach(r=>{t++;if(r==='win')w++;else if(r==='lose')l++;});});
   });
   return{t,w,m,l,s:t?Math.round(w/t*100):0,mt:t?Math.round((w+m)/t*100):0};
 }
@@ -519,8 +532,8 @@ function renderTodayList(){
     if(injA.length)lines.push(injA.map(i=>`<b>${i.name}</b>${i.line&&i.line!=='—'?`[${i.line}]`:''} ${i.time?`<span style="color:#aaa">${i.time}</span>`:''} ${i.dir==='up'?'↑':'↓'} ${rLabel(i.result)}`).join('　'));
     const anoA=tr.anos.filter(a=>a.result!=='none'&&a.result!=='skip');
     if(anoA.length)lines.push('アノマリー: '+anoA.map(a=>`${a.time} ${rLabel(a.result)}`).join(' '));
-    const optA=tr.opts.filter(o=>o.result!=='none');
-    if(optA.length)lines.push('オプション: '+optA.map(o=>`${o.name.slice(0,10)} ${rLabel(o.result)}`).join(' '));
+    const optA=tr.opts.filter(o=>(o.rounds||[o.result]).some(r=>r&&r!=='none'));
+    if(optA.length)lines.push('オプション: '+optA.map(o=>{const rs=(o.rounds||[o.result]).filter(r=>r&&r!=='none');return`${o.name.slice(0,8)} ${rs.map(r=>r==='win'?'<span class="badge b-win">○</span>':'<span class="badge b-lose">✕</span>').join('')}`}).join(' '));
     const entA=(tr.entries||[]).filter(e=>e.result!=='none');
     if(entA.length)lines.push('エントリー: '+entA.map(e=>`${e.pair} ${e.dir==='up'?'↑':'↓'} ${rLabel(e.result)}`).join(' '));
     return`<div class="today-item"><div class="today-num">${idx+1}</div><div class="today-body">${lines.join('<br>')||'（詳細なし）'}</div><button class="today-del" onclick="delToday(${tr.id})">削除</button></div>`;
@@ -617,6 +630,80 @@ function renderAnalysis(){
     mkAnaTable('アノマリー別勝率',mapToRows(anoMap))+
     mkAnaTable('オプション別勝率',mapToRows(optMapA),'blue')+
     mkAnaTable('エントリー別勝率',mapToRows(entMap));
+}
+
+function runAI(){
+  const list=filterByPeriod(trades,anaPeriod);
+  const el=document.getElementById('ai-result');
+  const btn=document.getElementById('ai-btn');
+  if(list.length<3){el.innerHTML=`<div class="ai-card"><div class="ai-loading">データが3件以上必要です（現在${list.length}件）</div></div>`;return;}
+  btn.textContent='分析中...';btn.disabled=true;
+  setTimeout(()=>{
+    const items=generateAI(list);
+    el.innerHTML=`<div class="ai-card"><h4>✨ AI分析レポート</h4>${items.map(i=>`<div class="ai-item"><span class="ai-icon">${i.icon}</span><span>${i.text}</span></div>`).join('')}</div>`;
+    btn.innerHTML='<span style="font-size:16px">✨</span> AI分析を実行する';btn.disabled=false;
+  },800);
+}
+
+function generateAI(list){
+  const items=[];
+  const injMap={},lineMap={},pairMap={},dirMap={up:{w:0,m:0,t:0},down:{w:0,m:0,t:0}},timeMap={},anoMap={},optMap={};
+  list.forEach(t=>{
+    t.injs.forEach(i=>{
+      if(i.result==='none')return;
+      if(!injMap[i.name])injMap[i.name]={w:0,m:0,t:0};
+      injMap[i.name].t++;if(i.result==='win')injMap[i.name].w++;if(i.result==='martin')injMap[i.name].m++;
+      if(i.line&&i.line!=='—'){const lk=`${i.name}[${i.line}]`;if(!lineMap[lk])lineMap[lk]={w:0,m:0,t:0};lineMap[lk].t++;if(i.result==='win')lineMap[lk].w++;if(i.result==='martin')lineMap[lk].m++;}
+      if(!pairMap[i.pair])pairMap[i.pair]={w:0,m:0,t:0};
+      pairMap[i.pair].t++;if(i.result==='win')pairMap[i.pair].w++;if(i.result==='martin')pairMap[i.pair].m++;
+      const dk=i.dir==='up'?'up':'down';dirMap[dk].t++;if(i.result==='win')dirMap[dk].w++;if(i.result==='martin')dirMap[dk].m++;
+      if(i.time){const sl=timeSlot(i.time);if(!timeMap[sl])timeMap[sl]={w:0,m:0,t:0};timeMap[sl].t++;if(i.result==='win')timeMap[sl].w++;if(i.result==='martin')timeMap[sl].m++;}
+    });
+    t.anos.forEach(a=>{if(a.result==='none'||a.result==='skip')return;const k=`${a.time} ${a.pair}`;if(!anoMap[k])anoMap[k]={w:0,t:0};anoMap[k].t++;if(a.result==='win')anoMap[k].w++;});
+    t.opts.forEach(o=>{(o.rounds||[o.result]).filter(r=>r&&r!=='none').forEach(r=>{if(!optMap[o.name])optMap[o.name]={w:0,t:0};optMap[o.name].t++;if(r==='win')optMap[o.name].w++;});});
+  });
+
+  const wr=(m,k)=>m[k]?Math.round((m[k].w+(m[k].m||0))/m[k].t*100):0;
+  const best=(map,min=3)=>{const e=Object.entries(map).filter(([,v])=>v.t>=min);if(!e.length)return null;return e.sort((a,b)=>wr(map,b[0])-wr(map,a[0]))[0];}
+  const worst=(map,min=3)=>{const e=Object.entries(map).filter(([,v])=>v.t>=min);if(!e.length)return null;return e.sort((a,b)=>wr(map,a[0])-wr(map,b[0]))[0];}
+
+  const totalW=list.reduce((s,t)=>s+t.injs.filter(i=>i.result==='win'||i.result==='martin').length,0);
+  const totalT=list.reduce((s,t)=>s+t.injs.filter(i=>i.result!=='none').length,0);
+  const overallWR=totalT?Math.round(totalW/totalT*100):0;
+  items.push({icon:'📊',text:`<span class="${overallWR>=60?'ai-good':overallWR>=50?'ai-note':'ai-warn'}">${overallWR}%</span> — 全体の1マーチン込み勝率です。${overallWR>=60?'安定した成績です！':overallWR>=50?'もう少しで安定ゾーンです。':'戦略の見直しが必要かもしれません。'}`});
+
+  const bl=best(lineMap);
+  if(bl)items.push({icon:'🏆',text:`最強ライン: <span class="ai-good">${bl[0]}</span> — 勝率 <b>${wr(lineMap,bl[0])}%</b>（${lineMap[bl[0]].t}件）。このラインを優先エントリーにするのがオススメです。`});
+
+  const wl=worst(lineMap);
+  if(wl&&wr(lineMap,wl[0])<50)items.push({icon:'⚠️',text:`注意ライン: <span class="ai-warn">${wl[0]}</span> — 勝率 <b>${wr(lineMap,wl[0])}%</b>（${lineMap[wl[0]].t}件）。このラインでのエントリーは慎重に。`});
+
+  const bt=best(timeMap);
+  if(bt)items.push({icon:'⏰',text:`ゴールデンタイム: <span class="ai-good">${bt[0]}</span> — 勝率 <b>${wr(timeMap,bt[0])}%</b>（${timeMap[bt[0]].t}件）。この時間帯を狙い目にしましょう。`});
+
+  const wt=worst(timeMap);
+  if(wt&&wr(timeMap,wt[0])<50)items.push({icon:'⏸️',text:`避けたい時間: <span class="ai-warn">${wt[0]}</span> — 勝率 <b>${wr(timeMap,wt[0])}%</b>（${timeMap[wt[0]].t}件）。この時間帯はスルーも選択肢です。`});
+
+  const upWR=dirMap.up.t?Math.round((dirMap.up.w+dirMap.up.m)/dirMap.up.t*100):0;
+  const downWR=dirMap.down.t?Math.round((dirMap.down.w+dirMap.down.m)/dirMap.down.t*100):0;
+  if(dirMap.up.t>2&&dirMap.down.t>2){
+    if(Math.abs(upWR-downWR)>=10)items.push({icon:'↕️',text:`方向バイアス: <span class="${upWR>downWR?'ai-good':'ai-note'}">${upWR>downWR?'↑UP':'↓DOWN'}</span>のほうが勝率が高い傾向（↑${upWR}% vs ↓${downWR}%）。${upWR>downWR?'上昇方向を優先しましょう。':'下降方向を優先しましょう。'}`});
+    else items.push({icon:'↕️',text:`方向バイアス: ↑UP ${upWR}% / ↓DOWN ${downWR}% — 方向による差は少なく、どちらも同程度の勝率です。`});
+  }
+
+  const bp=best(pairMap);
+  if(bp)items.push({icon:'💱',text:`得意通貨: <span class="ai-good">${bp[0]}</span> — 勝率 <b>${wr(pairMap,bp[0])}%</b>（${pairMap[bp[0]].t}件）。`});
+
+  const ba=best(anoMap,2);
+  if(ba)items.push({icon:'🎯',text:`信頼度高アノマリー: <span class="ai-good">${ba[0]}</span> — 勝率 <b>${Math.round(anoMap[ba[0]].w/anoMap[ba[0]].t*100)}%</b>（${anoMap[ba[0]].t}件）。`});
+
+  const bo=best(optMap,2);
+  if(bo)items.push({icon:'⚡',text:`オプション注目: <span class="ai-good">${bo[0].slice(0,16)}</span> — 勝率 <b>${Math.round(optMap[bo[0]].w/optMap[bo[0]].t*100)}%</b>（${optMap[bo[0]].t}件）。`});
+
+  const lowData=Object.values(lineMap).filter(v=>v.t<3).length;
+  if(lowData>0)items.push({icon:'📝',text:`<span class="ai-note">データ蓄積中</span> — ${lowData}個のラインはまだ件数が少ないため分析精度が低いです。データを積み上げると精度が上がります！`});
+
+  return items;
 }
 
 function saveData(){try{localStorage.setItem('trade_journal_v1',JSON.stringify(trades));}catch(e){}}
