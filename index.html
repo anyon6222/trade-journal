@@ -537,7 +537,7 @@ function calcWR(list){
 function renderTodayList(){
   const td=today(),tt=trades.filter(tr=>tr.date===td),s=calcWR(tt);
   document.getElementById('today-title').textContent=`今日の記録（${tt.length}件）`;
-  document.getElementById('today-wr').innerHTML=tt.length?`<span class="win-c">単発 ${s.s}%</span> <span style="color:#ccc;margin:0 3px">/</span> <span class="martin-c">1M込 ${s.mt}%</span>`:'';
+  document.getElementById('today-wr').innerHTML=tt.length?`<span class="win-c">単発 ${s.s}%(${s.w}勝${s.l}敗)</span> <span style="color:#ccc;margin:0 3px">/</span> <span class="martin-c">1M込 ${s.mt}%</span>`:'';
   const el=document.getElementById('today-items');
   if(!tt.length){el.innerHTML=`<div class="today-empty">まだ今日の記録はありません</div>`;return;}
   el.innerHTML=tt.map((tr,idx)=>{
@@ -591,14 +591,14 @@ function renderHistory(){
   const list=filteredTrades(),s=calcWR(list);
   const fc=document.getElementById('fil-cat')?.value||'';
   document.getElementById('hist-wr').innerHTML=`
-    <div class="wr-card"><div class="wr-val win-c">${s.s}%</div><div class="wr-lbl">単発勝率</div><div class="wr-sub">○ ${s.w} / 全 ${s.t}</div></div>
-    <div class="wr-card"><div class="wr-val martin-c">${s.mt}%</div><div class="wr-lbl">1マーチン込み</div><div class="wr-sub">○+✕○ ${s.w+s.m} / 全 ${s.t}</div></div>`;
+    <div class="wr-card"><div class="wr-val win-c">${s.s}%</div><div class="wr-lbl">単発勝率</div><div class="wr-sub">${s.w}勝${s.l}敗 ${s.t}件</div></div>
+    <div class="wr-card"><div class="wr-val martin-c">${s.mt}%</div><div class="wr-lbl">1マーチン込み勝率</div><div class="wr-sub">${s.w+s.m}勝${s.l}敗 ${s.t}件</div></div>`;
   document.getElementById('hist-metrics').innerHTML=`
     <div class="metric"><div class="val">${list.length}</div><div class="lbl">記録日数</div></div>
     <div class="metric"><div class="val win-c">${s.w}</div><div class="lbl">○ 単発勝ち</div></div>
     <div class="metric"><div class="val martin-c">${s.m} <span style="font-size:12px;color:#bbb">/ <span class="lose-c">${s.l}</span></span></div><div class="lbl">✕○ / ✕✕</div></div>`;
   const cats=[{k:'inj',label:'インジ'},{k:'ano',label:'アノマリー'},{k:'opt',label:'オプション'},{k:'entry',label:'エントリー'}];
-  const catHtml=cats.map(({k,label})=>{const cs=calcCatWR(list,k);return cs.t>0?`<div class="metric"><div class="val ${cs.wr>=60?'win-c':cs.wr>=50?'martin-c':'lose-c'}">${cs.wr}%</div><div class="lbl">${label}（${cs.t}件）</div></div>`:''}).join('');
+  const catHtml=cats.map(({k,label})=>{const cs=calcCatWR(list,k);return cs.t>0?`<div class="metric"><div class="val ${cs.wr>=60?'win-c':cs.wr>=50?'martin-c':'lose-c'}">${cs.wr}%</div><div class="lbl" style="font-size:10px">${label} ${cs.w}勝${cs.l}敗 ${cs.t}件</div></div>`:''}).join('');
   if(catHtml){const wrap=document.createElement('div');wrap.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:11px';wrap.innerHTML=catHtml;const m=document.getElementById('hist-metrics');m.parentNode.insertBefore(wrap,m.nextSibling);}
   const body=document.getElementById('hist-body');
   if(!list.length){body.innerHTML=`<tr><td colspan="6" class="empty">記録がありません</td></tr>`;return;}
@@ -621,16 +621,16 @@ function delTrade(id){if(!confirm('削除しますか？'))return;trades=trades.
 
 function acc(map,k,r){if(!map[k])map[k]={w:0,m:0,l:0,t:0};map[k].t++;if(r==='win')map[k].w++;else if(r==='martin')map[k].m++;else if(r==='lose')map[k].l++;}
 function mapToRows(map){return Object.entries(map).filter(([,v])=>v.t>0).map(([k,v])=>({k,t:v.t,w:v.w,m:v.m,l:v.l,s:Math.round(v.w/v.t*100),mt:Math.round((v.w+v.m)/v.t*100)}));}
+function wrLabel(pct,w,l,t){return`<span style="font-weight:600">${pct}%</span><span style="color:#aaa;font-size:10px;margin-left:3px">(${w}勝${l}敗) ${t}件</span>`;}
 function mkAnaTable(title,rows,cls=''){
   if(!rows.length)return`<div class="ana-section"><div class="ana-section-title">${title}</div><div style="background:#fff;border-radius:0 0 10px 10px;padding:12px;font-size:12px;color:#ccc;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)">データなし</div></div>`;
   return`<div class="ana-section"><div class="ana-section-title">${title}</div>
     <table class="ana-table">
-      <thead><tr><th>項目</th><th>単発勝率</th><th>1M込み勝率</th><th>件数</th><th>グラフ</th></tr></thead>
+      <thead><tr><th>項目</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead>
       <tbody>${rows.sort((a,b)=>b.t-a.t).map(r=>`<tr>
         <td style="font-weight:500">${r.k}</td>
-        <td class="win-c">${r.s}%</td>
-        <td class="martin-c">${r.mt}%</td>
-        <td style="color:#aaa">${r.t}</td>
+        <td class="win-c">${wrLabel(r.s,r.w,r.l,r.t)}</td>
+        <td class="martin-c">${wrLabel(r.mt,r.w+r.m,r.l,r.t)}</td>
         <td><div class="bar-wrap"><div class="bar-fill ${cls}" style="width:${r.s}%"></div></div></td>
       </tr>`).join('')}</tbody>
     </table></div>`;
@@ -638,8 +638,8 @@ function mkAnaTable(title,rows,cls=''){
 function renderAnalysis(){
   const list=filterByPeriod(trades,anaPeriod),s=calcWR(list);
   document.getElementById('ana-wr').innerHTML=`
-    <div class="wr-card"><div class="wr-val win-c">${s.s}%</div><div class="wr-lbl">単発勝率</div><div class="wr-sub">全 ${s.t} 件</div></div>
-    <div class="wr-card"><div class="wr-val martin-c">${s.mt}%</div><div class="wr-lbl">1マーチン込み</div><div class="wr-sub">○+✕○ ${s.w+s.m}件</div></div>`;
+    <div class="wr-card"><div class="wr-val win-c">${s.s}%</div><div class="wr-lbl">単発勝率</div><div class="wr-sub">${s.w}勝${s.l}敗 ${s.t}件</div></div>
+    <div class="wr-card"><div class="wr-val martin-c">${s.mt}%</div><div class="wr-lbl">1マーチン込み勝率</div><div class="wr-sub">${s.w+s.m}勝${s.l}敗 ${s.t}件</div></div>`;
   document.getElementById('ana-metrics').innerHTML=`
     <div class="metric"><div class="val">${list.length}</div><div class="lbl">記録日数</div></div>
     <div class="metric"><div class="val win-c">${s.w}</div><div class="lbl">○ 単発勝ち</div></div>
@@ -658,9 +658,19 @@ function renderAnalysis(){
     t.opts.forEach(o=>{if(o.result==='none')return;acc(optMapA,o.name,o.result);});
     (t.entries||[]).forEach(e=>{if(e.result==='none')return;acc(entMap,`${e.pair} ${e.dir==='up'?'↑':'↓'}`,e.result);});
   });
+  // インジ別＋各インジのライン別をまとめて表示
+  let injSectionHTML='';
+  INJS.forEach(inj=>{
+    const injRow=injMap[inj.name];
+    const injWR=injRow?Math.round((injRow.w+injRow.m)/injRow.t*100):0;
+    const injHdr=injRow?`<div style="background:#1a1a2e;color:#fff;border-radius:10px 10px 0 0;padding:8px 12px;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:space-between"><span>${inj.name}</span><span style="font-size:12px;opacity:0.8"><b>${injWR}%</b> (${injRow.w}勝${injRow.l}敗) ${injRow.t}件</span></div>`:`<div style="background:#888;color:#fff;border-radius:10px 10px 0 0;padding:8px 12px;font-size:13px;font-weight:500">${inj.name} — データなし</div>`;
+    const lineRows=mapToRows(lineMap).filter(r=>r.k.startsWith(inj.name+'['));
+    const lineTable=lineRows.length?`<table class="ana-table"><thead><tr><th>ライン</th><th>単発勝率</th><th>1M込み</th><th>グラフ</th></tr></thead><tbody>${lineRows.sort((a,b)=>b.t-a.t).map(r=>`<tr><td style="font-weight:500">${r.k.replace(inj.name,'').replace('[','').replace(']','')}</td><td class="win-c">${wrLabel(r.s,r.w,r.l,r.t)}</td><td class="martin-c">${wrLabel(r.mt,r.w+r.m,r.l,r.t)}</td><td><div class="bar-wrap"><div class="bar-fill" style="width:${r.s}%"></div></div></td></tr>`).join('')}</tbody></table>`:`<div style="background:#fff;padding:10px 12px;font-size:12px;color:#ccc;border-radius:0 0 10px 10px">ラインデータなし</div>`;
+    injSectionHTML+=`<div class="ana-section" style="margin-bottom:14px">${injHdr}${lineTable}</div>`;
+  });
+
   document.getElementById('ana-content').innerHTML=
-    mkAnaTable('インジ別勝率',mapToRows(injMap))+
-    mkAnaTable('ライン別勝率',mapToRows(lineMap))+
+    injSectionHTML+
     mkAnaTable('通貨ペア別勝率',mapToRows(pairMap),'blue')+
     mkAnaTable('UP / DOWN 別勝率',mapToRows(dirMap),'amber')+
     mkAnaTable('時間帯別勝率（15分単位）',mapToRows(timeMap),'blue')+
