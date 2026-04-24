@@ -7,150 +7,147 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh}
-.header{background:#1a1a2e;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:10px}
-.header h1{font-size:17px;font-weight:500}
-.header .ver{font-size:11px;opacity:0.4;margin-left:auto}
-.tabs{display:flex;background:#fff;border-bottom:1px solid #e0e0e0;padding:0 16px;overflow-x:auto}
-.tab{padding:11px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.header{background:#1a1a2e;color:#fff;padding:13px 18px;display:flex;align-items:center}
+.header h1{font-size:16px;font-weight:500}
+.header .ver{font-size:10px;opacity:0.4;margin-left:auto}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #e0e0e0;padding:0 14px;overflow-x:auto}
+.tab{padding:10px 14px;font-size:13px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
 .tab.active{color:#1a1a2e;border-bottom:2px solid #1a1a2e;font-weight:500}
-.panel{display:none;padding:14px;max-width:720px;margin:0 auto}
+.panel{display:none;padding:12px;max-width:720px;margin:0 auto}
 .panel.active{display:block}
-.card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.card{background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
 .sec-hdr{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
 .sec-hdr h3{font-size:14px;font-weight:500;color:#1a1a2e}
 .arrow{font-size:11px;color:#aaa;transition:transform 0.2s;display:inline-block}
 .arrow.open{transform:rotate(180deg)}
-.sec-body{margin-top:12px;border-top:1px solid #f0f0f0;padding-top:12px}
-.fg{display:flex;flex-direction:column;gap:4px}
+.sec-body{margin-top:11px;border-top:1px solid #f0f0f0;padding-top:11px}
+.fg{display:flex;flex-direction:column;gap:3px}
 .fg label{font-size:11px;color:#888}
-select,input[type=text],input[type=time],input[type=date],textarea{
-  width:100%;padding:7px 10px;font-size:13px;border:1px solid #e0e0e0;
-  border-radius:8px;background:#fff;color:#1a1a1a;outline:none;font-family:inherit}
+select,input[type=text],input[type=time],input[type=date],textarea{width:100%;padding:7px 9px;font-size:13px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;color:#1a1a1a;outline:none;font-family:inherit}
 select:focus,input:focus,textarea:focus{border-color:#7c6af7}
-textarea{min-height:40px;resize:vertical}
-.date-big{font-size:20px;font-weight:500;color:#1a1a2e;padding:4px 0 2px}
-.date-wrap{display:flex;gap:8px;align-items:center;margin-top:8px}
+textarea{min-height:36px;resize:vertical}
+.date-big{font-size:19px;font-weight:500;color:#1a1a2e;padding:3px 0}
+.date-wrap{display:flex;gap:8px;align-items:center;margin-top:7px}
 .date-wrap input{flex:1}
 .date-toggle{font-size:11px;color:#7c6af7;cursor:pointer;white-space:nowrap;background:none;border:none;text-decoration:underline;padding:0}
-.inj-block{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f0f0f0}
+.inj-block{margin-bottom:13px;padding-bottom:13px;border-bottom:1px solid #f0f0f0}
 .inj-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
-.inj-label{font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.tag{font-size:10px;padding:2px 8px;border-radius:10px;background:#f0efff;color:#7c6af7}
-.entry-card{border:1px solid #e8e8e8;border-radius:10px;margin-bottom:8px;overflow:hidden;position:relative;transition:background 0.2s,border-color 0.2s}
+.inj-label{font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.tag{font-size:10px;padding:2px 7px;border-radius:10px;background:#f0efff;color:#7c6af7}
+.entry-card{border:1px solid #e8e8e8;border-radius:10px;margin-bottom:7px;overflow:hidden;position:relative;transition:background 0.2s,border-color 0.2s}
 .entry-card.done-win{background:#f0fdf6;border-color:#1aaa6a}
 .entry-card.done-martin{background:#f0f4ff;border-color:#5a8aee}
 .entry-card.done-lose{background:#fff5f3;border-color:#ee6a50}
 .entry-card.done-win .entry-fields{background:#e8f8f0}
 .entry-card.done-martin .entry-fields{background:#e8f0ff}
 .entry-card.done-lose .entry-fields{background:#fff0ee}
-.entry-fields{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:8px;background:#fafafa}
-.del-btn{position:absolute;top:5px;right:5px;font-size:10px;padding:2px 6px;cursor:pointer;border:1px solid #ddd;border-radius:4px;background:#fff;color:#aaa}
-.rbtn-row{display:flex;gap:5px;flex-wrap:wrap;padding:7px 8px}
-.rbtn{padding:4px 11px;font-size:12px;border:1px solid #e0e0e0;border-radius:8px;cursor:pointer;background:#fff;color:#888}
+.entry-fields{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;padding:8px;background:#fafafa}
+.del-btn{position:absolute;top:4px;right:4px;font-size:10px;padding:2px 5px;cursor:pointer;border:1px solid #ddd;border-radius:4px;background:#fff;color:#aaa}
+.rbtn-row{display:flex;gap:5px;flex-wrap:wrap;padding:6px 8px}
+.rbtn{padding:4px 10px;font-size:12px;border:1px solid #e0e0e0;border-radius:8px;cursor:pointer;background:#fff;color:#888}
 .rbtn:active{transform:scale(0.97)}
 .rbtn.sel-win{background:#e8f8f2;border-color:#1aaa6a;color:#0a6640;font-weight:500}
 .rbtn.sel-martin{background:#e8f0ff;border-color:#5a8aee;color:#1a4aaa;font-weight:500}
 .rbtn.sel-lose{background:#fff0ee;border-color:#ee6a50;color:#aa2a10;font-weight:500}
 .rbtn.sel-skip{background:#f5f5f5;border-color:#ccc;color:#888;font-weight:500}
-.memo-area{padding:0 8px 8px}
-.add-btn{display:flex;align-items:center;justify-content:center;gap:4px;padding:7px;font-size:12px;cursor:pointer;border:1px dashed #ccc;border-radius:8px;background:none;color:#aaa;margin-top:8px;width:100%}
+.memo-area{padding:0 8px 7px}
+.add-btn{display:flex;align-items:center;justify-content:center;gap:4px;padding:6px;font-size:12px;cursor:pointer;border:1px dashed #ccc;border-radius:8px;background:none;color:#aaa;margin-top:7px;width:100%}
 .add-btn:hover{background:#f9f9f9}
-.ano-row{display:grid;grid-template-columns:2fr 1fr;align-items:start;gap:8px;padding:7px 0;border-bottom:1px solid #f5f5f5}
+.ano-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid #f5f5f5;border-radius:0;transition:background 0.2s}
 .ano-row:last-child{border-bottom:none}
-.ano-info{font-size:12px;color:#333;margin-bottom:4px}
-.ano-btns{display:flex;gap:4px;justify-content:flex-end}
-.opt-row{padding:7px 0;border-bottom:1px solid #f5f5f5}
-.opt-row:last-child{border-bottom:none}
-.opt-top{display:grid;grid-template-columns:3fr 1fr;align-items:center;gap:8px}
-.opt-info{font-size:12px;color:#333}
-.entry-item{border:1px solid #e8e8e8;border-radius:10px;margin-bottom:8px;overflow:hidden;position:relative}
-.entry-item-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:8px;background:#fafafa}
-.entry-item-fields2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 8px 8px;background:#fafafa}
-.entry-result-row{display:flex;gap:5px;flex-wrap:wrap;padding:7px 8px}
-.entry-memo-row{padding:0 8px 8px}
-.del-entry{position:absolute;top:5px;right:5px;font-size:10px;padding:2px 6px;cursor:pointer;border:1px solid #ddd;border-radius:4px;background:#fff;color:#aaa}
-.btn-row{display:flex;gap:10px;margin-top:14px}
-.btn{padding:9px 22px;font-size:14px;border-radius:10px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#333;font-family:inherit}
+.ano-row.done-win{background:#f0fdf6;border-radius:8px;border-bottom:none;margin-bottom:2px}
+.ano-row.done-lose{background:#fff5f3;border-radius:8px;border-bottom:none;margin-bottom:2px}
+.ano-row.done-skip{background:#f8f8f8;border-radius:8px;border-bottom:none;margin-bottom:2px}
+.ano-info{font-size:12px;color:#333;white-space:nowrap}
+.ano-memo-wrap{width:100%}
+.ano-memo-wrap input{padding:5px 8px;font-size:12px}
+.ano-btns{display:flex;gap:3px;flex-shrink:0}
+.opt-block{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f0f0f0}
+.opt-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.opt-name{font-size:12px;font-weight:500;color:#333;margin-bottom:5px}
+.opt-entry-card{border:1px solid #e8e8e8;border-radius:9px;margin-bottom:6px;overflow:hidden;position:relative;transition:background 0.2s,border-color 0.2s}
+.opt-entry-card.done-win{background:#f0fdf6;border-color:#1aaa6a}
+.opt-entry-card.done-lose{background:#fff5f3;border-color:#ee6a50}
+.opt-entry-row{display:grid;grid-template-columns:1fr auto auto auto;gap:7px;padding:7px 8px;background:#fafafa;align-items:end}
+.opt-entry-card.done-win .opt-entry-row{background:#e8f8f0}
+.opt-entry-card.done-lose .opt-entry-row{background:#fff0ee}
+.entry-item{border:1px solid #e8e8e8;border-radius:10px;margin-bottom:7px;overflow:hidden;position:relative;transition:background 0.2s,border-color 0.2s}
+.entry-item-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:8px;background:#fafafa}
+.entry-item-fields2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:0 8px 7px;background:#fafafa}
+.entry-result-row{display:flex;gap:5px;flex-wrap:wrap;padding:6px 8px}
+.entry-memo-row{padding:0 8px 7px}
+.del-entry{position:absolute;top:4px;right:4px;font-size:10px;padding:2px 5px;cursor:pointer;border:1px solid #ddd;border-radius:4px;background:#fff;color:#aaa}
+.btn-row{display:flex;gap:10px;margin-top:13px}
+.btn{padding:9px 20px;font-size:14px;border-radius:10px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#333;font-family:inherit}
 .btn.primary{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
 .btn.primary:hover{background:#2a2a4e}
 .btn:active{transform:scale(0.98)}
-.msg{font-size:13px;margin-top:10px;color:#1aaa6a;min-height:18px}
+.msg{font-size:13px;margin-top:9px;color:#1aaa6a;min-height:17px}
 .win-c{color:#1aaa6a}.martin-c{color:#5a8aee}.lose-c{color:#ee6a50}
-.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.today-list{margin-top:13px}
+.today-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.today-title{font-size:12px;color:#888;font-weight:500}
+.today-wr{font-size:12px;font-weight:500}
+.today-item{background:#f8f8ff;border:1px solid #e8e8f8;border-radius:10px;padding:9px 11px;margin-bottom:7px;display:flex;align-items:flex-start;gap:9px}
+.today-num{font-size:15px;font-weight:600;color:#7c6af7;min-width:22px}
+.today-body{flex:1;font-size:11px;color:#444;line-height:1.9}
+.today-del{font-size:11px;padding:3px 7px;cursor:pointer;border:1px solid #ddd;border-radius:6px;background:#fff;color:#aaa;white-space:nowrap}
+.today-del:hover{border-color:#ee6a50;color:#ee6a50}
+.today-empty{font-size:12px;color:#ccc;text-align:center;padding:14px 0}
+.period-tabs{display:flex;gap:5px;margin-bottom:11px;flex-wrap:wrap}
+.ptab{padding:5px 11px;font-size:12px;border:1px solid #e0e0e0;border-radius:20px;cursor:pointer;background:#fff;color:#888}
+.ptab.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.wr-block{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px}
+.wr-card{background:#fff;border-radius:12px;padding:13px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.wr-val{font-size:27px;font-weight:600}
+.wr-lbl{font-size:11px;color:#888;margin-top:3px}
+.wr-sub{font-size:11px;color:#bbb;margin-top:4px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:11px}
+.metric{background:#fff;border-radius:10px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.metric .val{font-size:19px;font-weight:500}
+.metric .lbl{font-size:11px;color:#888;margin-top:2px}
+.filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:11px}
+.filter-row select{width:auto;font-size:12px;padding:5px 8px}
+.hist-wrap{overflow-x:auto}
+.hist-table{width:100%;border-collapse:collapse;font-size:11px;min-width:560px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.hist-table th{font-size:10px;color:#aaa;font-weight:400;padding:8px 8px;border-bottom:1px solid #f0f0f0;text-align:left;background:#fafafa}
+.hist-table td{padding:6px 8px;border-bottom:1px solid #f5f5f5;vertical-align:top}
+.hist-table tr:last-child td{border-bottom:none}
+.hist-table tr:hover td{background:#fafffe}
+.badge{display:inline-block;padding:1px 6px;border-radius:20px;font-size:10px;font-weight:500;white-space:nowrap}
 .b-win{background:#e8f8f2;color:#0a6640}
 .b-martin{background:#e8f0ff;color:#1a4aaa}
 .b-lose{background:#fff0ee;color:#aa2a10}
 .b-skip{background:#f5f5f5;color:#888}
-
-/* 当日履歴 */
-.today-list{margin-top:14px}
-.today-title{font-size:12px;color:#888;margin-bottom:8px;font-weight:500}
-.today-item{background:#f8f8ff;border:1px solid #e8e8f8;border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
-.today-num{font-size:16px;font-weight:600;color:#7c6af7;min-width:24px}
-.today-body{flex:1;font-size:12px;color:#444;line-height:1.7}
-.today-del{font-size:11px;padding:3px 8px;cursor:pointer;border:1px solid #ddd;border-radius:6px;background:#fff;color:#aaa;white-space:nowrap}
-.today-del:hover{border-color:#ee6a50;color:#ee6a50}
-.today-empty{font-size:12px;color:#ccc;text-align:center;padding:16px 0}
-
-/* 履歴タブ */
-.wr-block{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.wr-card{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
-.wr-val{font-size:30px;font-weight:600}
-.wr-lbl{font-size:11px;color:#888;margin-top:3px}
-.wr-sub{font-size:11px;color:#bbb;margin-top:4px}
-.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.metric{background:#fff;border-radius:10px;padding:11px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
-.metric .val{font-size:20px;font-weight:500}
-.metric .lbl{font-size:11px;color:#888;margin-top:2px}
-
-/* 分析 */
-.analysis-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.analysis-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
-.analysis-card h4{font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #f0f0f0}
-.ana-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
-.ana-row:last-child{margin-bottom:0}
-.ana-label{font-size:12px;color:#444;min-width:70px;flex-shrink:0}
-.ana-bar-wrap{flex:1;background:#f0f0f0;border-radius:4px;height:8px;overflow:hidden}
-.ana-bar{height:8px;border-radius:4px;background:#1aaa6a;transition:width 0.3s}
-.ana-bar.blue{background:#5a8aee}
-.ana-bar.amber{background:#f0a020}
-.ana-pct{font-size:11px;color:#888;min-width:32px;text-align:right}
-.ana-cnt{font-size:10px;color:#bbb;min-width:28px;text-align:right}
-
-/* フィルター */
-.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.filter-row select{width:auto;font-size:12px;padding:5px 8px}
-
-/* 履歴テーブル */
-.hist-wrap{overflow-x:auto}
-.hist-table{width:100%;border-collapse:collapse;font-size:12px;min-width:520px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
-.hist-table th{font-size:11px;color:#aaa;font-weight:400;padding:9px 10px;border-bottom:1px solid #f0f0f0;text-align:left;background:#fafafa}
-.hist-table td{padding:7px 10px;border-bottom:1px solid #f5f5f5;vertical-align:top}
-.hist-table tr:last-child td{border-bottom:none}
-.hist-table tr:hover td{background:#fafffe}
-.del-hist{font-size:10px;padding:3px 7px;cursor:pointer;border:1px solid #eee;border-radius:4px;background:#fff;color:#ccc}
+.del-hist{font-size:10px;padding:2px 6px;cursor:pointer;border:1px solid #eee;border-radius:4px;background:#fff;color:#ccc}
 .del-hist:hover{border-color:#ee6a50;color:#ee6a50}
-.empty{text-align:center;padding:2.5rem;color:#ccc;font-size:13px}
-.section-tip{font-size:11px;color:#bbb;margin-bottom:8px}
-.tab-sub{font-size:12px;color:#888;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #f0f0f0}
+.empty{text-align:center;padding:2rem;color:#ccc;font-size:13px}
+.section-tip{font-size:11px;color:#bbb;margin-bottom:7px}
+.ana-section{margin-bottom:11px}
+.ana-section-title{font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:7px;padding:8px 12px;background:#fff;border-radius:10px 10px 0 0;border-bottom:1px solid #f0f0f0;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.ana-table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-radius:0 0 10px 10px;overflow:hidden}
+.ana-table th{font-size:10px;color:#aaa;font-weight:400;padding:6px 9px;border-bottom:1px solid #f0f0f0;text-align:left;background:#fafafa}
+.ana-table td{padding:6px 9px;border-bottom:1px solid #f8f8f8;vertical-align:middle}
+.ana-table tr:last-child td{border-bottom:none}
+.ana-table tr:hover td{background:#fafffe}
+.bar-wrap{width:80px;background:#f0f0f0;border-radius:4px;height:6px;display:inline-block;vertical-align:middle}
+.bar-fill{height:6px;border-radius:4px;display:inline-block;background:#1aaa6a}
+.bar-fill.blue{background:#5a8aee}
+.bar-fill.amber{background:#f0a020}
 </style>
 </head>
 <body>
-
 <div class="header">
   <h1>トレード記録帳</h1>
   <span class="ver">v2026.04.24</span>
 </div>
-
 <div class="tabs">
   <button class="tab active" onclick="showTab('input')">入力</button>
   <button class="tab" onclick="showTab('history')">履歴</button>
   <button class="tab" onclick="showTab('analysis')">分析</button>
 </div>
 
-<!-- 入力タブ -->
 <div id="tab-input" class="panel active">
-
   <div class="card">
     <div class="date-big" id="date-display">日付を選択</div>
     <div class="date-wrap">
@@ -159,133 +156,76 @@ textarea{min-height:40px;resize:vertical}
       <button class="date-toggle" id="date-mode-btn" onclick="toggleDateMode()">手入力</button>
     </div>
   </div>
-
   <div class="card">
-    <div class="sec-hdr" onclick="toggle('inj')">
-      <h3>インジ結果</h3><span class="arrow" id="arr-inj">▼</span>
-    </div>
+    <div class="sec-hdr" onclick="toggle('inj')"><h3>インジ結果</h3><span class="arrow" id="arr-inj">▼</span></div>
     <div class="sec-body" id="body-inj" style="display:none">
       <div class="section-tip">各インジごとに複数件記録できます</div>
       <div id="inj-blocks"></div>
     </div>
   </div>
-
   <div class="card">
-    <div class="sec-hdr" onclick="toggle('ano')">
-      <h3>アノマリー結果</h3><span class="arrow" id="arr-ano">▼</span>
-    </div>
-    <div class="sec-body" id="body-ano" style="display:none">
-      <div id="ano-rows"></div>
-    </div>
+    <div class="sec-hdr" onclick="toggle('ano')"><h3>アノマリー結果</h3><span class="arrow" id="arr-ano">▼</span></div>
+    <div class="sec-body" id="body-ano" style="display:none"><div id="ano-rows"></div></div>
   </div>
-
   <div class="card">
-    <div class="sec-hdr" onclick="toggle('opt')">
-      <h3>オプション結果</h3><span class="arrow" id="arr-opt">▼</span>
-    </div>
-    <div class="sec-body" id="body-opt" style="display:none">
-      <div id="opt-rows"></div>
-    </div>
+    <div class="sec-hdr" onclick="toggle('opt')"><h3>オプション結果</h3><span class="arrow" id="arr-opt">▼</span></div>
+    <div class="sec-body" id="body-opt" style="display:none"><div id="opt-blocks"></div></div>
   </div>
-
   <div class="card">
-    <div class="sec-hdr" onclick="toggle('entry')">
-      <h3>エントリー結果</h3><span class="arrow" id="arr-entry">▼</span>
-    </div>
+    <div class="sec-hdr" onclick="toggle('entry')"><h3>エントリー結果</h3><span class="arrow" id="arr-entry">▼</span></div>
     <div class="sec-body" id="body-entry" style="display:none">
-      <div class="section-tip">実際にエントリーした記録</div>
       <div id="entry-list"></div>
       <button class="add-btn" onclick="addEntry()">＋ エントリーを追加</button>
     </div>
   </div>
-
   <div class="btn-row">
     <button class="btn primary" onclick="saveTrade()">記録する</button>
     <button class="btn" onclick="resetForm()">クリア</button>
   </div>
   <div class="msg" id="msg"></div>
-
-  <!-- 当日履歴 -->
   <div class="today-list">
-    <div class="today-title" id="today-title">今日の記録</div>
+    <div class="today-hdr">
+      <div class="today-title" id="today-title">今日の記録（0件）</div>
+      <div class="today-wr" id="today-wr"></div>
+    </div>
     <div id="today-items"></div>
   </div>
 </div>
 
-<!-- 履歴タブ -->
 <div id="tab-history" class="panel">
-  <div class="wr-block" id="wr-block"></div>
-  <div class="metrics" id="metrics"></div>
+  <div class="period-tabs" id="hist-ptabs">
+    <button class="ptab active" onclick="setPeriod('all','hist')">累計</button>
+    <button class="ptab" onclick="setPeriod('today','hist')">本日</button>
+    <button class="ptab" onclick="setPeriod('week','hist')">1週間</button>
+    <button class="ptab" onclick="setPeriod('month','hist')">月間</button>
+    <button class="ptab" onclick="setPeriod('year','hist')">年間</button>
+  </div>
+  <div class="wr-block" id="hist-wr"></div>
+  <div class="metrics" id="hist-metrics"></div>
   <div class="filter-row">
-    <select id="fil-inj" onchange="renderHistory()">
-      <option value="">全インジ</option>
-      <option>GORILLA</option><option>IRAZU</option><option>HUNO</option>
-    </select>
-    <select id="fil-pair" onchange="renderHistory()">
-      <option value="">全通貨</option>
-      <option>USD/JPY</option><option>EUR/USD</option><option>GBP/USD</option>
-      <option>AUD/USD</option><option>EUR/JPY</option><option>GBP/JPY</option>
-      <option>AUD/JPY</option><option>NZD/JPY</option>
-    </select>
-    <select id="fil-dir" onchange="renderHistory()">
-      <option value="">↑↓両方</option>
-      <option value="up">↑ UP</option>
-      <option value="down">↓ DOWN</option>
-    </select>
+    <select id="fil-inj" onchange="renderHistory()"><option value="">全インジ</option><option>GORILLA</option><option>IRAZU</option><option>HUNO</option></select>
+    <select id="fil-pair" onchange="renderHistory()"><option value="">全通貨</option><option>USD/JPY</option><option>EUR/USD</option><option>GBP/USD</option><option>AUD/USD</option><option>EUR/JPY</option><option>GBP/JPY</option><option>AUD/JPY</option><option>NZD/JPY</option></select>
+    <select id="fil-dir" onchange="renderHistory()"><option value="">↑↓両方</option><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select>
   </div>
   <div class="hist-wrap">
     <table class="hist-table">
-      <thead><tr>
-        <th>日付</th><th>インジ</th><th>アノマリー</th><th>オプション</th><th>エントリー</th><th></th>
-      </tr></thead>
+      <thead><tr><th>日付</th><th>インジ（時間/方向/ライン/結果）</th><th>アノマリー</th><th>オプション</th><th>エントリー</th><th></th></tr></thead>
       <tbody id="hist-body"></tbody>
     </table>
   </div>
 </div>
 
-<!-- 分析タブ -->
 <div id="tab-analysis" class="panel">
-  <div class="wr-block" id="ana-wr-block"></div>
-
-  <div class="analysis-grid">
-    <div class="analysis-card">
-      <h4>ライン別勝率（インジ）</h4>
-      <div id="ana-line"></div>
-    </div>
-    <div class="analysis-card">
-      <h4>通貨ペア別勝率</h4>
-      <div id="ana-pair"></div>
-    </div>
+  <div class="period-tabs" id="ana-ptabs">
+    <button class="ptab active" onclick="setPeriod('all','ana')">累計</button>
+    <button class="ptab" onclick="setPeriod('today','ana')">本日</button>
+    <button class="ptab" onclick="setPeriod('week','ana')">1週間</button>
+    <button class="ptab" onclick="setPeriod('month','ana')">月間</button>
+    <button class="ptab" onclick="setPeriod('year','ana')">年間</button>
   </div>
-
-  <div class="analysis-grid">
-    <div class="analysis-card">
-      <h4>UP / DOWN 別勝率</h4>
-      <div id="ana-dir"></div>
-    </div>
-    <div class="analysis-card">
-      <h4>時間帯別勝率</h4>
-      <div id="ana-time"></div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-bottom:12px">
-    <div class="sec-hdr" onclick="toggle('ana-ano')">
-      <h3>アノマリー別勝率</h3><span class="arrow" id="arr-ana-ano">▼</span>
-    </div>
-    <div class="sec-body" id="body-ana-ano" style="display:none">
-      <div id="ana-ano"></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="sec-hdr" onclick="toggle('ana-opt')">
-      <h3>オプション別勝率</h3><span class="arrow" id="arr-ana-opt">▼</span>
-    </div>
-    <div class="sec-body" id="body-ana-opt" style="display:none">
-      <div id="ana-opt"></div>
-    </div>
-  </div>
+  <div class="wr-block" id="ana-wr"></div>
+  <div class="metrics" id="ana-metrics"></div>
+  <div id="ana-content"></div>
 </div>
 
 <script>
@@ -319,21 +259,11 @@ const WEEKDAYS=['日','月','火','水','木','金','土'];
 const ANO_LABELS=[];
 ANOMALIES.forEach(a=>a.pairs.forEach(p=>ANO_LABELS.push(`${a.time} ${a.dir} ${p}`)));
 
-let trades=[];
-let anoState={};
-let optState={};
-let injEntries={0:[],1:[],2:[]};
-let entryList=[];
-let currentDateIso='';
-let dateMode='picker';
+let trades=[],anoState={},optBlocks=[],injEntries={0:[],1:[],2:[]},entryList=[];
+let currentDateIso='',dateMode='picker',histPeriod='all',anaPeriod='all';
 
 function today(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function formatDisplay(iso){
-  if(!iso)return'日付を選択';
-  const[y,m,d]=iso.split('-');
-  const dt=new Date(iso+'T00:00:00');
-  return`${y}年${m}月${d}日（${WEEKDAYS[dt.getDay()]}）`;
-}
+function formatDisplay(iso){if(!iso)return'日付を選択';const[y,m,d]=iso.split('-');const dt=new Date(iso+'T00:00:00');return`${y}年${m}月${d}日（${WEEKDAYS[dt.getDay()]}）`;}
 function isoToSlash(iso){if(!iso)return'';const[y,m,d]=iso.split('-');return`${y}/${m}/${d}`;}
 function slashToIso(s){const m=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);if(!m)return'';return`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;}
 function updateDateDisplay(iso){currentDateIso=iso;document.getElementById('date-display').textContent=formatDisplay(iso);}
@@ -341,18 +271,12 @@ function onDatePick(val){updateDateDisplay(val);}
 function onDateText(val){const iso=slashToIso(val);if(iso)updateDateDisplay(iso);else document.getElementById('date-display').textContent=val||'日付を入力';}
 function toggleDateMode(){
   dateMode=dateMode==='picker'?'text':'picker';
-  const picker=document.getElementById('f-date-picker'),text=document.getElementById('f-date-text'),btn=document.getElementById('date-mode-btn');
-  if(dateMode==='text'){picker.style.display='none';text.style.display='';btn.textContent='カレンダー';text.value=isoToSlash(currentDateIso);}
-  else{text.style.display='none';picker.style.display='';btn.textContent='手入力';picker.value=currentDateIso;}
+  const pk=document.getElementById('f-date-picker'),tx=document.getElementById('f-date-text'),bt=document.getElementById('date-mode-btn');
+  if(dateMode==='text'){pk.style.display='none';tx.style.display='';bt.textContent='カレンダー';tx.value=isoToSlash(currentDateIso);}
+  else{tx.style.display='none';pk.style.display='';bt.textContent='手入力';pk.value=currentDateIso;}
 }
 function getDateValue(){return dateMode==='picker'?document.getElementById('f-date-picker').value:slashToIso(document.getElementById('f-date-text').value)||document.getElementById('f-date-text').value;}
-
-function toggle(id){
-  const b=document.getElementById('body-'+id),a=document.getElementById('arr-'+id);
-  const open=b.style.display!=='none';
-  b.style.display=open?'none':'block';
-  a.classList.toggle('open',!open);
-}
+function toggle(id){const b=document.getElementById('body-'+id),a=document.getElementById('arr-'+id);const open=b.style.display!=='none';b.style.display=open?'none':'block';a.classList.toggle('open',!open);}
 function showTab(t){
   document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['input','history','analysis'][i]===t));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -360,7 +284,25 @@ function showTab(t){
   if(t==='history')renderHistory();
   if(t==='analysis')renderAnalysis();
 }
+function setPeriod(p,tab){
+  const labels={all:'累計',today:'本日',week:'1週間',month:'月間',year:'年間'};
+  if(tab==='hist'){histPeriod=p;document.querySelectorAll('#hist-ptabs .ptab').forEach(b=>b.classList.toggle('active',b.textContent===labels[p]));renderHistory();}
+  else{anaPeriod=p;document.querySelectorAll('#ana-ptabs .ptab').forEach(b=>b.classList.toggle('active',b.textContent===labels[p]));renderAnalysis();}
+}
+function filterByPeriod(list,p){
+  const now=new Date(),td=today();
+  return list.filter(t=>{
+    if(p==='all')return true;
+    if(p==='today')return t.date===td;
+    const d=new Date(t.date+'T00:00:00');
+    if(p==='week'){const w=new Date(now);w.setDate(w.getDate()-7);return d>=w;}
+    if(p==='month')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+    if(p==='year')return d.getFullYear()===now.getFullYear();
+    return true;
+  });
+}
 
+function doneCls(r){return r==='win'?'done-win':r==='martin'?'done-martin':r==='lose'?'done-lose':'';}
 function buildInjBlocks(){
   injEntries={0:[],1:[],2:[]};
   INJS.forEach((_,i)=>injEntries[i].push({id:Date.now()+i,result:'none'}));
@@ -379,26 +321,13 @@ function setInjResult(i,eid,val,btn){
   const card=btn.closest('.entry-card');
   card.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
   btn.classList.add(val==='win'?'sel-win':val==='martin'?'sel-martin':'sel-lose');
-  card.classList.remove('done-win','done-martin','done-lose');
-  card.classList.add(val==='win'?'done-win':val==='martin'?'done-martin':'done-lose');
-}
-function doneCls(result){
-  if(result==='win')return'done-win';
-  if(result==='martin')return'done-martin';
-  if(result==='lose')return'done-lose';
-  return'';
-}
-function selCls(result){
-  if(result==='win')return'sel-win';
-  if(result==='martin')return'sel-martin';
-  if(result==='lose')return'sel-lose';
-  return'';
+  card.className=`entry-card ${doneCls(val)}`;
 }
 function renderInjBlock(i){
   const inj=INJS[i];
   const saved=injEntries[i].map(e=>({id:e.id,pair:document.getElementById(`ep-${e.id}`)?.value,time:document.getElementById(`et-${e.id}`)?.value,dir:document.getElementById(`ed-${e.id}`)?.value,line:document.getElementById(`el-${e.id}`)?.value,memo:document.getElementById(`em-${e.id}`)?.value}));
   document.getElementById(`inj-entries-${i}`).innerHTML=injEntries[i].map(e=>`
-    <div class="entry-card ${doneCls(e.result)}" id="ec-${e.id}">
+    <div class="entry-card ${doneCls(e.result)}">
       <div class="entry-fields">
         <div class="fg"><label>通貨ペア</label><select id="ep-${e.id}">${PAIRS.map(p=>`<option>${p}</option>`).join('')}</select></div>
         <div class="fg"><label>時間</label><input type="time" id="et-${e.id}"></div>
@@ -429,11 +358,9 @@ function buildAnoRows(){
   ANOMALIES.forEach((a,i)=>{
     a.pairs.forEach((p,pi)=>{
       const key=`${i}_${pi}`;anoState[key]='none';
-      rows.push(`<div class="ano-row">
-        <div>
-          <div class="ano-info"><span style="font-weight:600">${a.time}</span><span style="color:#7c6af7;margin:0 4px">${a.dir}</span>${p}</div>
-          <div style="margin-top:4px"><textarea id="ano-memo-${key}" placeholder="メモ" style="min-height:30px"></textarea></div>
-        </div>
+      rows.push(`<div class="ano-row" id="ano-row-${key}">
+        <div class="ano-info"><span style="font-weight:600">${a.time}</span> <span style="color:#7c6af7">${a.dir}</span> ${p}</div>
+        <div class="ano-memo-wrap"><input type="text" id="ano-memo-${key}" placeholder="メモ"></div>
         <div class="ano-btns">
           <button class="rbtn" onclick="setAno('${key}','win',this)">○</button>
           <button class="rbtn" onclick="setAno('${key}','lose',this)">✕</button>
@@ -444,39 +371,60 @@ function buildAnoRows(){
   });
   document.getElementById('ano-rows').innerHTML=rows.join('');
 }
-
-function buildOptRows(){
-  optState={};
-  document.getElementById('opt-rows').innerHTML=OPTIONS.map((o,i)=>{
-    optState[i]='none';
-    return`<div class="opt-row">
-      <div class="opt-top">
-        <div class="opt-info">${o}</div>
-        <div style="display:flex;gap:4px;justify-content:flex-end">
-          <button class="rbtn" onclick="setOpt(${i},'win',this)">○</button>
-          <button class="rbtn" onclick="setOpt(${i},'lose',this)">✕</button>
-        </div>
-      </div>
-      <div style="margin-top:4px"><textarea id="opt-memo-${i}" placeholder="メモ" style="min-height:30px"></textarea></div>
-    </div>`;
-  }).join('');
-}
-
 function setAno(key,v,btn){
   anoState[key]=v;
-  const row=btn.closest('.ano-row');
+  const row=document.getElementById(`ano-row-${key}`);
   row.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
   btn.classList.add(v==='win'?'sel-win':v==='lose'?'sel-lose':'sel-skip');
-  row.style.background=v==='win'?'#f0fdf6':v==='lose'?'#fff5f3':'';
-  row.style.borderRadius=v!=='none'?'8px':'';
+  row.className=`ano-row${v==='win'?' done-win':v==='lose'?' done-lose':v==='skip'?' done-skip':''}`;
 }
-function setOpt(i,v,btn){
-  optState[i]=v;
-  const row=btn.closest('.opt-row');
-  row.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
-  btn.classList.add(v==='win'?'sel-win':'sel-lose');
-  row.style.background=v==='win'?'#f0fdf6':'#fff5f3';
-  row.style.borderRadius='8px';
+
+function buildOptBlocks(){
+  optBlocks=OPTIONS.map((name,i)=>({name,entries:[{id:Date.now()+i+1000,result:'none'}]}));
+  renderOptBlocks();
+}
+function addOptEntry(oi){
+  const saved=collectOptSaved();
+  optBlocks[oi].entries.push({id:Date.now(),result:'none'});
+  renderOptBlocks();
+  restoreOptSaved(saved);
+}
+function removeOptEntry(oi,eid){
+  const saved=collectOptSaved();
+  optBlocks[oi].entries=optBlocks[oi].entries.filter(e=>e.id!==eid);
+  renderOptBlocks();
+  restoreOptSaved(saved);
+}
+function collectOptSaved(){return optBlocks.flatMap(ob=>ob.entries.map(e=>({id:e.id,time:document.getElementById(`ot-${e.id}`)?.value,dir:document.getElementById(`od-${e.id}`)?.value,memo:document.getElementById(`om-${e.id}`)?.value})));}
+function restoreOptSaved(saved){saved.forEach(s=>{const t=document.getElementById(`ot-${s.id}`);if(t&&s.time)t.value=s.time;const d=document.getElementById(`od-${s.id}`);if(d&&s.dir)d.value=s.dir;const m=document.getElementById(`om-${s.id}`);if(m&&s.memo)m.value=s.memo;});}
+function setOptResult(oi,eid,val,btn){
+  optBlocks[oi].entries.find(e=>e.id===eid).result=val;
+  const card=btn.closest('.opt-entry-card');
+  card.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
+  btn.classList.add(val==='win'?'sel-win':'sel-lose');
+  card.className=`opt-entry-card ${val==='win'?'done-win':'done-lose'}`;
+}
+function renderOptBlocks(){
+  document.getElementById('opt-blocks').innerHTML=optBlocks.map((ob,oi)=>`
+    <div class="opt-block">
+      <div class="opt-name">${ob.name}</div>
+      ${ob.entries.map(e=>`
+        <div class="opt-entry-card ${e.result==='win'?'done-win':e.result==='lose'?'done-lose':''}">
+          <div class="opt-entry-row">
+            <div class="fg"><label>メモ</label><input type="text" id="om-${e.id}" placeholder="メモ"></div>
+            <div class="fg"><label>時間</label><input type="time" id="ot-${e.id}" style="width:110px"></div>
+            <div class="fg"><label>方向</label><select id="od-${e.id}" style="width:90px"><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select></div>
+            <div class="fg" style="padding-top:16px">
+              <div style="display:flex;gap:3px;align-items:center">
+                <button class="rbtn ${e.result==='win'?'sel-win':''}" onclick="setOptResult(${oi},${e.id},'win',this)">○</button>
+                <button class="rbtn ${e.result==='lose'?'sel-lose':''}" onclick="setOptResult(${oi},${e.id},'lose',this)">✕</button>
+                ${ob.entries.length>1?`<button style="font-size:10px;padding:4px 6px;cursor:pointer;border:1px solid #ddd;border-radius:4px;background:#fff;color:#aaa" onclick="removeOptEntry(${oi},${e.id})">✕</button>`:''}
+              </div>
+            </div>
+          </div>
+        </div>`).join('')}
+      <button class="add-btn" style="margin-top:4px" onclick="addOptEntry(${oi})">＋ 追加</button>
+    </div>`).join('');
 }
 
 function addEntry(){entryList.push({id:Date.now(),result:'none'});renderEntryList();}
@@ -511,80 +459,39 @@ function renderEntryList(){
         <button class="rbtn" onclick="setEntryResult(${e.id},'martin',this)">✕○ 1マーチン勝ち</button>
         <button class="rbtn" onclick="setEntryResult(${e.id},'lose',this)">✕✕ 負け</button>
       </div>
-      <div class="entry-memo-row"><textarea id="enm-${e.id}" placeholder="メモ・気づき" style="min-height:36px"></textarea></div>
+      <div class="entry-memo-row"><textarea id="enm-${e.id}" placeholder="メモ・気づき" style="min-height:34px"></textarea></div>
     </div>`).join('');
 }
 
 function collectInjs(){
   const r=[];
-  INJS.forEach((inj,i)=>injEntries[i].forEach(e=>r.push({
-    name:inj.name,pair:document.getElementById(`ep-${e.id}`)?.value||'',
-    time:document.getElementById(`et-${e.id}`)?.value||'',
-    dir:document.getElementById(`ed-${e.id}`)?.value||'up',
-    line:document.getElementById(`el-${e.id}`)?.value||'—',
-    result:e.result,memo:document.getElementById(`em-${e.id}`)?.value||''
-  })));
+  INJS.forEach((inj,i)=>injEntries[i].forEach(e=>r.push({name:inj.name,pair:document.getElementById(`ep-${e.id}`)?.value||'',time:document.getElementById(`et-${e.id}`)?.value||'',dir:document.getElementById(`ed-${e.id}`)?.value||'up',line:document.getElementById(`el-${e.id}`)?.value||'—',result:e.result,memo:document.getElementById(`em-${e.id}`)?.value||''})));
+  return r;
+}
+function collectOpts(){
+  const r=[];
+  optBlocks.forEach(ob=>ob.entries.forEach(e=>r.push({name:ob.name,time:document.getElementById(`ot-${e.id}`)?.value||'',dir:document.getElementById(`od-${e.id}`)?.value||'up',result:e.result,memo:document.getElementById(`om-${e.id}`)?.value||''})));
   return r;
 }
 function collectEntries(){
-  return entryList.map(e=>({
-    pair:document.getElementById(`enp-${e.id}`)?.value||'',
-    time:document.getElementById(`ent-${e.id}`)?.value||'',
-    dir:document.getElementById(`end-${e.id}`)?.value||'up',
-    inj:document.getElementById(`eni-${e.id}`)?.value||'',
-    opt:document.getElementById(`eno-${e.id}`)?.value||'',
-    ano:document.getElementById(`ena-${e.id}`)?.value||'',
-    result:e.result,memo:document.getElementById(`enm-${e.id}`)?.value||''
-  }));
+  return entryList.map(e=>({pair:document.getElementById(`enp-${e.id}`)?.value||'',time:document.getElementById(`ent-${e.id}`)?.value||'',dir:document.getElementById(`end-${e.id}`)?.value||'up',inj:document.getElementById(`eni-${e.id}`)?.value||'',opt:document.getElementById(`eno-${e.id}`)?.value||'',ano:document.getElementById(`ena-${e.id}`)?.value||'',result:e.result,memo:document.getElementById(`enm-${e.id}`)?.value||''}));
 }
 
 function saveTrade(){
   const anos=[];
-  Object.entries(anoState).forEach(([k,v])=>{
-    const[ai,pi]=k.split('_').map(Number);
-    const a=ANOMALIES[ai];
-    anos.push({time:a.time,dir:a.dir,pair:a.pairs[pi],result:v,memo:document.getElementById(`ano-memo-${k}`)?.value||''});
-  });
-  const opts=OPTIONS.map((o,i)=>({name:o,result:optState[i]||'none',memo:document.getElementById(`opt-memo-${i}`)?.value||''}));
+  Object.entries(anoState).forEach(([k,v])=>{const[ai,pi]=k.split('_').map(Number);const a=ANOMALIES[ai];anos.push({time:a.time,dir:a.dir,pair:a.pairs[pi],result:v,memo:document.getElementById(`ano-memo-${k}`)?.value||''});});
   const dateVal=getDateValue();
-  trades.unshift({
-    id:Date.now(),date:dateVal,dateDisplay:formatDisplay(dateVal),
-    injs:collectInjs(),anos,opts,entries:collectEntries()
-  });
+  trades.unshift({id:Date.now(),date:dateVal,dateDisplay:formatDisplay(dateVal),injs:collectInjs(),anos,opts:collectOpts(),entries:collectEntries()});
   saveData();
-  const msg=document.getElementById('msg');
-  msg.textContent='記録しました！';
-  setTimeout(()=>msg.textContent='',2000);
+  const msg=document.getElementById('msg');msg.textContent='記録しました！';setTimeout(()=>msg.textContent='',2000);
   renderTodayList();
 }
-
 function resetForm(){
   const t=today();
-  document.getElementById('f-date-picker').value=t;
-  document.getElementById('f-date-text').value='';
-  updateDateDisplay(t);
-  entryList=[];
-  buildInjBlocks();buildAnoRows();buildOptRows();
-  document.getElementById('entry-list').innerHTML='';
+  document.getElementById('f-date-picker').value=t;document.getElementById('f-date-text').value='';updateDateDisplay(t);
+  entryList=[];buildInjBlocks();buildAnoRows();buildOptBlocks();document.getElementById('entry-list').innerHTML='';
 }
 
-/* 当日履歴 */
-function getTodayTrades(){
-  const t=today();
-  return trades.filter(tr=>tr.date===t);
-}
-function tradeToSummary(tr,idx){
-  const lines=[];
-  const injActive=tr.injs.filter(i=>i.result!=='none');
-  if(injActive.length)lines.push(injActive.map(i=>`${i.name}${i.line!=='—'?`[${i.line}]`:''} ${i.pair} ${i.dir==='up'?'↑':'↓'} ${rLabel(i.result)}`).join(' / '));
-  const anoW=tr.anos.filter(a=>a.result==='win').length,anoL=tr.anos.filter(a=>a.result==='lose').length;
-  if(anoW+anoL)lines.push(`アノマリー ${anoW}○${anoL}✕`);
-  const optW=tr.opts.filter(o=>o.result==='win').length,optL=tr.opts.filter(o=>o.result==='lose').length;
-  if(optW+optL)lines.push(`オプション ${optW}○${optL}✕`);
-  const entActive=(tr.entries||[]).filter(e=>e.result!=='none');
-  if(entActive.length)lines.push(`エントリー: `+entActive.map(e=>`${e.pair} ${e.dir==='up'?'↑':'↓'} ${rLabel(e.result)}`).join(' / '));
-  return lines.join('<br>')||'（詳細なし）';
-}
 function rLabel(v){
   if(v==='win')return'<span class="badge b-win">○</span>';
   if(v==='martin')return'<span class="badge b-martin">✕○</span>';
@@ -592,163 +499,134 @@ function rLabel(v){
   if(v==='skip')return'<span class="badge b-skip">－</span>';
   return'';
 }
+function calcWR(list){
+  let t=0,w=0,m=0,l=0;
+  list.forEach(tr=>{
+    [...tr.injs,...(tr.entries||[])].forEach(e=>{if(!e.result||e.result==='none')return;t++;if(e.result==='win')w++;else if(e.result==='martin')m++;else if(e.result==='lose')l++;});
+    tr.opts.forEach(o=>{if(!o.result||o.result==='none')return;t++;if(o.result==='win')w++;else if(o.result==='lose')l++;});
+  });
+  return{t,w,m,l,s:t?Math.round(w/t*100):0,mt:t?Math.round((w+m)/t*100):0};
+}
 function renderTodayList(){
-  const todayTrades=getTodayTrades();
+  const td=today(),tt=trades.filter(tr=>tr.date===td),s=calcWR(tt);
+  document.getElementById('today-title').textContent=`今日の記録（${tt.length}件）`;
+  document.getElementById('today-wr').innerHTML=tt.length?`<span class="win-c">単発 ${s.s}%</span> <span style="color:#ccc;margin:0 3px">/</span> <span class="martin-c">1M込 ${s.mt}%</span>`:'';
   const el=document.getElementById('today-items');
-  const title=document.getElementById('today-title');
-  title.textContent=`今日の記録（${todayTrades.length}件）`;
-  if(!todayTrades.length){el.innerHTML=`<div class="today-empty">まだ今日の記録はありません</div>`;return;}
-  el.innerHTML=todayTrades.map((tr,idx)=>`
-    <div class="today-item">
-      <div class="today-num">${idx+1}</div>
-      <div class="today-body">${tradeToSummary(tr,idx)}</div>
-      <button class="today-del" onclick="delToday(${tr.id})">削除</button>
-    </div>`).join('');
+  if(!tt.length){el.innerHTML=`<div class="today-empty">まだ今日の記録はありません</div>`;return;}
+  el.innerHTML=tt.map((tr,idx)=>{
+    const lines=[];
+    const injA=tr.injs.filter(i=>i.result!=='none');
+    if(injA.length)lines.push(injA.map(i=>`<b>${i.name}</b>${i.line&&i.line!=='—'?`[${i.line}]`:''} ${i.time?`<span style="color:#aaa">${i.time}</span>`:''} ${i.dir==='up'?'↑':'↓'} ${rLabel(i.result)}`).join('　'));
+    const anoA=tr.anos.filter(a=>a.result!=='none'&&a.result!=='skip');
+    if(anoA.length)lines.push('アノマリー: '+anoA.map(a=>`${a.time} ${rLabel(a.result)}`).join(' '));
+    const optA=tr.opts.filter(o=>o.result!=='none');
+    if(optA.length)lines.push('オプション: '+optA.map(o=>`${o.name.slice(0,10)} ${rLabel(o.result)}`).join(' '));
+    const entA=(tr.entries||[]).filter(e=>e.result!=='none');
+    if(entA.length)lines.push('エントリー: '+entA.map(e=>`${e.pair} ${e.dir==='up'?'↑':'↓'} ${rLabel(e.result)}`).join(' '));
+    return`<div class="today-item"><div class="today-num">${idx+1}</div><div class="today-body">${lines.join('<br>')||'（詳細なし）'}</div><button class="today-del" onclick="delToday(${tr.id})">削除</button></div>`;
+  }).join('');
 }
-function delToday(id){
-  if(!confirm('この記録を削除しますか？'))return;
-  trades=trades.filter(t=>t.id!==id);
-  saveData();renderTodayList();
-}
+function delToday(id){if(!confirm('削除しますか？'))return;trades=trades.filter(t=>t.id!==id);saveData();renderTodayList();}
 
-/* 履歴タブ */
+function timeSlot(t){if(!t)return'時間不明';const[h,m]=t.split(':').map(Number);const s=Math.floor(m/15)*15;return`${String(h).padStart(2,'0')}:${String(s).padStart(2,'0')}〜`;}
+
 function filteredTrades(){
   const fi=document.getElementById('fil-inj')?.value||'';
   const fp=document.getElementById('fil-pair')?.value||'';
   const fd=document.getElementById('fil-dir')?.value||'';
-  return trades.filter(t=>{
+  return filterByPeriod(trades,histPeriod).filter(t=>{
     if(fi&&!t.injs.some(i=>i.name===fi&&i.result!=='none'))return false;
     if(fp&&!t.injs.some(i=>i.pair===fp&&i.result!=='none'))return false;
     if(fd&&!t.injs.some(i=>i.dir===fd&&i.result!=='none'))return false;
     return true;
   });
 }
-function calcStats(list){
-  let total=0,win=0,martin=0,lose=0;
-  (list||trades).forEach(t=>[...t.injs,...(t.entries||[])].forEach(e=>{
-    if(!e.result||e.result==='none')return;
-    total++;
-    if(e.result==='win')win++;
-    else if(e.result==='martin')martin++;
-    else lose++;
-  }));
-  return{total,win,martin,lose,wrSingle:total?Math.round(win/total*100):0,wrMartin:total?Math.round((win+martin)/total*100):0};
-}
 function renderHistory(){
-  const list=filteredTrades();
-  const s=calcStats(list);
-  document.getElementById('wr-block').innerHTML=`
-    <div class="wr-card"><div class="wr-val win-c">${s.wrSingle}%</div><div class="wr-lbl">単発勝率</div><div class="wr-sub">○ ${s.win} / 全 ${s.total}</div></div>
-    <div class="wr-card"><div class="wr-val martin-c">${s.wrMartin}%</div><div class="wr-lbl">1マーチン込み勝率</div><div class="wr-sub">○+✕○ ${s.win+s.martin} / 全 ${s.total}</div></div>`;
-  document.getElementById('metrics').innerHTML=`
+  const list=filteredTrades(),s=calcWR(list);
+  document.getElementById('hist-wr').innerHTML=`
+    <div class="wr-card"><div class="wr-val win-c">${s.s}%</div><div class="wr-lbl">単発勝率</div><div class="wr-sub">○ ${s.w} / 全 ${s.t}</div></div>
+    <div class="wr-card"><div class="wr-val martin-c">${s.mt}%</div><div class="wr-lbl">1マーチン込み</div><div class="wr-sub">○+✕○ ${s.w+s.m} / 全 ${s.t}</div></div>`;
+  document.getElementById('hist-metrics').innerHTML=`
     <div class="metric"><div class="val">${list.length}</div><div class="lbl">記録日数</div></div>
-    <div class="metric"><div class="val win-c">${s.win}</div><div class="lbl">○ 単発勝ち</div></div>
-    <div class="metric"><div class="val martin-c">${s.martin} <span style="font-size:13px;color:#bbb">/ <span class="lose-c">${s.lose}</span></span></div><div class="lbl">✕○ / ✕✕</div></div>`;
+    <div class="metric"><div class="val win-c">${s.w}</div><div class="lbl">○ 単発勝ち</div></div>
+    <div class="metric"><div class="val martin-c">${s.m} <span style="font-size:12px;color:#bbb">/ <span class="lose-c">${s.l}</span></span></div><div class="lbl">✕○ / ✕✕</div></div>`;
   const body=document.getElementById('hist-body');
   if(!list.length){body.innerHTML=`<tr><td colspan="6" class="empty">記録がありません</td></tr>`;return;}
   body.innerHTML=list.map(t=>{
-    const injH=t.injs.filter(i=>i.result!=='none').map(i=>`<div>${i.name}${i.line&&i.line!=='—'?`[${i.line}]`:''} ${rLabel(i.result)} <span style="font-size:10px;color:#aaa">${i.pair} ${i.dir==='up'?'↑':'↓'}</span></div>`).join('')||'—';
+    const injH=t.injs.filter(i=>i.result!=='none').map(i=>`<div>${i.name}${i.line&&i.line!=='—'?`[${i.line}]`:''} ${i.time?`<span style="color:#aaa">${i.time}</span>`:''} ${i.dir==='up'?'↑':'↓'} ${rLabel(i.result)}</div>`).join('')||'—';
     const anoW=t.anos.filter(a=>a.result==='win').length,anoL=t.anos.filter(a=>a.result==='lose').length;
     const optW=t.opts.filter(o=>o.result==='win').length,optL=t.opts.filter(o=>o.result==='lose').length;
     const entH=(t.entries||[]).filter(e=>e.result!=='none').map(e=>`<div>${e.pair} ${e.dir==='up'?'↑':'↓'} ${rLabel(e.result)}</div>`).join('')||'—';
     return`<tr>
-      <td style="font-size:11px;white-space:nowrap;font-weight:500">${t.dateDisplay||t.date}</td>
+      <td style="white-space:nowrap;font-weight:500;font-size:11px">${t.dateDisplay||t.date}</td>
       <td>${injH}</td>
-      <td style="font-size:11px">${anoW+anoL?`<span class="win-c">${anoW}○</span> <span class="lose-c">${anoL}✕</span>`:'—'}</td>
-      <td style="font-size:11px">${optW+optL?`<span class="win-c">${optW}○</span> <span class="lose-c">${optL}✕</span>`:'—'}</td>
+      <td>${anoW+anoL?`<span class="win-c">${anoW}○</span> <span class="lose-c">${anoL}✕</span>`:'—'}</td>
+      <td>${optW+optL?`<span class="win-c">${optW}○</span> <span class="lose-c">${optL}✕</span>`:'—'}</td>
       <td>${entH}</td>
       <td><button class="del-hist" onclick="delTrade(${t.id})">削除</button></td>
     </tr>`;
   }).join('');
 }
-function delTrade(id){
-  if(!confirm('この記録を削除しますか？'))return;
-  trades=trades.filter(t=>t.id!==id);
-  saveData();renderHistory();renderTodayList();
-}
+function delTrade(id){if(!confirm('削除しますか？'))return;trades=trades.filter(t=>t.id!==id);saveData();renderHistory();renderTodayList();}
 
-/* 分析タブ */
-function mkBar(pct,cls=''){return`<div class="ana-bar-wrap"><div class="ana-bar ${cls}" style="width:${pct}%"></div></div>`;}
-function anaRows(map,cls=''){
-  const entries=Object.entries(map).filter(([,v])=>v.t>0).sort((a,b)=>b[1].t-a[1].t);
-  if(!entries.length)return'<div style="font-size:12px;color:#ccc;padding:8px 0">データなし</div>';
-  return entries.map(([k,v])=>{
-    const wr=Math.round((v.w+v.m)/v.t*100);
-    return`<div class="ana-row">
-      <div class="ana-label" title="${k}">${k.length>9?k.slice(0,9)+'…':k}</div>
-      ${mkBar(wr,cls)}
-      <div class="ana-pct">${wr}%</div>
-      <div class="ana-cnt">${v.t}件</div>
-    </div>`;
-  }).join('');
+function acc(map,k,r){if(!map[k])map[k]={w:0,m:0,l:0,t:0};map[k].t++;if(r==='win')map[k].w++;else if(r==='martin')map[k].m++;else if(r==='lose')map[k].l++;}
+function mapToRows(map){return Object.entries(map).filter(([,v])=>v.t>0).map(([k,v])=>({k,t:v.t,w:v.w,m:v.m,l:v.l,s:Math.round(v.w/v.t*100),mt:Math.round((v.w+v.m)/v.t*100)}));}
+function mkAnaTable(title,rows,cls=''){
+  if(!rows.length)return`<div class="ana-section"><div class="ana-section-title">${title}</div><div style="background:#fff;border-radius:0 0 10px 10px;padding:12px;font-size:12px;color:#ccc;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)">データなし</div></div>`;
+  return`<div class="ana-section"><div class="ana-section-title">${title}</div>
+    <table class="ana-table">
+      <thead><tr><th>項目</th><th>単発勝率</th><th>1M込み勝率</th><th>件数</th><th>グラフ</th></tr></thead>
+      <tbody>${rows.sort((a,b)=>b.t-a.t).map(r=>`<tr>
+        <td style="font-weight:500">${r.k}</td>
+        <td class="win-c">${r.s}%</td>
+        <td class="martin-c">${r.mt}%</td>
+        <td style="color:#aaa">${r.t}</td>
+        <td><div class="bar-wrap"><div class="bar-fill ${cls}" style="width:${r.s}%"></div></div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
 }
 function renderAnalysis(){
-  const s=calcStats(trades);
-  document.getElementById('ana-wr-block').innerHTML=`
-    <div class="wr-card"><div class="wr-val win-c">${s.wrSingle}%</div><div class="wr-lbl">単発勝率</div><div class="wr-sub">全 ${s.total} エントリー</div></div>
-    <div class="wr-card"><div class="wr-val martin-c">${s.wrMartin}%</div><div class="wr-lbl">1マーチン込み勝率</div><div class="wr-sub">○+✕○ ${s.win+s.martin}件</div></div>`;
-
-  const lineMap={},pairMap={},dirMap={up:{w:0,m:0,t:0},down:{w:0,m:0,t:0}},timeMap={};
-  trades.forEach(t=>t.injs.forEach(inj=>{
-    if(inj.result==='none')return;
-    const w=inj.result==='win',m=inj.result==='martin';
-    const lineKey=`${inj.name}${inj.line!=='—'?`[${inj.line}]`:''}`;
-    if(!lineMap[lineKey])lineMap[lineKey]={w:0,m:0,t:0};
-    lineMap[lineKey].t++;if(w)lineMap[lineKey].w++;if(m)lineMap[lineKey].m++;
-    if(!pairMap[inj.pair])pairMap[inj.pair]={w:0,m:0,t:0};
-    pairMap[inj.pair].t++;if(w)pairMap[inj.pair].w++;if(m)pairMap[inj.pair].m++;
-    const dk=inj.dir==='up'?'up':'down';
-    dirMap[dk].t++;if(w)dirMap[dk].w++;if(m)dirMap[dk].m++;
-    if(inj.time){
-      const h=parseInt(inj.time.split(':')[0]);
-      const tk=`${h}時台`;
-      if(!timeMap[tk])timeMap[tk]={w:0,m:0,t:0};
-      timeMap[tk].t++;if(w)timeMap[tk].w++;if(m)timeMap[tk].m++;
-    }
-  }));
-
-  document.getElementById('ana-line').innerHTML=anaRows(lineMap);
-  document.getElementById('ana-pair').innerHTML=anaRows(pairMap,'blue');
-
-  const dirHtml=['up','down'].map(d=>{
-    const v=dirMap[d],wr=v.t?Math.round((v.w+v.m)/v.t*100):0;
-    return`<div class="ana-row">
-      <div class="ana-label">${d==='up'?'↑ UP':'↓ DOWN'}</div>
-      ${mkBar(wr,'amber')}
-      <div class="ana-pct">${wr}%</div>
-      <div class="ana-cnt">${v.t}件</div>
-    </div>`;
-  }).join('');
-  document.getElementById('ana-dir').innerHTML=dirHtml||'<div style="font-size:12px;color:#ccc;padding:8px 0">データなし</div>';
-  document.getElementById('ana-time').innerHTML=anaRows(timeMap,'blue');
-
-  const anoMap={};
-  trades.forEach(t=>t.anos.forEach(a=>{
-    if(a.result==='none'||a.result==='skip')return;
-    const k=`${a.time} ${a.pair}`;
-    if(!anoMap[k])anoMap[k]={w:0,m:0,t:0};
-    anoMap[k].t++;if(a.result==='win')anoMap[k].w++;
-  }));
-  document.getElementById('ana-ano').innerHTML=anaRows(anoMap);
-
-  const optMapA={};
-  trades.forEach(t=>t.opts.forEach(o=>{
-    if(o.result==='none')return;
-    if(!optMapA[o.name])optMapA[o.name]={w:0,m:0,t:0};
-    optMapA[o.name].t++;if(o.result==='win')optMapA[o.name].w++;
-  }));
-  document.getElementById('ana-opt').innerHTML=anaRows(optMapA,'blue');
+  const list=filterByPeriod(trades,anaPeriod),s=calcWR(list);
+  document.getElementById('ana-wr').innerHTML=`
+    <div class="wr-card"><div class="wr-val win-c">${s.s}%</div><div class="wr-lbl">単発勝率</div><div class="wr-sub">全 ${s.t} 件</div></div>
+    <div class="wr-card"><div class="wr-val martin-c">${s.mt}%</div><div class="wr-lbl">1マーチン込み</div><div class="wr-sub">○+✕○ ${s.w+s.m}件</div></div>`;
+  document.getElementById('ana-metrics').innerHTML=`
+    <div class="metric"><div class="val">${list.length}</div><div class="lbl">記録日数</div></div>
+    <div class="metric"><div class="val win-c">${s.w}</div><div class="lbl">○ 単発勝ち</div></div>
+    <div class="metric"><div class="val martin-c">${s.m} <span style="font-size:12px;color:#bbb">/ <span class="lose-c">${s.l}</span></span></div><div class="lbl">✕○ / ✕✕</div></div>`;
+  const injMap={},lineMap={},pairMap={},dirMap={},timeMap={},anoMap={},optMapA={},entMap={};
+  list.forEach(t=>{
+    t.injs.forEach(i=>{
+      if(i.result==='none')return;
+      acc(injMap,i.name,i.result);
+      if(i.line&&i.line!=='—')acc(lineMap,`${i.name}[${i.line}]`,i.result);
+      acc(pairMap,i.pair,i.result);
+      acc(dirMap,i.dir==='up'?'↑ UP':'↓ DOWN',i.result);
+      if(i.time)acc(timeMap,timeSlot(i.time),i.result);
+    });
+    t.anos.forEach(a=>{if(a.result==='none'||a.result==='skip')return;acc(anoMap,`${a.time} ${a.pair}`,a.result);});
+    t.opts.forEach(o=>{if(o.result==='none')return;acc(optMapA,o.name,o.result);});
+    (t.entries||[]).forEach(e=>{if(e.result==='none')return;acc(entMap,`${e.pair} ${e.dir==='up'?'↑':'↓'}`,e.result);});
+  });
+  document.getElementById('ana-content').innerHTML=
+    mkAnaTable('インジ別勝率',mapToRows(injMap))+
+    mkAnaTable('ライン別勝率',mapToRows(lineMap))+
+    mkAnaTable('通貨ペア別勝率',mapToRows(pairMap),'blue')+
+    mkAnaTable('UP / DOWN 別勝率',mapToRows(dirMap),'amber')+
+    mkAnaTable('時間帯別勝率（15分単位）',mapToRows(timeMap),'blue')+
+    mkAnaTable('アノマリー別勝率',mapToRows(anoMap))+
+    mkAnaTable('オプション別勝率',mapToRows(optMapA),'blue')+
+    mkAnaTable('エントリー別勝率',mapToRows(entMap));
 }
 
-function saveData(){try{localStorage.setItem('trade_journal_v2',JSON.stringify(trades));}catch(e){}}
-function loadData(){try{const d=localStorage.getItem('trade_journal_v2');if(d)trades=JSON.parse(d);}catch(e){}}
+function saveData(){try{localStorage.setItem('trade_journal_v1',JSON.stringify(trades));}catch(e){}}
+function loadData(){try{let d=localStorage.getItem('trade_journal_v1');if(!d)d=localStorage.getItem('trade_journal_v2');if(d)trades=JSON.parse(d);}catch(e){}}
 
 const t=today();
 document.getElementById('f-date-picker').value=t;
 updateDateDisplay(t);
-buildInjBlocks();buildAnoRows();buildOptRows();
-loadData();
-renderTodayList();
+buildInjBlocks();buildAnoRows();buildOptBlocks();
+loadData();renderTodayList();
 </script>
 </body>
 </html>
