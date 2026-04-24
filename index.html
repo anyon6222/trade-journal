@@ -217,12 +217,26 @@ textarea{min-height:36px;resize:vertical}
     <select id="fil-inj" onchange="renderHistory()"><option value="">全インジ</option><option>GORILLA</option><option>IRAZU</option><option>HUNO</option></select>
     <select id="fil-pair" onchange="renderHistory()"><option value="">全通貨</option><option>USD/JPY</option><option>EUR/USD</option><option>GBP/USD</option><option>AUD/USD</option><option>EUR/JPY</option><option>GBP/JPY</option><option>AUD/JPY</option><option>NZD/JPY</option></select>
     <select id="fil-dir" onchange="renderHistory()"><option value="">↑↓両方</option><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select>
+    <select id="fil-line" onchange="renderHistory()"><option value="">全ライン</option><option>P</option><option>S1</option><option>S2</option><option>S3</option><option>R1</option><option>R2</option><option>R3</option><option>1000S</option><option>1000E</option><option>2160S</option><option>2160E</option><option>1450S</option><option>1843S</option><option>0.0</option><option>23.6</option><option>38.2</option><option>50.0</option><option>61.8</option><option>76.4</option><option>100.0</option></select>
+    <select id="fil-time" onchange="renderHistory()"><option value="">全時間帯</option><option>07:00〜</option><option>07:15〜</option><option>07:30〜</option><option>07:45〜</option><option>08:00〜</option><option>08:15〜</option><option>08:30〜</option><option>08:45〜</option><option>09:00〜</option><option>09:15〜</option><option>09:30〜</option><option>09:45〜</option><option>10:00〜</option><option>10:15〜</option><option>10:30〜</option><option>10:45〜</option><option>11:00〜</option><option>11:15〜</option><option>11:30〜</option><option>11:45〜</option><option>14:00〜</option><option>14:45〜</option><option>15:00〜</option><option>15:45〜</option><option>16:00〜</option><option>16:45〜</option><option>17:00〜</option><option>17:45〜</option></select>
+    <select id="fil-cat" onchange="renderHistory()"><option value="">全カテゴリ</option><option value="inj">インジ</option><option value="ano">アノマリー</option><option value="opt">オプション</option><option value="entry">エントリー</option></select>
   </div>
   <div class="hist-wrap">
     <table class="hist-table">
       <thead><tr><th>日付</th><th>インジ（時間/方向/ライン/結果）</th><th>アノマリー</th><th>オプション</th><th>エントリー</th><th></th></tr></thead>
       <tbody id="hist-body"></tbody>
     </table>
+  </div>
+  <div style="margin-top:14px;background:#fff;border-radius:12px;padding:13px 15px;box-shadow:0 1px 3px rgba(0,0,0,0.06)">
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">💾 データ管理</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="exportData()" style="padding:8px 16px;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid #1a1a2e;background:#1a1a2e;color:#fff;font-family:inherit">📥 バックアップ（ダウンロード）</button>
+      <label style="padding:8px 16px;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid #5a8aee;background:#fff;color:#5a8aee;font-family:inherit">
+        📤 データを読み込む
+        <input type="file" accept=".json" onchange="importData(event)" style="display:none">
+      </label>
+    </div>
+    <div id="backup-msg" style="font-size:12px;margin-top:8px;color:#1aaa6a;min-height:16px"></div>
   </div>
 </div>
 
@@ -547,15 +561,35 @@ function filteredTrades(){
   const fi=document.getElementById('fil-inj')?.value||'';
   const fp=document.getElementById('fil-pair')?.value||'';
   const fd=document.getElementById('fil-dir')?.value||'';
+  const fl=document.getElementById('fil-line')?.value||'';
+  const ft=document.getElementById('fil-time')?.value||'';
+  const fc=document.getElementById('fil-cat')?.value||'';
   return filterByPeriod(trades,histPeriod).filter(t=>{
+    if(fc==='inj'&&!t.injs.some(i=>i.result!=='none'))return false;
+    if(fc==='ano'&&!t.anos.some(a=>a.result!=='none'&&a.result!=='skip'))return false;
+    if(fc==='opt'&&!t.opts.some(o=>(o.rounds||[o.result]).some(r=>r&&r!=='none')))return false;
+    if(fc==='entry'&&!(t.entries||[]).some(e=>e.result!=='none'))return false;
     if(fi&&!t.injs.some(i=>i.name===fi&&i.result!=='none'))return false;
     if(fp&&!t.injs.some(i=>i.pair===fp&&i.result!=='none'))return false;
     if(fd&&!t.injs.some(i=>i.dir===fd&&i.result!=='none'))return false;
+    if(fl&&!t.injs.some(i=>i.line===fl&&i.result!=='none'))return false;
+    if(ft&&!t.injs.some(i=>timeSlot(i.time)===ft&&i.result!=='none'))return false;
     return true;
   });
 }
+function calcCatWR(list,cat){
+  let t=0,w=0,l=0;
+  list.forEach(tr=>{
+    if(cat==='inj'||cat==='all')tr.injs.forEach(i=>{if(!i.result||i.result==='none')return;t++;if(i.result==='win'||i.result==='martin')w++;else l++;});
+    if(cat==='ano'||cat==='all')tr.anos.forEach(a=>{if(!a.result||a.result==='none'||a.result==='skip')return;t++;if(a.result==='win')w++;else l++;});
+    if(cat==='opt'||cat==='all')tr.opts.forEach(o=>{(o.rounds||[o.result]).filter(r=>r&&r!=='none').forEach(r=>{t++;if(r==='win')w++;else l++;});});
+    if(cat==='entry'||cat==='all')(tr.entries||[]).forEach(e=>{if(!e.result||e.result==='none')return;t++;if(e.result==='win'||e.result==='martin')w++;else l++;});
+  });
+  return{t,w,l,wr:t?Math.round(w/t*100):0};
+}
 function renderHistory(){
   const list=filteredTrades(),s=calcWR(list);
+  const fc=document.getElementById('fil-cat')?.value||'';
   document.getElementById('hist-wr').innerHTML=`
     <div class="wr-card"><div class="wr-val win-c">${s.s}%</div><div class="wr-lbl">単発勝率</div><div class="wr-sub">○ ${s.w} / 全 ${s.t}</div></div>
     <div class="wr-card"><div class="wr-val martin-c">${s.mt}%</div><div class="wr-lbl">1マーチン込み</div><div class="wr-sub">○+✕○ ${s.w+s.m} / 全 ${s.t}</div></div>`;
@@ -563,6 +597,9 @@ function renderHistory(){
     <div class="metric"><div class="val">${list.length}</div><div class="lbl">記録日数</div></div>
     <div class="metric"><div class="val win-c">${s.w}</div><div class="lbl">○ 単発勝ち</div></div>
     <div class="metric"><div class="val martin-c">${s.m} <span style="font-size:12px;color:#bbb">/ <span class="lose-c">${s.l}</span></span></div><div class="lbl">✕○ / ✕✕</div></div>`;
+  const cats=[{k:'inj',label:'インジ'},{k:'ano',label:'アノマリー'},{k:'opt',label:'オプション'},{k:'entry',label:'エントリー'}];
+  const catHtml=cats.map(({k,label})=>{const cs=calcCatWR(list,k);return cs.t>0?`<div class="metric"><div class="val ${cs.wr>=60?'win-c':cs.wr>=50?'martin-c':'lose-c'}">${cs.wr}%</div><div class="lbl">${label}（${cs.t}件）</div></div>`:''}).join('');
+  if(catHtml){const wrap=document.createElement('div');wrap.style.cssText='display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:11px';wrap.innerHTML=catHtml;const m=document.getElementById('hist-metrics');m.parentNode.insertBefore(wrap,m.nextSibling);}
   const body=document.getElementById('hist-body');
   if(!list.length){body.innerHTML=`<tr><td colspan="6" class="empty">記録がありません</td></tr>`;return;}
   body.innerHTML=list.map(t=>{
@@ -707,6 +744,36 @@ function generateAI(list){
 }
 
 function saveData(){try{localStorage.setItem('trade_journal_v1',JSON.stringify(trades));}catch(e){}}
+function exportData(){
+  const d=new Date(),fn=`trade_journal_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.json`;
+  const a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(trades,null,2));
+  a.download=fn;a.click();
+  const msg=document.getElementById('backup-msg');
+  if(msg){msg.textContent=`✅ ${fn} をダウンロードしました（${trades.length}件）`;setTimeout(()=>msg.textContent='',3000);}
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!Array.isArray(data))throw new Error('形式エラー');
+      const before=trades.length;
+      const ids=new Set(trades.map(t=>t.id));
+      const added=data.filter(t=>!ids.has(t.id));
+      trades=[...trades,...added].sort((a,b)=>new Date(b.date)-new Date(a.date));
+      saveData();renderHistory();renderTodayList();
+      const msg=document.getElementById('backup-msg');
+      if(msg){msg.textContent=`✅ ${added.length}件を追加しました（重複${data.length-added.length}件スキップ）`;setTimeout(()=>msg.textContent='',4000);}
+    }catch(err){
+      const msg=document.getElementById('backup-msg');
+      if(msg){msg.style.color='#ee6a50';msg.textContent='❌ 読み込みに失敗しました。正しいJSONファイルを選択してください';setTimeout(()=>{msg.textContent='';msg.style.color='#1aaa6a';},4000);}
+    }
+  };
+  reader.readAsText(file);
+  e.target.value='';
+}
 function loadData(){try{let d=localStorage.getItem('trade_journal_v1');if(!d)d=localStorage.getItem('trade_journal_v2');if(d)trades=JSON.parse(d);}catch(e){}}
 
 const t=today();
