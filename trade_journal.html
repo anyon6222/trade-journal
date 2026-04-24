@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>トレード記録帳</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh}
+.header{background:#1a1a2e;color:#fff;padding:16px 20px;display:flex;align-items:center;gap:10px}
+.header h1{font-size:18px;font-weight:500}
+.header .ver{font-size:11px;opacity:0.5;margin-left:auto}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #e0e0e0;padding:0 16px}
+.tab{padding:12px 18px;font-size:14px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:#1a1a2e;border-bottom:2px solid #1a1a2e;font-weight:500}
+.panel{display:none;padding:16px;max-width:720px;margin:0 auto}
+.panel.active{display:block}
+.card{background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.sec-hdr h3{font-size:14px;font-weight:500;color:#1a1a2e}
+.arrow{font-size:11px;color:#aaa;transition:transform 0.2s;display:inline-block}
+.arrow.open{transform:rotate(180deg)}
+.sec-body{margin-top:12px;border-top:1px solid #f0f0f0;padding-top:12px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-size:11px;color:#888}
+select,input[type=text],input[type=time],input[type=date],textarea{
+  width:100%;padding:8px 10px;font-size:13px;border:1px solid #e0e0e0;
+  border-radius:8px;background:#fff;color:#1a1a1a;outline:none;
+  font-family:inherit
+}
+select:focus,input:focus,textarea:focus{border-color:#7c6af7}
+textarea{min-height:44px;resize:vertical}
+.date-big{font-size:20px;font-weight:500;color:#1a1a2e;padding:6px 0 2px}
+.date-wrap{display:flex;gap:8px;align-items:center;margin-top:8px}
+.date-wrap input{flex:1}
+.date-toggle{font-size:11px;color:#7c6af7;cursor:pointer;white-space:nowrap;background:none;border:none;text-decoration:underline;padding:0}
+.inj-block{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f0f0f0}
+.inj-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.inj-label{font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.tag{font-size:10px;padding:2px 8px;border-radius:10px;background:#f0efff;color:#7c6af7}
+.entry-card{border:1px solid #e8e8e8;border-radius:10px;margin-bottom:8px;overflow:hidden;position:relative}
+.entry-fields{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;padding:10px;background:#fafafa}
+.del-btn{position:absolute;top:6px;right:6px;font-size:10px;padding:2px 6px;cursor:pointer;border:1px solid #ddd;border-radius:4px;background:#fff;color:#aaa}
+.rbtn-row{display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px}
+.rbtn{padding:5px 12px;font-size:12px;border:1px solid #e0e0e0;border-radius:8px;cursor:pointer;background:#fff;color:#888;transition:all 0.1s}
+.rbtn:active{transform:scale(0.97)}
+.rbtn.sel-win{background:#e8f8f2;border-color:#1aaa6a;color:#0a6640;font-weight:500}
+.rbtn.sel-martin{background:#e8f0ff;border-color:#5a8aee;color:#1a4aaa;font-weight:500}
+.rbtn.sel-lose{background:#fff0ee;border-color:#ee6a50;color:#aa2a10;font-weight:500}
+.rbtn.sel-skip{background:#f5f5f5;border-color:#ccc;color:#888;font-weight:500}
+.memo-area{padding:0 10px 10px}
+.add-btn{display:flex;align-items:center;justify-content:center;gap:4px;padding:8px;font-size:12px;cursor:pointer;border:1px dashed #ccc;border-radius:8px;background:none;color:#aaa;margin-top:8px;width:100%}
+.add-btn:hover{background:#f9f9f9;color:#888}
+.ano-row{display:grid;grid-template-columns:2fr 1fr;align-items:start;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f5}
+.ano-row:last-child{border-bottom:none}
+.ano-info{font-size:12px;color:#333;margin-bottom:4px}
+.ano-btns{display:flex;gap:4px;justify-content:flex-end}
+.opt-row{padding:8px 0;border-bottom:1px solid #f5f5f5}
+.opt-row:last-child{border-bottom:none}
+.opt-top{display:grid;grid-template-columns:3fr 1fr;align-items:center;gap:8px}
+.opt-info{font-size:12px;color:#333}
+.entry-item{border:1px solid #e8e8e8;border-radius:10px;margin-bottom:8px;overflow:hidden;position:relative}
+.entry-item-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:10px;background:#fafafa}
+.entry-item-fields2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 10px 10px;background:#fafafa}
+.entry-result-row{display:flex;gap:6px;flex-wrap:wrap;padding:8px 10px}
+.entry-memo-row{padding:0 10px 10px}
+.del-entry{position:absolute;top:6px;right:6px;font-size:10px;padding:2px 6px;cursor:pointer;border:1px solid #ddd;border-radius:4px;background:#fff;color:#aaa}
+.btn-row{display:flex;gap:10px;margin-top:16px}
+.btn{padding:10px 24px;font-size:14px;border-radius:10px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#333;font-family:inherit}
+.btn.primary{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.btn.primary:hover{background:#2a2a4e}
+.btn:active{transform:scale(0.98)}
+.msg{font-size:13px;margin-top:10px;color:#1aaa6a;min-height:20px}
+.wr-block{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.wr-card{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.wr-val{font-size:32px;font-weight:600}
+.wr-lbl{font-size:12px;color:#888;margin-top:3px}
+.wr-sub{font-size:11px;color:#bbb;margin-top:5px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.metric{background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.metric .val{font-size:22px;font-weight:500}
+.metric .lbl{font-size:11px;color:#888;margin-top:2px}
+.win-c{color:#1aaa6a}.martin-c{color:#5a8aee}.lose-c{color:#ee6a50}
+.hist-wrap{overflow-x:auto}
+.hist-table{width:100%;border-collapse:collapse;font-size:12px;min-width:520px;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.hist-table th{font-size:11px;color:#aaa;font-weight:400;padding:10px 10px;border-bottom:1px solid #f0f0f0;text-align:left;background:#fafafa}
+.hist-table td{padding:8px 10px;border-bottom:1px solid #f5f5f5;vertical-align:top}
+.hist-table tr:last-child td{border-bottom:none}
+.hist-table tr:hover td{background:#fafffe}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.b-win{background:#e8f8f2;color:#0a6640}
+.b-martin{background:#e8f0ff;color:#1a4aaa}
+.b-lose{background:#fff0ee;color:#aa2a10}
+.b-skip{background:#f5f5f5;color:#888}
+.empty{text-align:center;padding:3rem;color:#ccc;font-size:14px}
+.del-hist{font-size:10px;padding:3px 7px;cursor:pointer;border:1px solid #eee;border-radius:4px;background:#fff;color:#ccc}
+.del-hist:hover{border-color:#ee6a50;color:#ee6a50}
+.section-tip{font-size:11px;color:#bbb;margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>トレード記録帳</h1>
+  <span class="ver">v2026.04.24</span>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('input')">入力</button>
+  <button class="tab" onclick="showTab('history')">履歴・勝率</button>
+</div>
+
+<div id="tab-input" class="panel active">
+
+  <div class="card">
+    <div class="date-big" id="date-display">日付を選択</div>
+    <div class="date-wrap">
+      <input type="date" id="f-date-picker" onchange="onDatePick(this.value)">
+      <input type="text" id="f-date-text" placeholder="例: 2026/04/24" oninput="onDateText(this.value)" style="display:none">
+      <button class="date-toggle" id="date-mode-btn" onclick="toggleDateMode()">手入力</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-hdr" onclick="toggle('inj')">
+      <h3>インジ結果</h3><span class="arrow" id="arr-inj">▼</span>
+    </div>
+    <div class="sec-body" id="body-inj" style="display:none">
+      <div class="section-tip">各インジごとに複数件記録できます</div>
+      <div id="inj-blocks"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-hdr" onclick="toggle('ano')">
+      <h3>アノマリー結果</h3><span class="arrow" id="arr-ano">▼</span>
+    </div>
+    <div class="sec-body" id="body-ano" style="display:none">
+      <div id="ano-rows"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-hdr" onclick="toggle('opt')">
+      <h3>オプション結果</h3><span class="arrow" id="arr-opt">▼</span>
+    </div>
+    <div class="sec-body" id="body-opt" style="display:none">
+      <div id="opt-rows"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-hdr" onclick="toggle('entry')">
+      <h3>エントリー結果</h3><span class="arrow" id="arr-entry">▼</span>
+    </div>
+    <div class="sec-body" id="body-entry" style="display:none">
+      <div class="section-tip">実際にエントリーした記録</div>
+      <div id="entry-list"></div>
+      <button class="add-btn" onclick="addEntry()">＋ エントリーを追加</button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn primary" onclick="saveTrade()">記録する</button>
+    <button class="btn" onclick="resetForm()">クリア</button>
+  </div>
+  <div class="msg" id="msg"></div>
+</div>
+
+<div id="tab-history" class="panel">
+  <div class="wr-block" id="wr-block"></div>
+  <div class="metrics" id="metrics"></div>
+  <div class="hist-wrap">
+    <table class="hist-table">
+      <thead><tr>
+        <th>日付</th><th>インジ</th><th>アノマリー</th><th>オプション</th><th>エントリー</th><th></th>
+      </tr></thead>
+      <tbody id="hist-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const INJS=[
+  {name:'GORILLA',tag:'ライン',lines:['—','P','S1','S2','S3','R1','R2','R3']},
+  {name:'IRAZU',tag:'レベル',lines:['—','1000S','1000E','2160S','2160E','1450S','1843S']},
+  {name:'HUNO',tag:'フィボ',lines:['—','0.0','18.2','23.6','38.2','50.0','61.8','76.4','81.8','100.0']}
+];
+const PAIRS=['USD/JPY','EUR/USD','GBP/USD','AUD/USD','EUR/JPY','GBP/JPY','AUD/JPY','NZD/JPY','その他'];
+const ANOMALIES=[
+  {time:'8:00〜',dir:'↑↓',pairs:['クロス円']},
+  {time:'8:27',dir:'↑',pairs:['GBP/JPY']},
+  {time:'8:55',dir:'↑',pairs:['USD/JPY']},
+  {time:'9:25',dir:'↑',pairs:['AUD/USD']},
+  {time:'9:47',dir:'↑',pairs:['EUR/JPY']},
+  {time:'9:55',dir:'↓',pairs:['AUD/JPY','AUD/USD']},
+  {time:'10:30',dir:'↑↓',pairs:['EUR/AUD']},
+  {time:'10:55',dir:'↓',pairs:['EUR/USD']},
+  {time:'11:55',dir:'↑',pairs:['USD/JPY']},
+  {time:'14:55',dir:'↑',pairs:['EUR/JPY']},
+  {time:'15:55',dir:'↑',pairs:['USD/JPY']},
+  {time:'16:55',dir:'↑',pairs:['USD/JPY']},
+  {time:'17:55',dir:'↑',pairs:['GBP/JPY']}
+];
+const OPTIONS=[
+  'GBP/JPY 前日終値(YC)','AUD/JPY 当日始値(O)',
+  'AUD/JPY 6〜8(1分)','AUD/JPY 6〜8(5分)','AUD/JPY 6〜8(更新)',
+  'GBP/JPY 前日高安値(YHL)','USD/JPY 200EMA','NZD/JPY 前日FB','GBP/JPY 前日FB'
+];
+const WEEKDAYS=['日','月','火','水','木','金','土'];
+
+let trades=[];
+let anoState={};
+let optState={};
+let injEntries={0:[],1:[],2:[]};
+let entryList=[];
+let currentDateIso='';
+let dateMode='picker';
+
+function today(){
+  const d=new Date();
+  return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function formatDisplay(iso){
+  if(!iso)return'日付を選択';
+  const[y,m,d]=iso.split('-');
+  const dt=new Date(iso+'T00:00:00');
+  return`${y}年${m}月${d}日（${WEEKDAYS[dt.getDay()]}）`;
+}
+function isoToSlash(iso){if(!iso)return'';const[y,m,d]=iso.split('-');return`${y}/${m}/${d}`;}
+function slashToIso(s){
+  const m=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if(!m)return'';
+  return`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+}
+function updateDateDisplay(iso){
+  currentDateIso=iso;
+  document.getElementById('date-display').textContent=formatDisplay(iso);
+}
+function onDatePick(val){updateDateDisplay(val);}
+function onDateText(val){
+  const iso=slashToIso(val);
+  if(iso)updateDateDisplay(iso);
+  else document.getElementById('date-display').textContent=val||'日付を入力';
+}
+function toggleDateMode(){
+  dateMode=dateMode==='picker'?'text':'picker';
+  const picker=document.getElementById('f-date-picker');
+  const text=document.getElementById('f-date-text');
+  const btn=document.getElementById('date-mode-btn');
+  if(dateMode==='text'){
+    picker.style.display='none';text.style.display='';btn.textContent='カレンダー';
+    text.value=isoToSlash(currentDateIso);
+  } else {
+    text.style.display='none';picker.style.display='';btn.textContent='手入力';
+    picker.value=currentDateIso;
+  }
+}
+function getDateValue(){
+  if(dateMode==='picker')return document.getElementById('f-date-picker').value;
+  return slashToIso(document.getElementById('f-date-text').value)||document.getElementById('f-date-text').value;
+}
+
+function toggle(id){
+  const b=document.getElementById('body-'+id);
+  const a=document.getElementById('arr-'+id);
+  const open=b.style.display!=='none';
+  b.style.display=open?'none':'block';
+  a.classList.toggle('open',!open);
+}
+function showTab(t){
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['input','history'][i]===t));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='history')renderHistory();
+}
+
+function buildInjBlocks(){
+  injEntries={0:[],1:[],2:[]};
+  INJS.forEach((_,i)=>injEntries[i].push({id:Date.now()+i,result:'none'}));
+  document.getElementById('inj-blocks').innerHTML=INJS.map((inj,i)=>`
+    <div class="inj-block">
+      <div class="inj-label">${inj.name} <span class="tag">${inj.tag}</span></div>
+      <div id="inj-entries-${i}"></div>
+      <button class="add-btn" onclick="addInjEntry(${i})">＋ ${inj.name}を追加</button>
+    </div>`).join('');
+  INJS.forEach((_,i)=>renderInjBlock(i));
+}
+function addInjEntry(i){injEntries[i].push({id:Date.now(),result:'none'});renderInjBlock(i);}
+function removeInjEntry(i,eid){injEntries[i]=injEntries[i].filter(e=>e.id!==eid);renderInjBlock(i);}
+function setInjResult(i,eid,val,btn){
+  injEntries[i].find(e=>e.id===eid).result=val;
+  btn.closest('.entry-card').querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
+  btn.classList.add(val==='win'?'sel-win':val==='martin'?'sel-martin':'sel-lose');
+}
+function renderInjBlock(i){
+  const inj=INJS[i];
+  document.getElementById(`inj-entries-${i}`).innerHTML=injEntries[i].map(e=>`
+    <div class="entry-card">
+      <div class="entry-fields">
+        <div class="fg"><label>通貨ペア</label><select id="ep-${e.id}">${PAIRS.map(p=>`<option>${p}</option>`).join('')}</select></div>
+        <div class="fg"><label>時間</label><input type="time" id="et-${e.id}"></div>
+        <div class="fg"><label>方向</label><select id="ed-${e.id}"><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select></div>
+        <div class="fg"><label>${inj.tag}</label><select id="el-${e.id}">${inj.lines.map(l=>`<option>${l}</option>`).join('')}</select></div>
+        ${injEntries[i].length>1?`<button class="del-btn" onclick="removeInjEntry(${i},${e.id})">✕</button>`:''}
+      </div>
+      <div class="rbtn-row">
+        <button class="rbtn" onclick="setInjResult(${i},${e.id},'win',this)">○ 勝ち</button>
+        <button class="rbtn" onclick="setInjResult(${i},${e.id},'martin',this)">✕○ 1マーチン勝ち</button>
+        <button class="rbtn" onclick="setInjResult(${i},${e.id},'lose',this)">✕✕ 負け</button>
+      </div>
+      <div class="memo-area"><textarea id="em-${e.id}" placeholder="メモ・気づき"></textarea></div>
+    </div>`).join('');
+}
+
+function buildAnoRows(){
+  anoState={};
+  const rows=[];
+  ANOMALIES.forEach((a,i)=>{
+    a.pairs.forEach((p,pi)=>{
+      const key=`${i}_${pi}`;anoState[key]='none';
+      rows.push(`<div class="ano-row">
+        <div>
+          <div class="ano-info"><span style="font-weight:600">${a.time}</span><span style="color:#7c6af7;margin:0 4px">${a.dir}</span>${p}</div>
+          <div style="margin-top:5px"><textarea id="ano-memo-${key}" placeholder="メモ" style="min-height:32px"></textarea></div>
+        </div>
+        <div class="ano-btns">
+          <button class="rbtn" onclick="setAno('${key}','win',this)">○</button>
+          <button class="rbtn" onclick="setAno('${key}','lose',this)">✕</button>
+          <button class="rbtn" onclick="setAno('${key}','skip',this)">－</button>
+        </div>
+      </div>`);
+    });
+  });
+  document.getElementById('ano-rows').innerHTML=rows.join('');
+}
+
+function buildOptRows(){
+  optState={};
+  document.getElementById('opt-rows').innerHTML=OPTIONS.map((o,i)=>{
+    optState[i]='none';
+    return`<div class="opt-row">
+      <div class="opt-top">
+        <div class="opt-info">${o}</div>
+        <div style="display:flex;gap:4px;justify-content:flex-end">
+          <button class="rbtn" onclick="setOpt(${i},'win',this)">○</button>
+          <button class="rbtn" onclick="setOpt(${i},'lose',this)">✕</button>
+        </div>
+      </div>
+      <div style="margin-top:5px"><textarea id="opt-memo-${i}" placeholder="メモ" style="min-height:32px"></textarea></div>
+    </div>`;
+  }).join('');
+}
+
+function setAno(key,v,btn){
+  anoState[key]=v;
+  btn.closest('.ano-row').querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
+  btn.classList.add(v==='win'?'sel-win':v==='lose'?'sel-lose':'sel-skip');
+}
+function setOpt(i,v,btn){
+  optState[i]=v;
+  btn.closest('.opt-row').querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
+  btn.classList.add(v==='win'?'sel-win':'sel-lose');
+}
+
+const ANO_LABELS=[];
+ANOMALIES.forEach(a=>a.pairs.forEach(p=>ANO_LABELS.push(`${a.time} ${a.dir} ${p}`)));
+
+function addEntry(){entryList.push({id:Date.now(),result:'none'});renderEntryList();}
+function removeEntry(eid){entryList=entryList.filter(e=>e.id!==eid);renderEntryList();}
+function setEntryResult(eid,val,btn){
+  entryList.find(e=>e.id===eid).result=val;
+  btn.closest('.entry-item').querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
+  btn.classList.add(val==='win'?'sel-win':val==='martin'?'sel-martin':'sel-lose');
+}
+function renderEntryList(){
+  const injOpts=INJS.map(i=>`<option>${i.name}</option>`).join('');
+  const anoOpts=ANO_LABELS.map(l=>`<option>${l}</option>`).join('');
+  const optOpts=OPTIONS.map(o=>`<option>${o}</option>`).join('');
+  document.getElementById('entry-list').innerHTML=entryList.map(e=>`
+    <div class="entry-item">
+      <div class="entry-item-fields">
+        <div class="fg"><label>通貨ペア</label><select id="enp-${e.id}">${PAIRS.map(p=>`<option>${p}</option>`).join('')}</select></div>
+        <div class="fg"><label>時間</label><input type="time" id="ent-${e.id}"></div>
+        <div class="fg"><label>方向</label><select id="end-${e.id}"><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select></div>
+        ${entryList.length>1?`<button class="del-entry" onclick="removeEntry(${e.id})">✕</button>`:''}
+      </div>
+      <div class="entry-item-fields2">
+        <div class="fg"><label>インジ</label><select id="eni-${e.id}"><option value="">—</option>${injOpts}</select></div>
+        <div class="fg"><label>オプション</label><select id="eno-${e.id}"><option value="">—</option>${optOpts}</select></div>
+        <div class="fg"><label>アノマリー</label><select id="ena-${e.id}"><option value="">—</option>${anoOpts}</select></div>
+      </div>
+      <div class="entry-result-row">
+        <button class="rbtn" onclick="setEntryResult(${e.id},'win',this)">○ 勝ち</button>
+        <button class="rbtn" onclick="setEntryResult(${e.id},'martin',this)">✕○ 1マーチン勝ち</button>
+        <button class="rbtn" onclick="setEntryResult(${e.id},'lose',this)">✕✕ 負け</button>
+      </div>
+      <div class="entry-memo-row"><textarea id="enm-${e.id}" placeholder="メモ・気づき" style="min-height:40px"></textarea></div>
+    </div>`).join('');
+}
+
+function collectInjs(){
+  const r=[];
+  INJS.forEach((inj,i)=>injEntries[i].forEach(e=>r.push({
+    name:inj.name,
+    pair:document.getElementById(`ep-${e.id}`)?.value||'',
+    time:document.getElementById(`et-${e.id}`)?.value||'',
+    dir:document.getElementById(`ed-${e.id}`)?.value||'up',
+    line:document.getElementById(`el-${e.id}`)?.value||'—',
+    result:e.result,
+    memo:document.getElementById(`em-${e.id}`)?.value||''
+  })));
+  return r;
+}
+function collectEntries(){
+  return entryList.map(e=>({
+    pair:document.getElementById(`enp-${e.id}`)?.value||'',
+    time:document.getElementById(`ent-${e.id}`)?.value||'',
+    dir:document.getElementById(`end-${e.id}`)?.value||'up',
+    inj:document.getElementById(`eni-${e.id}`)?.value||'',
+    opt:document.getElementById(`eno-${e.id}`)?.value||'',
+    ano:document.getElementById(`ena-${e.id}`)?.value||'',
+    result:e.result,
+    memo:document.getElementById(`enm-${e.id}`)?.value||''
+  }));
+}
+
+function saveTrade(){
+  const anos=[];
+  Object.entries(anoState).forEach(([k,v])=>{
+    const[ai,pi]=k.split('_').map(Number);
+    const a=ANOMALIES[ai];
+    anos.push({time:a.time,dir:a.dir,pair:a.pairs[pi],result:v,memo:document.getElementById(`ano-memo-${k}`)?.value||''});
+  });
+  const opts=OPTIONS.map((o,i)=>({name:o,result:optState[i]||'none',memo:document.getElementById(`opt-memo-${i}`)?.value||''}));
+  const dateVal=getDateValue();
+  trades.unshift({
+    id:Date.now(),
+    date:dateVal,
+    dateDisplay:formatDisplay(dateVal),
+    injs:collectInjs(),anos,opts,
+    entries:collectEntries()
+  });
+  saveData();
+  const msg=document.getElementById('msg');
+  msg.textContent='記録しました！';
+  setTimeout(()=>msg.textContent='',2500);
+}
+
+function resetForm(){
+  const t=today();
+  document.getElementById('f-date-picker').value=t;
+  document.getElementById('f-date-text').value='';
+  updateDateDisplay(t);
+  entryList=[];
+  buildInjBlocks();buildAnoRows();buildOptRows();
+  document.getElementById('entry-list').innerHTML='';
+}
+
+function calcStats(){
+  let total=0,win=0,martin=0,lose=0;
+  trades.forEach(t=>[...t.injs,...(t.entries||[])].forEach(e=>{
+    if(!e.result||e.result==='none')return;
+    total++;
+    if(e.result==='win')win++;
+    else if(e.result==='martin')martin++;
+    else lose++;
+  }));
+  return{total,win,martin,lose,
+    wrSingle:total?Math.round(win/total*100):0,
+    wrMartin:total?Math.round((win+martin)/total*100):0};
+}
+function rBadge(v){
+  if(v==='win')return'<span class="badge b-win">○</span>';
+  if(v==='martin')return'<span class="badge b-martin">✕○</span>';
+  if(v==='lose')return'<span class="badge b-lose">✕✕</span>';
+  if(v==='skip')return'<span class="badge b-skip">－</span>';
+  return'';
+}
+
+function renderHistory(){
+  const s=calcStats();
+  document.getElementById('wr-block').innerHTML=`
+    <div class="wr-card"><div class="wr-val win-c">${s.wrSingle}%</div><div class="wr-lbl">単発勝率</div><div class="wr-sub">○ ${s.win} / 全 ${s.total}</div></div>
+    <div class="wr-card"><div class="wr-val martin-c">${s.wrMartin}%</div><div class="wr-lbl">1マーチン込み勝率</div><div class="wr-sub">○+✕○ ${s.win+s.martin} / 全 ${s.total}</div></div>`;
+  document.getElementById('metrics').innerHTML=`
+    <div class="metric"><div class="val">${trades.length}</div><div class="lbl">記録日数</div></div>
+    <div class="metric"><div class="val win-c">${s.win}</div><div class="lbl">○ 単発勝ち</div></div>
+    <div class="metric"><div class="val martin-c">${s.martin} <span style="font-size:14px;color:#aaa">/ <span class="lose-c">${s.lose}</span></span></div><div class="lbl">✕○ / ✕✕</div></div>`;
+  const body=document.getElementById('hist-body');
+  if(!trades.length){body.innerHTML=`<tr><td colspan="6" class="empty">まだ記録がありません</td></tr>`;return;}
+  body.innerHTML=trades.map(t=>{
+    const injH=t.injs.filter(i=>i.result!=='none').map(i=>`<div>${i.name}${i.line&&i.line!=='—'?`[${i.line}]`:''} ${rBadge(i.result)}</div>`).join('')||'—';
+    const anoW=t.anos.filter(a=>a.result==='win').length;
+    const anoL=t.anos.filter(a=>a.result==='lose').length;
+    const optW=t.opts.filter(o=>o.result==='win').length;
+    const optL=t.opts.filter(o=>o.result==='lose').length;
+    const entH=(t.entries||[]).filter(e=>e.result!=='none').map(e=>`<div>${e.pair} ${e.dir==='up'?'↑':'↓'} ${rBadge(e.result)}</div>`).join('')||'—';
+    return`<tr>
+      <td style="font-size:11px;white-space:nowrap;font-weight:500">${t.dateDisplay||t.date}</td>
+      <td>${injH}</td>
+      <td style="font-size:11px">${anoW+anoL?`<span class="win-c">${anoW}○</span> <span class="lose-c">${anoL}✕</span>`:'—'}</td>
+      <td style="font-size:11px">${optW+optL?`<span class="win-c">${optW}○</span> <span class="lose-c">${optL}✕</span>`:'—'}</td>
+      <td>${entH}</td>
+      <td><button class="del-hist" onclick="del(${t.id})">削除</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function del(id){
+  if(!confirm('この記録を削除しますか？'))return;
+  trades=trades.filter(t=>t.id!==id);
+  saveData();renderHistory();
+}
+
+function saveData(){
+  try{localStorage.setItem('trade_journal_v1',JSON.stringify(trades));}catch(e){}
+}
+function loadData(){
+  try{
+    const d=localStorage.getItem('trade_journal_v1');
+    if(d)trades=JSON.parse(d);
+  }catch(e){}
+}
+
+const t=today();
+document.getElementById('f-date-picker').value=t;
+updateDateDisplay(t);
+buildInjBlocks();buildAnoRows();buildOptRows();
+loadData();
+renderHistory();
+</script>
+</body>
+</html>
