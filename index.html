@@ -145,6 +145,21 @@ textarea{min-height:36px;resize:vertical}
 .ai-warn{color:#ee6a50;font-weight:500}
 .ai-note{color:#5a8aee;font-weight:500}
 .ai-loading{text-align:center;padding:20px;color:#aaa;font-size:13px}
+.cond-result-card{background:#f8f8ff;border:1px solid #e8e8f8;border-radius:10px;padding:13px 15px;margin-top:6px}
+.cond-result-card.good{background:#f0fdf6;border-color:#1aaa6a}
+.cond-result-card.warn{background:#fff5f3;border-color:#ee6a50}
+.cond-result-card.mid{background:#f0f4ff;border-color:#5a8aee}
+.cond-big{font-size:28px;font-weight:600;margin-bottom:4px}
+.rank-card{background:#fafafa;border:1px solid #e8e8e8;border-radius:10px;padding:11px 13px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.rank-card:last-child{margin-bottom:0}
+.rank-card.gold{background:#fffbf0;border-color:#f0c040}
+.rank-card.silver{background:#f8f8f8;border-color:#bbb}
+.rank-card.bronze{background:#fff8f5;border-color:#cc8866}
+.rank-num{font-size:20px;min-width:28px;text-align:center}
+.rank-body{flex:1}
+.rank-label{font-size:12px;font-weight:500;color:#1a1a2e;margin-bottom:3px}
+.rank-detail{font-size:11px;color:#888}
+.rank-wr{font-size:16px;font-weight:600;min-width:60px;text-align:right}
 </style>
 </head>
 <body>
@@ -254,6 +269,39 @@ textarea{min-height:36px;resize:vertical}
     <span style="font-size:16px">✨</span> AI分析を実行する
   </button>
   <div id="ai-result" style="margin-bottom:12px"></div>
+  <!-- 条件組み合わせ分析 -->
+  <div style="background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06)">
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">🔍 条件組み合わせ分析</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div class="fg"><label>インジ</label>
+        <select id="cond-inj"><option value="">全インジ</option><option>GORILLA</option><option>IRAZU</option><option>HUNO</option></select>
+      </div>
+      <div class="fg"><label>方向</label>
+        <select id="cond-dir"><option value="">↑↓両方</option><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select>
+      </div>
+      <div class="fg"><label>ライン</label>
+        <select id="cond-line"><option value="">全ライン</option><option>P</option><option>S1</option><option>S2</option><option>S3</option><option>R1</option><option>R2</option><option>R3</option><option>1000S</option><option>1000E</option><option>2160S</option><option>2160E</option><option>1450S</option><option>1843S</option><option>0.0</option><option>18.2</option><option>23.6</option><option>38.2</option><option>50.0</option><option>61.8</option><option>76.4</option><option>81.8</option><option>100.0</option></select>
+      </div>
+      <div class="fg"><label>時間帯</label>
+        <select id="cond-time"><option value="">全時間帯</option><option>07:00〜</option><option>07:15〜</option><option>07:30〜</option><option>07:45〜</option><option>08:00〜</option><option>08:15〜</option><option>08:30〜</option><option>08:45〜</option><option>09:00〜</option><option>09:15〜</option><option>09:30〜</option><option>09:45〜</option><option>10:00〜</option><option>10:15〜</option><option>10:30〜</option><option>10:45〜</option><option>11:00〜</option><option>11:15〜</option><option>11:30〜</option><option>11:45〜</option><option>14:00〜</option><option>14:45〜</option><option>15:00〜</option><option>15:45〜</option><option>16:00〜</option><option>16:45〜</option><option>17:00〜</option><option>17:45〜</option></select>
+      </div>
+      <div class="fg"><label>通貨ペア</label>
+        <select id="cond-pair"><option value="">全通貨</option><option>USD/JPY</option><option>EUR/USD</option><option>GBP/USD</option><option>AUD/USD</option><option>EUR/JPY</option><option>GBP/JPY</option><option>AUD/JPY</option><option>NZD/JPY</option></select>
+      </div>
+      <div style="display:flex;align-items:flex-end">
+        <button onclick="runCondAnalysis()" style="width:100%;padding:8px;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;border:none;background:#1a1a2e;color:#fff;font-family:inherit">分析する</button>
+      </div>
+    </div>
+    <div id="cond-result"></div>
+  </div>
+
+  <!-- AI最強パターンランキング -->
+  <div style="background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06)">
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">✨ AI最強パターン自動ランキング</div>
+    <button onclick="runPatternRanking()" id="rank-btn" style="width:100%;padding:10px;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;border:none;background:linear-gradient(135deg,#7c6af7,#5a8aee);color:#fff;font-family:inherit;margin-bottom:8px">🏆 最強パターンを探す</button>
+    <div id="rank-result"></div>
+  </div>
+
   <div id="ana-content"></div>
 </div>
 
@@ -658,25 +706,188 @@ function renderAnalysis(){
     t.opts.forEach(o=>{if(o.result==='none')return;acc(optMapA,o.name,o.result);});
     (t.entries||[]).forEach(e=>{if(e.result==='none')return;acc(entMap,`${e.pair} ${e.dir==='up'?'↑':'↓'}`,e.result);});
   });
-  // インジ別＋各インジのライン別をまとめて表示
+  // インジ別 — 通貨・時間帯・ライン・方向を各インジの中にまとめる
   let injSectionHTML='';
   INJS.forEach(inj=>{
-    const injRow=injMap[inj.name];
-    const injWR=injRow?Math.round((injRow.w+injRow.m)/injRow.t*100):0;
-    const injHdr=injRow?`<div style="background:#1a1a2e;color:#fff;border-radius:10px 10px 0 0;padding:8px 12px;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:space-between"><span>${inj.name}</span><span style="font-size:12px;opacity:0.8"><b>${injWR}%</b> (${injRow.w}勝${injRow.l}敗) ${injRow.t}件</span></div>`:`<div style="background:#888;color:#fff;border-radius:10px 10px 0 0;padding:8px 12px;font-size:13px;font-weight:500">${inj.name} — データなし</div>`;
-    const lineRows=mapToRows(lineMap).filter(r=>r.k.startsWith(inj.name+'['));
-    const lineTable=lineRows.length?`<table class="ana-table"><thead><tr><th>ライン</th><th>単発勝率</th><th>1M込み</th><th>グラフ</th></tr></thead><tbody>${lineRows.sort((a,b)=>b.t-a.t).map(r=>`<tr><td style="font-weight:500">${r.k.replace(inj.name,'').replace('[','').replace(']','')}</td><td class="win-c">${wrLabel(r.s,r.w,r.l,r.t)}</td><td class="martin-c">${wrLabel(r.mt,r.w+r.m,r.l,r.t)}</td><td><div class="bar-wrap"><div class="bar-fill" style="width:${r.s}%"></div></div></td></tr>`).join('')}</tbody></table>`:`<div style="background:#fff;padding:10px 12px;font-size:12px;color:#ccc;border-radius:0 0 10px 10px">ラインデータなし</div>`;
-    injSectionHTML+=`<div class="ana-section" style="margin-bottom:14px">${injHdr}${lineTable}</div>`;
+    const iname=inj.name;
+    const injRow=injMap[iname];
+    if(!injRow){
+      injSectionHTML+=`<div class="ana-section" style="margin-bottom:16px"><div style="background:#aaa;color:#fff;border-radius:10px;padding:9px 13px;font-size:13px;font-weight:500">${iname} — データなし</div></div>`;
+      return;
+    }
+    const injWRs=Math.round(injRow.w/injRow.t*100);
+    const injWRm=Math.round((injRow.w+injRow.m)/injRow.t*100);
+    // この インジのデータだけ集計
+    const iPairMap={},iTimeMap={},iLineMap={},iDirMap={up:{w:0,m:0,l:0,t:0},down:{w:0,m:0,l:0,t:0}};
+    list.forEach(t=>t.injs.filter(i=>i.name===iname&&i.result!=='none').forEach(i=>{
+      const w=i.result==='win',m=i.result==='martin',l=i.result==='lose';
+      if(!iPairMap[i.pair])iPairMap[i.pair]={w:0,m:0,l:0,t:0};
+      iPairMap[i.pair].t++;if(w)iPairMap[i.pair].w++;if(m)iPairMap[i.pair].m++;if(l)iPairMap[i.pair].l++;
+      if(i.time){const sl=timeSlot(i.time);if(!iTimeMap[sl])iTimeMap[sl]={w:0,m:0,l:0,t:0};iTimeMap[sl].t++;if(w)iTimeMap[sl].w++;if(m)iTimeMap[sl].m++;if(l)iTimeMap[sl].l++;}
+      if(i.line&&i.line!=='—'){if(!iLineMap[i.line])iLineMap[i.line]={w:0,m:0,l:0,t:0};iLineMap[i.line].t++;if(w)iLineMap[i.line].w++;if(m)iLineMap[i.line].m++;if(l)iLineMap[i.line].l++;}
+      const dk=i.dir==='up'?'up':'down';iDirMap[dk].t++;if(w)iDirMap[dk].w++;if(m)iDirMap[dk].m++;if(l)iDirMap[dk].l++;
+    }));
+    const mkSub=(map,label,cls='')=>{
+      const rows=mapToRows(map);
+      if(!rows.length)return'';
+      return`<div style="padding:8px 12px 4px;font-size:11px;font-weight:500;color:#888;background:#fff;border-top:1px solid #f0f0f0">${label}</div>
+      <table class="ana-table"><thead><tr><th>項目</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead>
+      <tbody>${rows.sort((a,b)=>b.t-a.t).map(r=>`<tr><td style="font-weight:500">${r.k}</td><td class="win-c">${wrLabel(r.s,r.w,r.l,r.t)}</td><td class="martin-c">${wrLabel(r.mt,r.w+r.m,r.l,r.t)}</td><td><div class="bar-wrap"><div class="bar-fill ${cls}" style="width:${r.s}%"></div></div></td></tr>`).join('')}
+      </tbody></table>`;
+    };
+    const dirRows=[
+      {k:'↑ UP',...iDirMap.up,s:iDirMap.up.t?Math.round(iDirMap.up.w/iDirMap.up.t*100):0,mt:iDirMap.up.t?Math.round((iDirMap.up.w+iDirMap.up.m)/iDirMap.up.t*100):0},
+      {k:'↓ DOWN',...iDirMap.down,s:iDirMap.down.t?Math.round(iDirMap.down.w/iDirMap.down.t*100):0,mt:iDirMap.down.t?Math.round((iDirMap.down.w+iDirMap.down.m)/iDirMap.down.t*100):0}
+    ].filter(r=>r.t>0);
+    const dirHTML=dirRows.length?`<div style="padding:8px 12px 4px;font-size:11px;font-weight:500;color:#888;background:#fff;border-top:1px solid #f0f0f0">UP / DOWN 別</div>
+      <table class="ana-table"><thead><tr><th>方向</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead>
+      <tbody>${dirRows.map(r=>`<tr><td style="font-weight:500">${r.k}</td><td class="win-c">${wrLabel(r.s,r.w,r.l,r.t)}</td><td class="martin-c">${wrLabel(r.mt,r.w+r.m,r.l,r.t)}</td><td><div class="bar-wrap"><div class="bar-fill amber" style="width:${r.s}%"></div></div></td></tr>`).join('')}
+      </tbody></table>`:'';
+    injSectionHTML+=`<div class="ana-section" style="margin-bottom:16px">
+      <div style="background:#1a1a2e;color:#fff;border-radius:10px 10px 0 0;padding:9px 13px;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:space-between">
+        <span>${iname}</span>
+        <span style="font-size:12px;opacity:0.9">単発 <b>${injWRs}%</b> / 1M込 <b>${injWRm}%</b> &nbsp;(${injRow.w}勝${injRow.l}敗) ${injRow.t}件</span>
+      </div>
+      ${mkSub(iPairMap,'通貨ペア別','blue')}
+      ${mkSub(iTimeMap,'時間帯別（15分単位）','blue')}
+      ${mkSub(iLineMap,'ライン別')}
+      ${dirHTML}
+    </div>`;
   });
+
+  // エントリー別 — 通貨・時間帯・インジ連動・方向
+  const entPairMap={},entTimeMap={},entDirMap={up:{w:0,m:0,l:0,t:0},down:{w:0,m:0,l:0,t:0}};
+  list.forEach(t=>(t.entries||[]).filter(e=>e.result!=='none').forEach(e=>{
+    const w=e.result==='win',m=e.result==='martin',l=e.result==='lose';
+    if(!entPairMap[e.pair])entPairMap[e.pair]={w:0,m:0,l:0,t:0};
+    entPairMap[e.pair].t++;if(w)entPairMap[e.pair].w++;if(m)entPairMap[e.pair].m++;if(l)entPairMap[e.pair].l++;
+    if(e.time){const sl=timeSlot(e.time);if(!entTimeMap[sl])entTimeMap[sl]={w:0,m:0,l:0,t:0};entTimeMap[sl].t++;if(w)entTimeMap[sl].w++;if(m)entTimeMap[sl].m++;if(l)entTimeMap[sl].l++;}
+    const dk=e.dir==='up'?'up':'down';entDirMap[dk].t++;if(w)entDirMap[dk].w++;if(m)entDirMap[dk].m++;if(l)entDirMap[dk].l++;
+  }));
+  const entTotal=entDirMap.up.t+entDirMap.down.t;
+  const entW=entDirMap.up.w+entDirMap.down.w+entDirMap.up.m+entDirMap.down.m;
+  const entL=entDirMap.up.l+entDirMap.down.l;
+  const entWRs=entTotal?Math.round((entDirMap.up.w+entDirMap.down.w)/entTotal*100):0;
+  const entWRm=entTotal?Math.round(entW/entTotal*100):0;
+  const mkEntSub=(map,label,cls='')=>{
+    const rows=mapToRows(map);
+    if(!rows.length)return'';
+    return`<div style="padding:8px 12px 4px;font-size:11px;font-weight:500;color:#888;background:#fff;border-top:1px solid #f0f0f0">${label}</div>
+    <table class="ana-table"><thead><tr><th>項目</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead>
+    <tbody>${rows.sort((a,b)=>b.t-a.t).map(r=>`<tr><td style="font-weight:500">${r.k}</td><td class="win-c">${wrLabel(r.s,r.w,r.l,r.t)}</td><td class="martin-c">${wrLabel(r.mt,r.w+r.m,r.l,r.t)}</td><td><div class="bar-wrap"><div class="bar-fill ${cls}" style="width:${r.s}%"></div></div></td></tr>`).join('')}
+    </tbody></table>`;
+  };
+  const entDirRows=[
+    {k:'↑ UP',...entDirMap.up,s:entDirMap.up.t?Math.round(entDirMap.up.w/entDirMap.up.t*100):0,mt:entDirMap.up.t?Math.round((entDirMap.up.w+entDirMap.up.m)/entDirMap.up.t*100):0},
+    {k:'↓ DOWN',...entDirMap.down,s:entDirMap.down.t?Math.round(entDirMap.down.w/entDirMap.down.t*100):0,mt:entDirMap.down.t?Math.round((entDirMap.down.w+entDirMap.down.m)/entDirMap.down.t*100):0}
+  ].filter(r=>r.t>0);
+  const entDirHTML=entDirRows.length?`<div style="padding:8px 12px 4px;font-size:11px;font-weight:500;color:#888;background:#fff;border-top:1px solid #f0f0f0">UP / DOWN 別</div>
+    <table class="ana-table"><thead><tr><th>方向</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead>
+    <tbody>${entDirRows.map(r=>`<tr><td style="font-weight:500">${r.k}</td><td class="win-c">${wrLabel(r.s,r.w,r.l,r.t)}</td><td class="martin-c">${wrLabel(r.mt,r.w+r.m,r.l,r.t)}</td><td><div class="bar-wrap"><div class="bar-fill amber" style="width:${r.s}%"></div></div></td></tr>`).join('')}
+    </tbody></table>`:'';
+  const entSection=entTotal>0?`<div class="ana-section" style="margin-bottom:16px">
+    <div style="background:#5a3aaa;color:#fff;border-radius:10px 10px 0 0;padding:9px 13px;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:space-between">
+      <span>エントリー結果</span>
+      <span style="font-size:12px;opacity:0.9">単発 <b>${entWRs}%</b> / 1M込 <b>${entWRm}%</b> &nbsp;(${entDirMap.up.w+entDirMap.down.w}勝${entL}敗) ${entTotal}件</span>
+    </div>
+    ${mkEntSub(entPairMap,'通貨ペア別','blue')}
+    ${mkEntSub(entTimeMap,'時間帯別（15分単位）','blue')}
+    ${entDirHTML}
+  </div>`:'';
 
   document.getElementById('ana-content').innerHTML=
     injSectionHTML+
-    mkAnaTable('通貨ペア別勝率',mapToRows(pairMap),'blue')+
-    mkAnaTable('UP / DOWN 別勝率',mapToRows(dirMap),'amber')+
-    mkAnaTable('時間帯別勝率（15分単位）',mapToRows(timeMap),'blue')+
-    mkAnaTable('アノマリー別勝率',mapToRows(anoMap))+
-    mkAnaTable('オプション別勝率',mapToRows(optMapA),'blue')+
-    mkAnaTable('エントリー別勝率',mapToRows(entMap));
+    entSection+
+    mkAnaTable('アノマリー別勝率（単発）',mapToRows(anoMap))+
+    mkAnaTable('オプション別勝率（単発）',mapToRows(optMapA),'blue');
+}
+
+function runCondAnalysis(){
+  const fi=document.getElementById('cond-inj').value;
+  const fd=document.getElementById('cond-dir').value;
+  const fl=document.getElementById('cond-line').value;
+  const ft=document.getElementById('cond-time').value;
+  const fp=document.getElementById('cond-pair').value;
+  const list=filterByPeriod(trades,anaPeriod);
+  let matched=[];
+  list.forEach(t=>t.injs.forEach(i=>{
+    if(i.result==='none')return;
+    if(fi&&i.name!==fi)return;
+    if(fd&&i.dir!==fd)return;
+    if(fl&&i.line!==fl)return;
+    if(ft&&timeSlot(i.time)!==ft)return;
+    if(fp&&i.pair!==fp)return;
+    matched.push(i);
+  }));
+  const el=document.getElementById('cond-result');
+  if(!matched.length){el.innerHTML=`<div class="cond-result-card"><div style="color:#aaa;font-size:13px;text-align:center">該当するデータがありません</div></div>`;return;}
+  const t=matched.length;
+  const w=matched.filter(i=>i.result==='win').length;
+  const m=matched.filter(i=>i.result==='martin').length;
+  const l=matched.filter(i=>i.result==='lose').length;
+  const ws=Math.round(w/t*100);
+  const wm=Math.round((w+m)/t*100);
+  const cls=wm>=70?'good':wm>=55?'mid':'warn';
+  const conds=[fi,fd==='up'?'↑UP':fd==='down'?'↓DOWN':'',fl,ft,fp].filter(Boolean).join(' × ')||'全条件';
+  el.innerHTML=`<div class="cond-result-card ${cls}">
+    <div style="font-size:11px;color:#888;margin-bottom:6px">📋 条件: <b>${conds}</b></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><div class="cond-big win-c">${ws}%</div><div style="font-size:11px;color:#888">単発勝率 ${w}勝${l}敗 ${t}件</div></div>
+      <div><div class="cond-big martin-c">${wm}%</div><div style="font-size:11px;color:#888">1M込み勝率 ${w+m}勝${l}敗 ${t}件</div></div>
+    </div>
+    ${wm>=70?'<div style="margin-top:8px;font-size:12px;color:#1aaa6a;font-weight:500">✅ 優秀な組み合わせです！積極的に狙いましょう</div>':wm>=55?'<div style="margin-top:8px;font-size:12px;color:#5a8aee">📊 標準的な勝率です。条件を絞るとさらに精度が上がるかも</div>':'<div style="margin-top:8px;font-size:12px;color:#ee6a50">⚠️ この条件は勝率が低めです。慎重に判断しましょう</div>'}
+  </div>`;
+}
+
+function runPatternRanking(){
+  const btn=document.getElementById('rank-btn');
+  const el=document.getElementById('rank-result');
+  const list=filterByPeriod(trades,anaPeriod);
+  if(list.length<3){el.innerHTML=`<div style="text-align:center;color:#aaa;font-size:13px;padding:16px">データが3件以上必要です（現在${list.length}件）</div>`;return;}
+  btn.textContent='分析中...';btn.disabled=true;
+  setTimeout(()=>{
+    // 全パターンを集計（インジ×方向×ライン×時間帯）
+    const patMap={};
+    list.forEach(t=>t.injs.forEach(i=>{
+      if(i.result==='none')return;
+      // 複数の粒度でパターンを生成
+      const pats=[];
+      // インジ×ライン×方向×時間帯（最詳細）
+      if(i.line&&i.line!=='—'&&i.time)pats.push(`${i.name} × ${i.line} × ${i.dir==='up'?'↑UP':'↓DOWN'} × ${timeSlot(i.time)}`);
+      // インジ×ライン×方向
+      if(i.line&&i.line!=='—')pats.push(`${i.name} × ${i.line} × ${i.dir==='up'?'↑UP':'↓DOWN'}`);
+      // インジ×時間帯×方向
+      if(i.time)pats.push(`${i.name} × ${timeSlot(i.time)} × ${i.dir==='up'?'↑UP':'↓DOWN'}`);
+      // インジ×通貨×方向
+      pats.push(`${i.name} × ${i.pair} × ${i.dir==='up'?'↑UP':'↓DOWN'}`);
+      pats.forEach(p=>{
+        if(!patMap[p])patMap[p]={w:0,m:0,l:0,t:0};
+        patMap[p].t++;
+        if(i.result==='win')patMap[p].w++;
+        else if(i.result==='martin')patMap[p].m++;
+        else patMap[p].l++;
+      });
+    }));
+    // 3件以上のパターンだけ抽出してランキング
+    const ranked=Object.entries(patMap)
+      .filter(([,v])=>v.t>=3)
+      .map(([k,v])=>({k,t:v.t,w:v.w,m:v.m,l:v.l,wr:Math.round((v.w+v.m)/v.t*100)}))
+      .sort((a,b)=>b.wr-a.wr||b.t-a.t)
+      .slice(0,10);
+    btn.innerHTML='🏆 最強パターンを探す';btn.disabled=false;
+    if(!ranked.length){el.innerHTML=`<div style="text-align:center;color:#aaa;font-size:13px;padding:16px">各条件が3件以上になるとランキングが表示されます</div>`;return;}
+    const medals=['🥇','🥈','🥉'];
+    const cardCls=['gold','silver','bronze'];
+    el.innerHTML=ranked.map((r,idx)=>`
+      <div class="rank-card ${idx<3?cardCls[idx]:''}">
+        <div class="rank-num">${idx<3?medals[idx]:`${idx+1}`}</div>
+        <div class="rank-body">
+          <div class="rank-label">${r.k}</div>
+          <div class="rank-detail">${r.w}勝${r.l}敗 計${r.t}件</div>
+        </div>
+        <div class="rank-wr ${r.wr>=70?'win-c':r.wr>=55?'martin-c':'lose-c'}">${r.wr}%</div>
+      </div>`).join('');
+  },600);
 }
 
 function runAI(){
