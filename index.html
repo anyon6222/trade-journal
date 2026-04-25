@@ -291,7 +291,22 @@ textarea{min-height:36px;resize:vertical}
     <button class="ptab" onclick="setPeriod('month','hist')">月間</button>
     <button class="ptab" onclick="setPeriod('year','hist')">年間</button>
   </div>
-  <div id="hist-sub-content"></div>
+  <div class="wr-block" id="hist-wr"></div>
+  <div class="metrics" id="hist-metrics"></div>
+  <div class="filter-row">
+    <select id="fil-inj" onchange="renderHistory()"><option value="">全インジ</option><option>GORILLA</option><option>IRAZU</option><option>HUNO</option></select>
+    <select id="fil-pair" onchange="renderHistory()"><option value="">全通貨</option><option>USD/JPY</option><option>EUR/USD</option><option>GBP/USD</option><option>AUD/USD</option><option>EUR/JPY</option><option>GBP/JPY</option><option>AUD/JPY</option><option>NZD/JPY</option></select>
+    <select id="fil-dir" onchange="renderHistory()"><option value="">↑↓両方</option><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select>
+    <select id="fil-line" onchange="renderHistory()"><option value="">全ライン</option><option>P</option><option>S1</option><option>S2</option><option>S3</option><option>R1</option><option>R2</option><option>R3</option><option>1000S</option><option>1000E</option><option>2160S</option><option>2160E</option><option>1450S</option><option>1843S</option><option>0.0</option><option>23.6</option><option>38.2</option><option>50.0</option><option>61.8</option><option>76.4</option><option>100.0</option></select>
+    <select id="fil-time" onchange="renderHistory()"><option value="">全時間帯</option><option>07:00〜</option><option>07:15〜</option><option>07:30〜</option><option>07:45〜</option><option>08:00〜</option><option>08:15〜</option><option>08:30〜</option><option>08:45〜</option><option>09:00〜</option><option>09:15〜</option><option>09:30〜</option><option>09:45〜</option><option>10:00〜</option><option>10:15〜</option><option>10:30〜</option><option>10:45〜</option><option>11:00〜</option><option>11:15〜</option><option>11:30〜</option><option>11:45〜</option><option>14:00〜</option><option>14:45〜</option><option>15:00〜</option><option>15:45〜</option><option>16:00〜</option><option>16:45〜</option><option>17:00〜</option><option>17:45〜</option></select>
+    <select id="fil-cat" onchange="renderHistory()"><option value="">全カテゴリ</option><option value="inj">インジ</option><option value="ano">アノマリー</option><option value="opt">オプション</option><option value="entry">エントリー</option></select>
+  </div>
+  <div class="hist-wrap">
+    <table class="hist-table">
+      <thead><tr><th>日付</th><th>インジ（時間/方向/ライン/結果）</th><th>アノマリー</th><th>オプション</th><th>エントリー</th><th></th></tr></thead>
+      <tbody id="hist-body"></tbody>
+    </table>
+  </div>
   <div style="margin-top:14px;background:#fff;border-radius:12px;padding:13px 15px;box-shadow:0 1px 3px rgba(0,0,0,0.06)">
     <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">💾 データ管理</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -399,7 +414,6 @@ let trades=[],anoState={},optBlocks=[],injEntries={0:[],1:[],2:[]},entryList=[];
 let currentDateIso='',dateMode='picker',histPeriod='all',anaPeriod='all';
 
 function today(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-function toIso(d){return d?d.replace(/\//g,'-'):'';}
 function formatDisplay(iso){if(!iso)return'日付を選択';const[y,m,d]=iso.split('-');const dt=new Date(iso+'T00:00:00');return`${y}年${m}月${d}日（${WEEKDAYS[dt.getDay()]}）`;}
 function isoToSlash(iso){if(!iso)return'';const[y,m,d]=iso.split('-');return`${y}/${m}/${d}`;}
 function slashToIso(s){const m=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);if(!m)return'';return`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;}
@@ -431,9 +445,8 @@ function filterByPeriod(list,p){
   const now=new Date(),td=today();
   return list.filter(t=>{
     if(p==='all')return true;
-    const iso=toIso(t.date);
-    if(p==='today'){const tdS=td.replace(/-/g,'/');return t.date===td||t.date===tdS;}
-    const d=new Date(iso+'T00:00:00');
+    if(p==='today')return t.date===td;
+    const d=new Date(t.date+'T00:00:00');
     if(p==='week'){const w=new Date(now);w.setDate(w.getDate()-7);return d>=w;}
     if(p==='month')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
     if(p==='year')return d.getFullYear()===now.getFullYear();
@@ -646,8 +659,7 @@ function calcWR(list){
   return{t,w,m,l,s:t?Math.round(w/t*100):0,mt:t?Math.round((w+m)/t*100):0};
 }
 function renderTodayList(){
-  const td=today(),tdSlash=td.replace(/-/g,'/');
-  const tt=trades.filter(tr=>tr.date===td||tr.date===tdSlash),s=calcWR(tt);
+  const td=today(),tt=trades.filter(tr=>tr.date===td),s=calcWR(tt);
   document.getElementById('today-title').textContent=`今日の記録（${tt.length}件）`;
   document.getElementById('today-wr').innerHTML=tt.length?`<span class="win-c">単発 ${s.s}%(${s.w}勝${s.l}敗)</span> <span style="color:#ccc;margin:0 3px">/</span> <span class="martin-c">1M込 ${s.mt}%</span>`:'';
   const el=document.getElementById('today-items');
@@ -694,8 +706,7 @@ function timeSlot(t){if(!t)return'時間不明';const[h,m]=t.split(':').map(Numb
 
 // filteredTrades removed - using sub-tab approach
 function renderDash(){
-  const td=today(),tdSlash=td.replace(/-/g,'/');
-  const tdList=trades.filter(t=>t.date===td||t.date===tdSlash);
+  const td=today(),tdList=trades.filter(t=>t.date===td);
   const s=calcWR(tdList);
   const streak=calcStreak();
   const el=document.getElementById('dash-grid');
@@ -734,9 +745,9 @@ function renderSummary(list){
   const gWR=calcInjWR(list,'GORILLA'),iWR=calcInjWR(list,'IRAZU'),hWR=calcInjWR(list,'HUNO');
   const anoS=calcCatWR(list,'ano'),optS=calcCatWR(list,'opt');
   const wdMap={};
-  list.forEach(t=>{const dt=new Date(toIso(t.date)+'T00:00:00');const wd=['日','月','火','水','木','金','土'][dt.getDay()];if(!wdMap[wd])wdMap[wd]={w:0,m:0,l:0,t:0};t.injs.forEach(i=>{if(i.result==='none')return;wdMap[wd].t++;if(i.result==='win')wdMap[wd].w++;if(i.result==='martin')wdMap[wd].m++;if(i.result==='lose')wdMap[wd].l++;});});
+  list.forEach(t=>{const dt=new Date(t.date+'T00:00:00');const wd=['日','月','火','水','木','金','土'][dt.getDay()];if(!wdMap[wd])wdMap[wd]={w:0,m:0,l:0,t:0};t.injs.forEach(i=>{if(i.result==='none')return;wdMap[wd].t++;if(i.result==='win')wdMap[wd].w++;if(i.result==='martin')wdMap[wd].m++;if(i.result==='lose')wdMap[wd].l++;});});
   const wdHTML=['月','火','水','木','金'].map(d=>{const v=wdMap[d]||{w:0,m:0,l:0,t:0};const wr=v.t?Math.round((v.w+v.m)/v.t*100):0;return`<div class="weekday-card"><div class="weekday-name">${d}曜</div><div class="weekday-wr ${wr>=60?'win-c':wr>=50?'martin-c':wr>0?'lose-c':''}">${v.t?wr+'%':'—'}</div><div class="weekday-detail">${v.t?`${v.w+v.m}勝${v.l}敗 ${v.t}件`:''}</div></div>`;}).join('');
-  const injCards=[{name:'GORILLA',sub:'gorilla',v:gWR,color:'#7c6af7'},{name:'IRAZU',sub:'irazu',v:iWR,color:'#5a8aee'},{name:'HUNO',sub:'huno',v:hWR,color:'#1aaa6a'}].map(function(o){const name=o.name,sub=o.sub,v=o.v,color=o.color;return '<div onclick="showSub(''+sub+'')" style="background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-top:3px solid '+color+';cursor:pointer"><div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:500;display:flex;justify-content:space-between">'+name+'<span style="font-size:9px;color:#bbb">→</span></div><div style="font-size:22px;font-weight:600;color:'+(v.mt>=60?'#1aaa6a':v.mt>=50?'#5a8aee':v.t?'#ee6a50':'#ccc')+'">'+(v.t?v.mt+'%':'—')+'</div><div style="font-size:10px;color:#aaa;margin-top:2px">'+(v.t?'単発'+v.s+'% '+v.w+'勝'+v.l+'敗 '+v.t+'件':'')+'</div></div>';}).join('');
+  const injCards=[{name:'GORILLA',v:gWR,color:'#7c6af7'},{name:'IRAZU',v:iWR,color:'#5a8aee'},{name:'HUNO',v:hWR,color:'#1aaa6a'}].map(({name,v,color})=>`<div style="background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-top:3px solid ${color}"><div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:500">${name}</div><div style="font-size:22px;font-weight:600" class="${v.mt>=60?'win-c':v.mt>=50?'martin-c':v.t?'lose-c':''}">${v.t?v.mt+'%':'—'}</div><div style="font-size:10px;color:#aaa;margin-top:2px">${v.t?`単発${v.s}% ${v.w}勝${v.l}敗 ${v.t}件`:''}</div></div>`).join('');
   return`
     <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;border-top:3px solid #1a1a2e">
       <div style="font-size:11px;color:#888;margin-bottom:8px;font-weight:500">📊 全体トータル</div>
