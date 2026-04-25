@@ -75,7 +75,7 @@ textarea{min-height:36px;resize:vertical}
 .memo-area{padding:0 8px 7px}
 .add-btn{display:flex;align-items:center;justify-content:center;gap:4px;padding:6px;font-size:12px;cursor:pointer;border:1px dashed #ccc;border-radius:8px;background:none;color:#aaa;margin-top:7px;width:100%}
 .add-btn:hover{background:#f9f9f9}
-.ano-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid #f5f5f5;border-radius:0;transition:background 0.2s}
+.ano-row{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid #f5f5f5;border-radius:0;transition:background 0.2s}
 .ano-row:last-child{border-bottom:none}
 .ano-row.done-win{background:#f0fdf6;border-radius:8px;border-bottom:none;margin-bottom:2px}
 .ano-row.done-lose{background:#fff5f3;border-radius:8px;border-bottom:none;margin-bottom:2px}
@@ -512,12 +512,12 @@ function buildAnoRows(){
       const key=`${i}_${pi}`;anoState[key]='none';
       rows.push(`<div class="ano-row" id="ano-row-${key}">
         <div class="ano-info"><span style="font-weight:600">${a.time}</span> <span style="color:#7c6af7">${a.dir}</span> ${p}</div>
-        <div class="ano-memo-wrap"><input type="text" id="ano-memo-${key}" placeholder="メモ"></div>
         <div class="ano-btns">
           <button class="rbtn" onclick="setAno('${key}','win',this)">○</button>
           <button class="rbtn" onclick="setAno('${key}','lose',this)">✕</button>
           <button class="rbtn" onclick="setAno('${key}','skip',this)">－</button>
         </div>
+        <div class="ano-memo-wrap"><input type="text" id="ano-memo-${key}" placeholder="メモ"></div>
       </div>`);
     });
   });
@@ -734,8 +734,8 @@ function renderSummary(list){
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px">${injCards}</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-      <div style="background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-top:3px solid #f0a020"><div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:500">アノマリー</div><div style="font-size:22px;font-weight:600" class="${anoS.wr>=60?'win-c':anoS.wr>=50?'martin-c':anoS.t?'lose-c':''}">${anoS.t?anoS.wr+'%':'—'}</div><div style="font-size:10px;color:#aaa;margin-top:2px">${anoS.t?`${anoS.w}勝${anoS.l}敗 ${anoS.t}件`:''}</div></div>
-      <div style="background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-top:3px solid #ee6a50"><div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:500">オプション</div><div style="font-size:22px;font-weight:600" class="${optS.wr>=60?'win-c':optS.wr>=50?'martin-c':optS.t?'lose-c':''}">${optS.t?optS.wr+'%':'—'}</div><div style="font-size:10px;color:#aaa;margin-top:2px">${optS.t?`${optS.w}勝${optS.l}敗 ${optS.t}件`:''}</div></div>
+      <div onclick="showSub('ano')" style="background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-top:3px solid #f0a020;cursor:pointer" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"><div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:500;display:flex;justify-content:space-between">アノマリー<span style="font-size:9px;color:#bbb">→</span></div><div style="font-size:22px;font-weight:600" class="${anoS.wr>=60?'win-c':anoS.wr>=50?'martin-c':anoS.t?'lose-c':''}">${anoS.t?anoS.wr+'%':'—'}</div><div style="font-size:10px;color:#aaa;margin-top:2px">${anoS.t?`${anoS.w}勝${anoS.l}敗 ${anoS.t}件`:''}</div></div>
+      <div onclick="showSub('opt')" style="background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-top:3px solid #ee6a50;cursor:pointer" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"><div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:500;display:flex;justify-content:space-between">オプション<span style="font-size:9px;color:#bbb">→</span></div><div style="font-size:22px;font-weight:600" class="${optS.wr>=60?'win-c':optS.wr>=50?'martin-c':optS.t?'lose-c':''}">${optS.t?optS.wr+'%':'—'}</div><div style="font-size:10px;color:#aaa;margin-top:2px">${optS.t?`${optS.w}勝${optS.l}敗 ${optS.t}件`:''}</div></div>
     </div>
     <div style="font-size:12px;font-weight:500;color:#888;margin-bottom:6px">📅 曜日別勝率（1マーチン込み）</div>
     <div class="weekday-grid">${wdHTML}</div>`;
