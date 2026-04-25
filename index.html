@@ -399,6 +399,7 @@ let trades=[],anoState={},optBlocks=[],injEntries={0:[],1:[],2:[]},entryList=[];
 let currentDateIso='',dateMode='picker',histPeriod='all',anaPeriod='all';
 
 function today(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function toIso(d){return d?d.replace(/\//g,'-'):'';}
 function formatDisplay(iso){if(!iso)return'日付を選択';const[y,m,d]=iso.split('-');const dt=new Date(iso+'T00:00:00');return`${y}年${m}月${d}日（${WEEKDAYS[dt.getDay()]}）`;}
 function isoToSlash(iso){if(!iso)return'';const[y,m,d]=iso.split('-');return`${y}/${m}/${d}`;}
 function slashToIso(s){const m=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);if(!m)return'';return`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;}
@@ -430,8 +431,9 @@ function filterByPeriod(list,p){
   const now=new Date(),td=today();
   return list.filter(t=>{
     if(p==='all')return true;
+    const iso=toIso(t.date);
     if(p==='today'){const tdS=td.replace(/-/g,'/');return t.date===td||t.date===tdS;}
-    const d=new Date(t.date+'T00:00:00');
+    const d=new Date(iso+'T00:00:00');
     if(p==='week'){const w=new Date(now);w.setDate(w.getDate()-7);return d>=w;}
     if(p==='month')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
     if(p==='year')return d.getFullYear()===now.getFullYear();
@@ -732,9 +734,9 @@ function renderSummary(list){
   const gWR=calcInjWR(list,'GORILLA'),iWR=calcInjWR(list,'IRAZU'),hWR=calcInjWR(list,'HUNO');
   const anoS=calcCatWR(list,'ano'),optS=calcCatWR(list,'opt');
   const wdMap={};
-  list.forEach(t=>{const dt=new Date(t.date+'T00:00:00');const wd=['日','月','火','水','木','金','土'][dt.getDay()];if(!wdMap[wd])wdMap[wd]={w:0,m:0,l:0,t:0};t.injs.forEach(i=>{if(i.result==='none')return;wdMap[wd].t++;if(i.result==='win')wdMap[wd].w++;if(i.result==='martin')wdMap[wd].m++;if(i.result==='lose')wdMap[wd].l++;});});
+  list.forEach(t=>{const dt=new Date(toIso(t.date)+'T00:00:00');const wd=['日','月','火','水','木','金','土'][dt.getDay()];if(!wdMap[wd])wdMap[wd]={w:0,m:0,l:0,t:0};t.injs.forEach(i=>{if(i.result==='none')return;wdMap[wd].t++;if(i.result==='win')wdMap[wd].w++;if(i.result==='martin')wdMap[wd].m++;if(i.result==='lose')wdMap[wd].l++;});});
   const wdHTML=['月','火','水','木','金'].map(d=>{const v=wdMap[d]||{w:0,m:0,l:0,t:0};const wr=v.t?Math.round((v.w+v.m)/v.t*100):0;return`<div class="weekday-card"><div class="weekday-name">${d}曜</div><div class="weekday-wr ${wr>=60?'win-c':wr>=50?'martin-c':wr>0?'lose-c':''}">${v.t?wr+'%':'—'}</div><div class="weekday-detail">${v.t?`${v.w+v.m}勝${v.l}敗 ${v.t}件`:''}</div></div>`;}).join('');
-  const injCards=[{name:'GORILLA',v:gWR,color:'#7c6af7'},{name:'IRAZU',v:iWR,color:'#5a8aee'},{name:'HUNO',v:hWR,color:'#1aaa6a'}].map(({name,v,color})=>`<div style="background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-top:3px solid ${color}"><div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:500">${name}</div><div style="font-size:22px;font-weight:600" class="${v.mt>=60?'win-c':v.mt>=50?'martin-c':v.t?'lose-c':''}">${v.t?v.mt+'%':'—'}</div><div style="font-size:10px;color:#aaa;margin-top:2px">${v.t?`単発${v.s}% ${v.w}勝${v.l}敗 ${v.t}件`:''}</div></div>`).join('');
+  const injCards=[{name:'GORILLA',sub:'gorilla',v:gWR,color:'#7c6af7'},{name:'IRAZU',sub:'irazu',v:iWR,color:'#5a8aee'},{name:'HUNO',sub:'huno',v:hWR,color:'#1aaa6a'}].map(function(o){const name=o.name,sub=o.sub,v=o.v,color=o.color;return '<div onclick="showSub(''+sub+'')" style="background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-top:3px solid '+color+';cursor:pointer"><div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:500;display:flex;justify-content:space-between">'+name+'<span style="font-size:9px;color:#bbb">→</span></div><div style="font-size:22px;font-weight:600;color:'+(v.mt>=60?'#1aaa6a':v.mt>=50?'#5a8aee':v.t?'#ee6a50':'#ccc')+'">'+(v.t?v.mt+'%':'—')+'</div><div style="font-size:10px;color:#aaa;margin-top:2px">'+(v.t?'単発'+v.s+'% '+v.w+'勝'+v.l+'敗 '+v.t+'件':'')+'</div></div>';}).join('');
   return`
     <div style="background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;border-top:3px solid #1a1a2e">
       <div style="font-size:11px;color:#888;margin-bottom:8px;font-weight:500">📊 全体トータル</div>
