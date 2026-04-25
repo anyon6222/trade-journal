@@ -666,15 +666,38 @@ function renderTodayList(){
   if(!tt.length){el.innerHTML=`<div class="today-empty">まだ今日の記録はありません</div>`;return;}
   el.innerHTML=tt.map((tr,idx)=>{
     const lines=[];
-    const injA=tr.injs.filter(i=>i.result!=='none');
-    if(injA.length)lines.push(injA.map(i=>`<b>${i.name}</b>${i.line&&i.line!=='—'?`[${i.line}]`:''} ${i.time?`<span style="color:#aaa">${i.time}</span>`:''} ${i.dir==='up'?'↑':'↓'} ${rLabel(i.result)}`).join('　'));
-    const anoA=tr.anos.filter(a=>a.result!=='none');
-    if(anoA.length)lines.push('アノマリー: '+anoA.map(a=>{const r=a.result;const badge=r==='win'?'<span class="badge b-win">○</span>':r==='lose'?'<span class="badge b-lose">✕</span>':r==='skip'?'<span class="badge b-skip">－</span>':'';\`return`${a.time} ${badge}`}).join(' '));
-    const optA=tr.opts.filter(o=>(o.rounds||[o.result]).some(r=>r&&r!=='none'));
-    if(optA.length)lines.push('オプション: '+optA.map(o=>{const rs=(o.rounds||[o.result]).filter(r=>r&&r!=='none');return`${o.name.slice(0,8)} ${rs.map(r=>r==='win'?'<span class="badge b-win">○</span>':'<span class="badge b-lose">✕</span>').join('')}`}).join(' '));
-    const entA=(tr.entries||[]).filter(e=>e.result!=='none');
-    if(entA.length)lines.push('エントリー: '+entA.map(e=>`${e.pair} ${e.dir==='up'?'↑':'↓'} ${rLabel(e.result)}`).join(' '));
-    return`<div class="today-item"><div class="today-num">${idx+1}</div><div class="today-body">${lines.join('<br>')||'（詳細なし）'}</div><button class="today-del" onclick="delToday(${tr.id})">削除</button></div>`;
+    const rb=function(r){return r==='win'?'<span class="badge b-win">○</span>':r==='martin'?'<span class="badge b-martin">✕○</span>':r==='lose'?'<span class="badge b-lose">✕✕</span>':r==='skip'?'<span class="badge b-skip">－</span>':'';}
+    const rb2=function(r){return r==='win'?'<span class="badge b-win">○</span>':r==='lose'?'<span class="badge b-lose">✕</span>':r==='skip'?'<span class="badge b-skip">－</span>':'';}
+    ['GORILLA','IRAZU','HUNO'].forEach(function(name){
+      const arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none';});
+      if(!arr.length)return;
+      const injW=arr.filter(function(i){return i.result==='win'||i.result==='martin';}).length;
+      const injWR=Math.round(injW/arr.length*100);
+      const detail=arr.map(function(i){return (i.line&&i.line!=='—'?'['+i.line+']':'')+' '+(i.time||'')+' '+(i.dir==='up'?'↑':'↓')+' '+rb(i.result);}).join('　');
+      const wrCls=injWR>=60?'win-c':injWR>=50?'martin-c':'lose-c';
+      lines.push('<span style="display:flex;justify-content:space-between"><span><b>'+name+'</b>: '+detail+'</span><span style="font-size:10px;color:#888;margin-left:6px">'+arr.length+'件 <b class="'+wrCls+'">'+injWR+'%</b></span></span>');
+    });
+    const anoA=tr.anos.filter(function(a){return a.result!=='none';});
+    if(anoA.length){
+      const anoW=anoA.filter(function(a){return a.result==='win';}).length;
+      const anoT=anoA.filter(function(a){return a.result!=='skip';}).length;
+      const anoWR=anoT?Math.round(anoW/anoT*100):0;
+      const detail=anoA.map(function(a){return a.time+' '+rb2(a.result);}).join(' ');
+      const wrCls=anoWR>=60?'win-c':anoWR>=50?'martin-c':'lose-c';
+      lines.push('<span style="display:flex;justify-content:space-between"><span>アノマリー: '+detail+'</span><span style="font-size:10px;color:#888;margin-left:6px">'+anoT+'件 <b class="'+wrCls+'">'+anoWR+'%</b></span></span>');
+    }
+    const optA=tr.opts.filter(function(o){return (o.rounds||[o.result]).some(function(r){return r&&r!=='none';});});
+    if(optA.length){
+      let optW=0,optT=0;
+      optA.forEach(function(o){(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';}).forEach(function(r){optT++;if(r==='win')optW++;});});
+      const optWR=optT?Math.round(optW/optT*100):0;
+      const detail=optA.map(function(o){const rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});return o.name.slice(0,8)+' '+rs.map(function(r){return rb2(r);}).join('');}).join(' ');
+      const wrCls=optWR>=60?'win-c':optWR>=50?'martin-c':'lose-c';
+      lines.push('<span style="display:flex;justify-content:space-between"><span>オプション: '+detail+'</span><span style="font-size:10px;color:#888;margin-left:6px">'+optT+'件 <b class="'+wrCls+'">'+optWR+'%</b></span></span>');
+    }
+    const entA=(tr.entries||[]).filter(function(e){return e.result!=='none';});
+    if(entA.length)lines.push('エントリー: '+entA.map(function(e){return e.pair+' '+(e.dir==='up'?'↑':'↓')+' '+rb(e.result);}).join(' '));
+    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body">'+(lines.join('<br>')||'（詳細なし）')+'</div><button class="today-del" onclick="delToday('+tr.id+')">削除</button></div>';
   }).join('');
 }
 function delToday(id){if(!confirm('削除しますか？'))return;trades=trades.filter(t=>t.id!==id);saveData();renderTodayList();}
