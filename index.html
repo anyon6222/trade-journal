@@ -552,8 +552,8 @@ function setOptResult(oi,rid,val,btn){
   round.result=val;
   const wrap=btn.closest('.opt-round');
   wrap.querySelectorAll('.rbtn').forEach(b=>b.className='rbtn');
-  btn.classList.add(val==='win'?'sel-win':'sel-lose');
-  wrap.className=`opt-round ${val==='win'?'done-win':'done-lose'}`;
+  btn.classList.add(val==='win'?'sel-win':val==='lose'?'sel-lose':'sel-skip');
+  wrap.className=`opt-round ${val==='win'?'done-win':val==='lose'?'done-lose':val==='skip'?'done-skip':''}`;
 }
 function renderOptBlocks(){
   document.getElementById('opt-blocks').innerHTML=optBlocks.map((ob,oi)=>`
@@ -565,6 +565,7 @@ function renderOptBlocks(){
             <span class="opt-round-num">${ri+1}回目</span>
             <button class="rbtn ${r.result==='win'?'sel-win':''}" style="padding:3px 8px;font-size:12px" onclick="setOptResult(${oi},${r.id},'win',this)">○</button>
             <button class="rbtn ${r.result==='lose'?'sel-lose':''}" style="padding:3px 8px;font-size:12px" onclick="setOptResult(${oi},${r.id},'lose',this)">✕</button>
+            <button class="rbtn ${r.result==='skip'?'sel-skip':''}" style="padding:3px 8px;font-size:12px" onclick="setOptResult(${oi},${r.id},'skip',this)">－</button>
             ${ob.rounds.length>1?`<button class="opt-round-del" onclick="removeOptRound(${oi},${r.id})">✕</button>`:''}
           </div>`).join('')}
         <button class="add-btn" style="width:auto;padding:4px 10px;font-size:11px;margin-top:0" onclick="addOptRound(${oi})">＋</button>
@@ -667,8 +668,8 @@ function renderTodayList(){
     const lines=[];
     const injA=tr.injs.filter(i=>i.result!=='none');
     if(injA.length)lines.push(injA.map(i=>`<b>${i.name}</b>${i.line&&i.line!=='—'?`[${i.line}]`:''} ${i.time?`<span style="color:#aaa">${i.time}</span>`:''} ${i.dir==='up'?'↑':'↓'} ${rLabel(i.result)}`).join('　'));
-    const anoA=tr.anos.filter(a=>a.result!=='none'&&a.result!=='skip');
-    if(anoA.length)lines.push('アノマリー: '+anoA.map(a=>`${a.time} ${rLabel(a.result)}`).join(' '));
+    const anoA=tr.anos.filter(a=>a.result!=='none');
+    if(anoA.length)lines.push('アノマリー: '+anoA.map(a=>{const r=a.result;const badge=r==='win'?'<span class="badge b-win">○</span>':r==='lose'?'<span class="badge b-lose">✕</span>':r==='skip'?'<span class="badge b-skip">－</span>':'';\`return`${a.time} ${badge}`}).join(' '));
     const optA=tr.opts.filter(o=>(o.rounds||[o.result]).some(r=>r&&r!=='none'));
     if(optA.length)lines.push('オプション: '+optA.map(o=>{const rs=(o.rounds||[o.result]).filter(r=>r&&r!=='none');return`${o.name.slice(0,8)} ${rs.map(r=>r==='win'?'<span class="badge b-win">○</span>':'<span class="badge b-lose">✕</span>').join('')}`}).join(' '));
     const entA=(tr.entries||[]).filter(e=>e.result!=='none');
