@@ -372,7 +372,7 @@ ANOMALIES.forEach(function(a){a.pairs.forEach(function(p){ANO_LABELS.push(a.time
 // ===== 状態 =====
 var trades=[],dailyMemos={},anoState={},optBlocks=[],injEntries={0:[],1:[],2:[]},entList=[];
 var curDateIso='',dateMode='picker',histPeriod='all',anaPeriod='all',curSub='summary';
-var injF={pair:'',line:'',dir:'',result:''},anoF={result:''},optF={name:''};
+var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',memo:''},anoF={result:'',weekday:'',memo:''},optF={name:'',memo:''};
 
 // ===== 日付ユーティリティ =====
 function todayIso(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
@@ -453,7 +453,22 @@ function badge2(v){
   if(v==='skip')return'<span class="badge b-skip">－</span>';
   return'';
 }
-function wrl(pct,w,l,t){return'<span style="font-weight:600">'+pct+'%</span><span style="color:#aaa;font-size:10px;margin-left:3px">('+w+'勝'+l+'敗) '+t+'件</span>';}
+function wrl(pct,w,l,t,sk){
+  var sk_s=sk?'['+sk+'ス]':'';
+  return'<span style="font-weight:600">'+pct+'%</span><span style="color:#aaa;font-size:10px;margin-left:3px">('+w+'勝'+l+'敗'+sk_s+') '+t+'件</span>';
+}
+function fmtWR(s,noMartin){
+  var sk_s=s.sk?'['+s.sk+'ス]':'';
+  var r='<span class="win-c">単発 <b>'+s.s+'%</b>('+s.w+'勝'+s.l+'敗'+sk_s+' '+s.t+'件)</span>';
+  if(!noMartin)r+=' / <span class="martin-c">1M込 <b>'+s.mt+'%</b>('+(s.w+s.m)+'勝'+s.l+'敗 '+s.t+'件)</span>';
+  return r;
+}
+function fmtCatWR(cs,noMartin){
+  var sk_s=cs.sk?'['+cs.sk+'ス]':'';
+  var r='<span class="win-c">'+cs.wr+'%('+cs.w+'勝'+cs.l+'敗'+sk_s+' '+cs.t+'件)</span>';
+  if(!noMartin&&cs.m)r+=' / <span class="martin-c">1M'+cs.wrm+'%</span>';
+  return r;
+}
 function calcWR(list){
   var t=0,w=0,m=0,l=0;
   list.forEach(function(tr){
@@ -463,18 +478,18 @@ function calcWR(list){
   return{t:t,w:w,m:m,l:l,s:t?Math.round(w/t*100):0,mt:t?Math.round((w+m)/t*100):0};
 }
 function calcCat(list,cat){
-  var t=0,w=0,l=0;
+  var t=0,w=0,m=0,l=0,sk=0;
   list.forEach(function(tr){
-    if(cat==='inj')tr.injs.forEach(function(i){if(!i.result||i.result==='none')return;t++;if(i.result==='win'||i.result==='martin')w++;else if(i.result==='lose')l++;});
-    if(cat==='ano')tr.anos.forEach(function(a){if(!a.result||a.result==='none'||a.result==='skip')return;t++;if(a.result==='win')w++;else l++;});
-    if(cat==='opt')tr.opts.forEach(function(o){(o.rounds||[o.result]).forEach(function(r){if(!r||r==='none'||r==='skip')return;t++;if(r==='win')w++;else l++;});});
-    if(cat==='entry')(tr.entries||[]).forEach(function(e){if(!e.result||e.result==='none')return;t++;if(e.result==='win'||e.result==='martin')w++;else if(e.result==='lose')l++;});
+    if(cat==='inj')tr.injs.forEach(function(i){if(!i.result||i.result==='none')return;if(i.result==='win'){t++;w++;}else if(i.result==='martin'){t++;m++;}else if(i.result==='lose'){t++;l++;}});
+    if(cat==='ano')tr.anos.forEach(function(a){if(!a.result||a.result==='none')return;if(a.result==='skip')sk++;else{t++;if(a.result==='win')w++;else l++;}});
+    if(cat==='opt')tr.opts.forEach(function(o){(o.rounds||[o.result]).forEach(function(r){if(!r||r==='none')return;if(r==='skip')sk++;else{t++;if(r==='win')w++;else l++;}});});
+    if(cat==='entry')(tr.entries||[]).forEach(function(e){if(!e.result||e.result==='none')return;if(e.result==='win'){t++;w++;}else if(e.result==='martin'){t++;m++;}else if(e.result==='lose'){t++;l++;}});
   });
-  return{t:t,w:w,l:l,wr:t?Math.round(w/t*100):0};
+  return{t:t,w:w,m:m,l:l,sk:sk,wr:t?Math.round(w/t*100):0,wrm:t?Math.round((w+m)/t*100):0};
 }
 function calcInj(list,name){
   var t=0,w=0,m=0,l=0;
-  list.forEach(function(tr){tr.injs.filter(function(i){return i.name===name&&i.result!=='none';}).forEach(function(i){t++;if(i.result==='win')w++;else if(i.result==='martin')m++;else l++;});});
+  list.forEach(function(tr){tr.injs.filter(function(i){return i.name===name&&i.result!=='none';}).forEach(function(i){if(i.result==='win'){t++;w++;}else if(i.result==='martin'){t++;m++;}else if(i.result==='lose'){t++;l++;}});});
   return{t:t,w:w,m:m,l:l,s:t?Math.round(w/t*100):0,mt:t?Math.round((w+m)/t*100):0};
 }
 
@@ -503,12 +518,11 @@ function renderTodayList(){
   document.getElementById('today-ttl').textContent='今日の記録（'+tdList.length+'件）';
   var wrEl=document.getElementById('today-wr');
   if(tdList.length){
-    wrEl.innerHTML=
-      '<span class="win-c">単発 '+s.s+'%('+s.w+'勝'+s.l+'敗 '+s.t+'件)</span> / '+
-      '<span class="martin-c">1M込 '+s.mt+'%('+(s.w+s.m)+'勝'+s.l+'敗 '+s.t+'件)</span><br>'+
-      (injS.t?'<span>インジ '+injS.wr+'%('+injS.w+'勝'+injS.l+'敗 '+injS.t+'件)</span> ':'')+
-      (anoS.t?'<span>アノマリー '+anoS.wr+'%('+anoS.w+'勝'+anoS.l+'敗 '+anoS.t+'件)</span> ':'')+
-      (optS.t?'<span>オプション '+optS.wr+'%('+optS.w+'勝'+optS.l+'敗 '+optS.t+'件)</span>':'');
+    var injS2=calcCat(tdList,'inj'),anoS2=calcCat(tdList,'ano'),optS2=calcCat(tdList,'opt');
+    wrEl.innerHTML=fmtWR(s)+'<br>'+
+      (injS2.t?'インジ '+fmtCatWR(injS2)+' ':'')+
+      (anoS2.t?'アノマリー '+fmtCatWR(anoS2,true)+' ':'')+
+      (optS2.t?'オプション '+fmtCatWR(optS2,true):'');
   }else{wrEl.innerHTML='';}
   var el=document.getElementById('today-items');
   if(!tdList.length){el.innerHTML='<div class="today-empty">まだ今日の記録はありません</div>';return;}
@@ -521,7 +535,13 @@ function renderTodayList(){
       var injWR=Math.round(injW/arr.length*100);
       var cls=injWR>=60?'win-c':injWR>=50?'martin-c':'lose-c';
       var detail=arr.map(function(i){return (i.line&&i.line!=='—'?'['+i.line+']':'')+' '+(i.time||'')+' '+(i.dir==='up'?'↑':'↓')+' '+badge(i.result);}).join('　');
-      lines.push('<span style="display:flex;justify-content:space-between"><span><b>'+name+'</b>: '+detail+'</span><span style="font-size:10px;color:#888;margin-left:6px">'+arr.length+'件 <b class="'+cls+'">'+injWR+'%</b></span></span>');
+      var injM=arr.filter(function(i){return i.result==='martin';}).length;
+      var injL=arr.filter(function(i){return i.result==='lose';}).length;
+      var injWRm=Math.round((injW+injM)/arr.length*100);
+      var wrTxt=injM>0?
+        '単発<b class="'+cls+'">'+injWR+'%</b>('+injW+'勝'+injL+'敗) / 1M<b class="martin-c">'+injWRm+'%</b>('+(injW+injM)+'勝'+injL+'敗) '+arr.length+'件':
+        '単発<b class="'+cls+'">'+injWR+'%</b>('+injW+'勝'+injL+'敗) '+arr.length+'件';
+      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span><b>'+name+'</b>: '+detail+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">'+wrTxt+'</span></span>');
     });
     var anoA=tr.anos.filter(function(a){return a.result!=='none';});
     if(anoA.length){
@@ -530,7 +550,9 @@ function renderTodayList(){
       var awr=at?Math.round(aw/at*100):0;
       var acls=awr>=60?'win-c':awr>=50?'martin-c':'lose-c';
       var adet=anoA.map(function(a){return a.time+' '+badge2(a.result);}).join(' ');
-      lines.push('<span style="display:flex;justify-content:space-between"><span>アノマリー: '+adet+'</span><span style="font-size:10px;color:#888;margin-left:6px">'+at+'件 <b class="'+acls+'">'+awr+'%</b></span></span>');
+      var anoSkip=anoA.filter(function(a){return a.result==='skip';}).length;
+      var anoSkTxt=anoSkip?'['+anoSkip+'ス]':'';
+      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>アノマリー: '+adet+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">単発<b class="'+acls+'">'+awr+'%</b>('+aw+'勝'+(at-aw)+'敗'+anoSkTxt+' '+anoA.length+'件)</span></span>');
     }
     var optA=tr.opts.filter(function(o){return (o.rounds||[o.result]).some(function(r){return r&&r!=='none';});});
     if(optA.length){
@@ -539,11 +561,17 @@ function renderTodayList(){
       var owr=ot?Math.round(ow/ot*100):0;
       var ocls=owr>=60?'win-c':owr>=50?'martin-c':'lose-c';
       var odet=optA.map(function(o){var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});return o.name.slice(0,8)+' '+rs.map(function(r){return badge2(r);}).join('');}).join(' ');
-      lines.push('<span style="display:flex;justify-content:space-between"><span>オプション: '+odet+'</span><span style="font-size:10px;color:#888;margin-left:6px">'+ot+'件 <b class="'+ocls+'">'+owr+'%</b></span></span>');
+      var optTot=optA.reduce(function(s,o){return s+(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';}).length;},0);
+      var optSk=optA.reduce(function(s,o){return s+(o.rounds||[o.result]).filter(function(r){return r==='skip';}).length;},0);
+      var optSkTxt=optSk?'['+optSk+'ス]':'';
+      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>オプション: '+odet+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">単発<b class="'+ocls+'">'+owr+'%</b>('+ow+'勝'+(ot-ow)+'敗'+optSkTxt+' '+optTot+'件)</span></span>');
     }
     var entA=(tr.entries||[]).filter(function(e){return e.result!=='none';});
     if(entA.length)lines.push('エントリー: '+entA.map(function(e){return e.pair+' '+(e.dir==='up'?'↑':'↓')+' '+badge(e.result);}).join(' '));
-    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body">'+(lines.join('<br>')||'（詳細なし）')+'</div><button class="today-del" onclick="delToday('+tr.id+')">削除</button></div>';
+    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body">'+(lines.join('<br>')||'（詳細なし）')+'</div>'+
+      '<div style="display:flex;flex-direction:column;gap:4px">'+
+        '<button class="today-del" onclick="delToday('+tr.id+')" style="white-space:nowrap">削除</button>'+
+      '</div></div>';
   }).join('');
 }
 function delToday(id){if(!confirm('削除しますか？'))return;trades=trades.filter(function(t){return t.id!==id;});saveData();renderTodayList();renderDash();}
@@ -787,12 +815,12 @@ function renderSummary(list){
       '<div class="sum-card" onclick="showSub(\'ano\')" style="border-top:3px solid #f0a020;cursor:pointer">'+
         '<div class="sum-name">アノマリー<span style="font-size:9px;color:#bbb">→</span></div>'+
         '<div class="sum-wr '+(anoS.wr>=60?'win-c':anoS.wr>=50?'martin-c':anoS.t?'lose-c':'')+'">'+(anoS.t?anoS.wr+'%':'—')+'</div>'+
-        '<div class="sum-det">'+(anoS.t?anoS.w+'勝'+anoS.l+'敗 '+anoS.t+'件':'')+'</div>'+
+        '<div class="sum-det">'+(anoS.t?anoS.w+'勝'+anoS.l+'敗'+(anoS.sk?'['+anoS.sk+'ス]':'')+' '+anoS.t+'件':'')+'</div>'+
       '</div>'+
       '<div class="sum-card" onclick="showSub(\'opt\')" style="border-top:3px solid #ee6a50;cursor:pointer">'+
         '<div class="sum-name">オプション<span style="font-size:9px;color:#bbb">→</span></div>'+
         '<div class="sum-wr '+(optS.wr>=60?'win-c':optS.wr>=50?'martin-c':optS.t?'lose-c':'')+'">'+(optS.t?optS.wr+'%':'—')+'</div>'+
-        '<div class="sum-det">'+(optS.t?optS.w+'勝'+optS.l+'敗 '+optS.t+'件':'')+'</div>'+
+        '<div class="sum-det">'+(optS.t?optS.w+'勝'+optS.l+'敗'+(optS.sk?'['+optS.sk+'ス]':'')+' '+optS.t+'件':'')+'</div>'+
       '</div>'+
     '</div>'+
     '<div style="font-size:12px;font-weight:500;color:#888;margin-bottom:6px">📅 曜日別勝率（1マーチン込み）</div>'+
@@ -809,11 +837,16 @@ function mkXlStat(label,wr,wrm,w,l,t,noMartin){
 function renderInjTab(list,injName){
   var rows=[];
   list.forEach(function(t){t.injs.filter(function(i){return i.name===injName&&i.result!=='none';}).forEach(function(i){rows.push({date:t.dateDisplay||t.date,pair:i.pair,time:i.time,dir:i.dir,line:i.line,result:i.result,memo:i.memo});});});
+  var ts_opts=['07:00','07:15','07:30','07:45','08:00','08:15','08:30','08:45','09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','14:45','15:00','15:45','16:00','16:45','17:00','17:45'].map(function(t){return '<option value="'+t+'" '+(injF.time===t?'selected':'')+'>'+t+'</option>';}).join('');
+  var wd_inj=['月','火','水','木','金','土','日'].map(function(d){return '<option value="'+d+'" '+(injF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
   var filtered=rows.filter(function(r){
     if(injF.pair&&r.pair!==injF.pair)return false;
     if(injF.line&&r.line!==injF.line)return false;
     if(injF.dir&&r.dir!==injF.dir)return false;
     if(injF.result&&r.result!==injF.result)return false;
+    if(injF.time&&(!r.time||!r.time.startsWith(injF.time)))return false;
+    if(injF.weekday&&!r.date.includes(injF.weekday+'曜'))return false;
+    if(injF.memo&&!r.memo)return false;
     return true;
   });
   var w=filtered.filter(function(r){return r.result==='win';}).length;
@@ -821,23 +854,24 @@ function renderInjTab(list,injName){
   var l=filtered.filter(function(r){return r.result==='lose';}).length;
   var t=filtered.length;
   var wr=t?Math.round(w/t*100):0,wrm=t?Math.round((w+m)/t*100):0;
+  // スルーはインジにはないが念のため
   var inj=INJS.find(function(i){return i.name===injName;});
   var lOpts=inj.lines.filter(function(l){return l!=='—';}).map(function(l){return '<option value="'+l+'" '+(injF.line===l?'selected':'')+'>'+l+'</option>';}).join('');
   var pOpts=PAIRS.map(function(p){return '<option value="'+p+'" '+(injF.pair===p?'selected':'')+'>'+p+'</option>';}).join('');
   var rows_html=filtered.length?filtered.map(function(r){
     return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td style="font-weight:500">'+r.pair+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑UP':'↓DOWN')+'</td><td style="font-weight:500">'+(r.line||'—')+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';
   }).join(''):'<tr><td colspan="7" style="text-align:center;padding:2rem;color:#ccc">データがありません</td></tr>';
-  return mkXlStat(injName,wr,wrm,w,l,t)+
+  return mkXlStat(injName,wr,wrm,w,l,t,false)+
 
     '<div class="xl-wrap"><table class="xl-table"><thead>'+
       '<tr>'+
-        '<th style="min-width:110px">日付</th>'+
+        '<th style="min-width:110px"><div>日付</div><select onchange="injF.weekday=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全曜日</option>'+wd_inj+'</select></th>'+
         '<th style="min-width:80px"><div>通貨</div><select onchange="injF.pair=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全通貨</option>'+pOpts+'</select></th>'+
-        '<th style="min-width:60px">時間</th>'+
+        '<th style="min-width:80px"><div>時間</div><select onchange="injF.time=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全時間</option>'+ts_opts+'</select></th>'+
         '<th style="min-width:70px"><div>方向</div><select onchange="injF.dir=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全方向</option><option value="up" '+(injF.dir==="up"?'selected':'')+'>↑UP</option><option value="down" '+(injF.dir==="down"?'selected':'')+'>↓DOWN</option></select></th>'+
         '<th style="min-width:70px"><div>ライン</div><select onchange="injF.line=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全ライン</option>'+lOpts+'</select></th>'+
         '<th style="min-width:60px"><div>結果</div><select onchange="injF.result=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全</option><option value="win" '+(injF.result==="win"?'selected':'')+'>○</option><option value="martin" '+(injF.result==="martin"?'selected':'')+'>✕○</option><option value="lose" '+(injF.result==="lose"?'selected':'')+'>✕✕</option></select></th>'+
-        '<th>メモ</th>'+
+        '<th><div>メモ</div><select onchange="injF.memo=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全</option><option value="1" '+(injF.memo==="1"?'selected':'')+'>あり</option></select></th>'+
       '</tr>'+
     '</thead><tbody>'+rows_html+'</tbody></table></div>';
 }
@@ -845,21 +879,29 @@ function renderInjTab(list,injName){
 function renderAnoTab(list){
   var rows=[];
   list.forEach(function(t){t.anos.forEach(function(a){if(a.result==='none')return;rows.push({date:t.dateDisplay||t.date,time:a.time,dir:a.dir,pair:a.pair,result:a.result,memo:a.memo});});});
-  var filtered=rows.filter(function(r){if(anoF.result&&r.result!==anoF.result)return false;return true;});
+  var filtered=rows.filter(function(r){
+    if(anoF.result&&r.result!==anoF.result)return false;
+    if(anoF.weekday&&!r.date.includes(anoF.weekday+'曜'))return false;
+    if(anoF.memo&&!r.memo)return false;
+    return true;
+  });
   var w=filtered.filter(function(r){return r.result==='win';}).length;
   var l=filtered.filter(function(r){return r.result==='lose';}).length;
   var t=filtered.length,wr=t?Math.round(w/t*100):0;
+  var wd_opts=['月','火','水','木','金','土','日'].map(function(d){return '<option value="'+d+'" '+(anoF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
+  var filteredSk=filtered.filter(function(r){return r.result==='skip';}).length;
+  var skTxt=filteredSk?'['+filteredSk+'ス]':'';
   var rows_html=filtered.length?filtered.map(function(r){
     return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td style="font-weight:500">'+r.time+'</td><td style="color:#7c6af7">'+r.dir+'</td><td>'+r.pair+'</td><td>'+badge2(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';
   }).join(''):'<tr><td colspan="6" style="text-align:center;padding:2rem;color:#ccc">データがありません</td></tr>';
-  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span><span class="win-c" style="font-weight:600">単発'+wr+'%('+w+'勝'+l+'敗 '+t+'件)</span></div>'+
+  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span><span class="win-c" style="font-weight:600">単発'+wr+'%('+w+'勝'+l+'敗'+skTxt+' '+t+'件)</span></div>'+
 
     '<div class="xl-wrap"><table class="xl-table"><thead>'+
       '<tr>'+
-        '<th style="min-width:110px">日付</th>'+
+        '<th style="min-width:110px"><div>日付</div><select onchange="anoF.weekday=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全曜日</option>'+wd_opts+'</select></th>'+
         '<th>時間</th><th>方向</th><th>通貨</th>'+
         '<th><div>結果</div><select onchange="anoF.result=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全</option><option value="win" '+(anoF.result==="win"?'selected':'')+'>○</option><option value="lose" '+(anoF.result==="lose"?'selected':'')+'>✕</option><option value="skip" '+(anoF.result==="skip"?'selected':'')+'>－</option></select></th>'+
-        '<th>メモ</th>'+
+        '<th><div>メモ</div><select onchange="anoF.memo=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全</option><option value="1" '+(anoF.memo==="1"?'selected':'')+'>あり</option></select></th>'+
       '</tr>'+
     '</thead><tbody>'+rows_html+'</tbody></table></div>';
 }
