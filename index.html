@@ -189,6 +189,27 @@ textarea{min-height:36px;resize:vertical}
 .ai-good{color:#1aaa6a;font-weight:500}
 .ai-warn{color:#ee6a50;font-weight:500}
 .ai-note{color:#5a8aee;font-weight:500}
+.sub-tabs{display:flex;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;overflow-x:auto}
+.sub-tab{padding:9px 14px;font-size:12px;cursor:pointer;border:none;background:#fff;color:#888;white-space:nowrap;border-right:1px solid #f0f0f0;flex-shrink:0}
+.sub-tab:last-child{border-right:none}
+.sub-tab.active{background:#1a1a2e;color:#fff;font-weight:500}
+.ptabs{display:flex;gap:5px;margin-bottom:11px;flex-wrap:wrap}
+.ptab{padding:5px 11px;font-size:12px;border:1px solid #e0e0e0;border-radius:20px;cursor:pointer;background:#fff;color:#888}
+.ptab.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.xl-wrap{overflow-x:auto;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.xl-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;min-width:480px}
+.xl-table th{background:#1a1a2e;color:#fff;padding:8px 10px;text-align:left;font-size:11px;font-weight:500;white-space:nowrap;vertical-align:top}
+.xl-table th select,.xl-table th input{font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%;margin-top:3px}
+.xl-table td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.xl-table tr:last-child td{border-bottom:none}
+.xl-table tr:hover td{background:#f8fff8}
+.xl-stat{background:#f0f4ff;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.sum-total{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;border-top:3px solid #1a1a2e}
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.sum-card{background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;transition:transform 0.1s;border-top:3px solid #e0e0e0}
+.sum-card:hover{transform:scale(1.02)}
+.wd-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.wd-card{background:#fff;border-radius:10px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
 
 /* メモ */
 .memo-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f8f8f8}
@@ -211,7 +232,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.04.26</span>
+  <span class="ver">v2026.04.28</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -415,6 +436,17 @@ function filterPeriod(list,p){
 function timeSlot(t){if(!t)return'時間不明';var p=t.split(':').map(Number);var s=Math.floor(p[1]/15)*15;return pad(p[0])+':'+pad(s)+'〜';}
 
 // ===== タブ切替 =====
+var curSub='summary';
+var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',dateStr:''};
+var anoF={result:'',weekday:'',dateStr:''};
+var optF={name:'',result:'',weekday:'',dateStr:''};
+function showSub(s){
+  curSub=s;
+  document.querySelectorAll('#hist-stabs .sub-tab').forEach(function(b){
+    b.classList.toggle('active',b.getAttribute('onclick')==="showSub('"+s+"')");
+  });
+  renderHistory();
+}
 function showMain(t){
   document.querySelectorAll('.main-tab').forEach(function(b,i){b.classList.toggle('active',['input','history','analysis','memo'][i]===t);});
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
@@ -784,6 +816,11 @@ function renderHistory(){
   else if(curSub==='ano')el.innerHTML=renderAnoTab(list);
   else if(curSub==='opt')el.innerHTML=renderOptTab(list);
 }
+function fmtSk(sk,t){return sk?'['+sk+'ス '+(t+sk)+'件]':'';}
+function fmtWRs(pct,w,l,t,sk){return '<span class="win-c">単発<b>'+pct+'%</b>('+w+'勝'+l+'敗 '+t+'件'+fmtSk(sk,t)+')</span>';}
+function fmtWRm(pct,wm,l,t){return '<span class="martin-c">1M込<b>'+pct+'%</b>('+wm+'勝'+l+'敗 '+t+'件)</span>';}
+function mkTh(lbl,sel){return '<th><div style="margin-bottom:2px">'+lbl+'</div>'+sel+'</th>';}
+function mkSel(val,onch,opts){return '<select onchange="'+onch+'">'+opts+'</select>';}
 
 function renderSummary(list){
   var s=calcWR(list);
@@ -814,7 +851,7 @@ function renderSummary(list){
     '<div style="font-size:11px;color:#888;margin-bottom:8px;font-weight:500">📊 全体トータル</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
       '<div><div style="font-size:26px;font-weight:600" class="win-c">'+s.s+'%</div><div style="font-size:11px;color:#aaa">単発 '+s.w+'勝'+s.l+'敗 '+s.t+'件</div></div>'+
-      '<div><div style="font-size:26px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:11px;color:#aaa">1M込み '+(s.w+s.m)+'勝'+s.l+'敗 '+s.t+'件</div></div>'+
+      '<div><div style="font-size:26px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:11px;color:#aaa">1M込み '+s.wm+'勝'+s.l+'敗 '+s.t+'件</div></div>'+
     '</div></div>'+
     '<div class="sum-grid">'+injC+
       '<div class="sum-card" onclick="showSub(\'ano\')" style="border-top:3px solid #f0a020;cursor:pointer">'+
@@ -931,7 +968,7 @@ function renderAnalysis(){
   var list=filterPeriod(trades,anaPeriod),s=calcWR(list);
   document.getElementById('ana-wr').innerHTML=
     '<div style="background:#fff;border-radius:12px;padding:13px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)"><div style="font-size:27px;font-weight:600" class="win-c">'+s.s+'%</div><div style="font-size:11px;color:#888;margin-top:3px">単発勝率</div><div style="font-size:11px;color:#bbb;margin-top:4px">'+s.w+'勝'+s.l+'敗 '+s.t+'件</div></div>'+
-    '<div style="background:#fff;border-radius:12px;padding:13px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)"><div style="font-size:27px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:11px;color:#888;margin-top:3px">1マーチン込み勝率</div><div style="font-size:11px;color:#bbb;margin-top:4px">'+(s.w+s.m)+'勝'+s.l+'敗 '+s.t+'件</div></div>';
+    '<div style="background:#fff;border-radius:12px;padding:13px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)"><div style="font-size:27px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:11px;color:#888;margin-top:3px">1マーチン込み勝率</div><div style="font-size:11px;color:#bbb;margin-top:4px">'+s.wm+'勝'+s.l+'敗 '+s.t+'件</div></div>';
   var cats=[{k:'inj',l:'インジ'},{k:'ano',l:'アノマリー'},{k:'opt',l:'オプション'},{k:'entry',l:'エントリー'}];
   document.getElementById('ana-cats').innerHTML=cats.map(function(c){var cs=calcCat(list,c.k);return cs.t>0?'<div style="background:#fff;border-radius:10px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06)"><div style="font-size:19px;font-weight:500" class="'+(cs.wr>=60?'win-c':cs.wr>=50?'martin-c':'lose-c')+'">'+cs.wr+'%</div><div style="font-size:10px;color:#888;margin-top:2px">'+c.l+' '+cs.w+'勝'+cs.l+'敗 '+cs.t+'件</div></div>':'';}).join('');
   var injMap={},pairMap={},dirMap={},timeMap={},lineMap={},anoMap={},optMap={};
