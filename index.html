@@ -372,7 +372,7 @@ ANOMALIES.forEach(function(a){a.pairs.forEach(function(p){ANO_LABELS.push(a.time
 // ===== 状態 =====
 var trades=[],dailyMemos={},anoState={},optBlocks=[],injEntries={0:[],1:[],2:[]},entList=[];
 var curDateIso='',dateMode='picker',histPeriod='all',anaPeriod='all',curSub='summary';
-var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',memo:''},anoF={result:'',weekday:'',memo:''},optF={name:'',memo:'',weekday:'',result:''};
+var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',memo:'',dateStr:''},anoF={result:'',weekday:'',memo:'',dateStr:'',time:'',dir:'',pair:''},optF={name:'',memo:'',weekday:'',result:'',dateStr:''};
 
 // ===== 日付ユーティリティ =====
 function todayIso(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
@@ -457,12 +457,15 @@ function wrl(pct,w,l,t,wm){
   // w=単発勝ち, wm=1M勝ち(省略可)
   return'<span style="font-weight:600">'+pct+'%</span><span style="color:#aaa;font-size:10px;margin-left:3px">('+w+'勝'+l+'敗) '+t+'件</span>';
 }
-function skTxt(sk){return sk?'['+sk+'ス]':'';}
+function skTxt(sk,total){
+  if(!sk)return'';
+  return total?'['+sk+'ス '+(total)+'件]':'['+sk+'ス]';
+}
 function fmtWR(s,noMartin){
-  var sk=skTxt(s.sk);
-  var total_s=s.t+(s.sk||0);
+  var sk=skTxt(s.sk||0);
+  var wm=s.wm||0;
   var r='<span class="win-c">単発 <b>'+s.s+'%</b>('+s.w+'勝'+s.l+'敗 '+s.t+'件'+sk+')</span>';
-  if(!noMartin)r+=' / <span class="martin-c">1M込 <b>'+s.mt+'%</b>('+s.wm+'勝'+s.l+'敗 '+s.t+'件)</span>';
+  if(!noMartin)r+=' / <span class="martin-c">1M込 <b>'+s.mt+'%</b>('+wm+'勝'+s.l+'敗 '+s.t+'件)</span>';
   return r;
 }
 function fmtCatWR(cs,noMartin){
@@ -563,8 +566,9 @@ function renderTodayList(){
       var acls=awr>=60?'win-c':awr>=50?'martin-c':'lose-c';
       var adet=anoA.map(function(a){return a.time+' '+badge2(a.result);}).join(' ');
       var anoSkip=anoA.filter(function(a){return a.result==='skip';}).length;
-      var anoSkTxt=anoSkip?'['+anoSkip+'ス]':'';
-      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>アノマリー: '+adet+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">単発<b class="'+acls+'">'+awr+'%</b>('+aw+'勝'+(at-aw)+'敗'+anoSkTxt+' '+anoA.length+'件)</span></span>');
+      var anoSkTxt=anoSkip?'['+anoSkip+'ス '+anoA.length+'件]':'';
+      var anoDisp=anoSkip?at+'件':anoA.length+'件';
+      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>アノマリー: '+adet+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">単発<b class="'+acls+'">'+awr+'%</b>('+aw+'勝'+(at-aw)+'敗 '+at+'件'+anoSkTxt+')</span></span>');
     }
     var optA=tr.opts.filter(function(o){return (o.rounds||[o.result]).some(function(r){return r&&r!=='none';});});
     if(optA.length){
@@ -575,8 +579,8 @@ function renderTodayList(){
       var odet=optA.map(function(o){var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});return o.name.slice(0,8)+' '+rs.map(function(r){return badge2(r);}).join('');}).join(' ');
       var optTot=optA.reduce(function(s,o){return s+(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';}).length;},0);
       var optSk=optA.reduce(function(s,o){return s+(o.rounds||[o.result]).filter(function(r){return r==='skip';}).length;},0);
-      var optSkTxt=optSk?'['+optSk+'ス]':'';
-      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>オプション: '+odet+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">単発<b class="'+ocls+'">'+owr+'%</b>('+ow+'勝'+(ot-ow)+'敗'+optSkTxt+' '+optTot+'件)</span></span>');
+      var optSkTxt=optSk?'['+optSk+'ス '+optTot+'件]':'';
+      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>オプション: '+odet+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">単発<b class="'+ocls+'">'+owr+'%</b>('+ow+'勝'+(ot-ow)+'敗 '+ot+'件'+optSkTxt+')</span></span>');
     }
     var entA=(tr.entries||[]).filter(function(e){return e.result!=='none';});
     if(entA.length){
@@ -863,6 +867,7 @@ function renderInjTab(list,injName){
   list.forEach(function(t){t.injs.filter(function(i){return i.name===injName&&i.result!=='none';}).forEach(function(i){rows.push({date:t.dateDisplay||t.date,pair:i.pair,time:i.time,dir:i.dir,line:i.line,result:i.result,memo:i.memo});});});
   var ts_opts=['07:00','07:15','07:30','07:45','08:00','08:15','08:30','08:45','09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','14:45','15:00','15:45','16:00','16:45','17:00','17:45'].map(function(t){return '<option value="'+t+'" '+(injF.time===t?'selected':'')+'>'+t+'</option>';}).join('');
   var wd_inj=['月','火','水','木','金','土','日'].map(function(d){return '<option value="'+d+'" '+(injF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
+  var injDateInput='<input type="text" placeholder="例: 04/27" value="'+(injF.dateStr||'')+'" onchange="injF.dateStr=this.value;renderHistory()" style="margin-top:2px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #555;background:#2a2a4e;color:#fff;width:100%">';
   var filtered=rows.filter(function(r){
     if(injF.pair&&r.pair!==injF.pair)return false;
     if(injF.line&&r.line!==injF.line)return false;
@@ -871,6 +876,7 @@ function renderInjTab(list,injName){
     if(injF.time&&(!r.time||!r.time.startsWith(injF.time)))return false;
     if(injF.weekday&&!r.date.includes(injF.weekday+'曜'))return false;
     if(injF.memo&&!r.memo)return false;
+    if(injF.dateStr&&!r.date.includes(injF.dateStr))return false;
     return true;
   });
   var w=filtered.filter(function(r){return r.result==='win';}).length;
@@ -889,7 +895,7 @@ function renderInjTab(list,injName){
 
     '<div class="xl-wrap"><table class="xl-table"><thead>'+
       '<tr>'+
-        '<th style="min-width:110px"><div>日付</div><select onchange="injF.weekday=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全曜日</option>'+wd_inj+'</select></th>'+
+        '<th style="min-width:120px"><div>日付</div>'+injDateInput+'<select onchange="injF.weekday=this.value;renderHistory()" style="margin-top:2px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全曜日</option>'+wd_inj+'</select></th>'+
         '<th style="min-width:80px"><div>通貨</div><select onchange="injF.pair=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全通貨</option>'+pOpts+'</select></th>'+
         '<th style="min-width:80px"><div>時間</div><select onchange="injF.time=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全時間</option>'+ts_opts+'</select></th>'+
         '<th style="min-width:70px"><div>方向</div><select onchange="injF.dir=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全方向</option><option value="up" '+(injF.dir==="up"?'selected':'')+'>↑UP</option><option value="down" '+(injF.dir==="down"?'selected':'')+'>↓DOWN</option></select></th>'+
@@ -903,16 +909,25 @@ function renderInjTab(list,injName){
 function renderAnoTab(list){
   var rows=[];
   list.forEach(function(t){t.anos.forEach(function(a){if(a.result==='none')return;rows.push({date:t.dateDisplay||t.date,time:a.time,dir:a.dir,pair:a.pair,result:a.result,memo:a.memo});});});
+  var anoTimes=[...new Set(rows.map(function(r){return r.time;}))].sort();
+  var anoTimeOpts=anoTimes.map(function(t){return '<option value="'+t+'" '+(anoF.time===t?'selected':'')+'>'+t+'</option>';}).join('');
+  var anoPairs=[...new Set(rows.map(function(r){return r.pair;}))].sort();
+  var anoPairOpts=anoPairs.map(function(p){return '<option value="'+p+'" '+(anoF.pair===p?'selected':'')+'>'+p+'</option>';}).join('');
   var filtered=rows.filter(function(r){
     if(anoF.result&&r.result!==anoF.result)return false;
     if(anoF.weekday&&!r.date.includes(anoF.weekday+'曜'))return false;
     if(anoF.memo&&!r.memo)return false;
+    if(anoF.dateStr&&!r.date.includes(anoF.dateStr))return false;
+    if(anoF.time&&r.time!==anoF.time)return false;
+    if(anoF.dir&&r.dir!==anoF.dir)return false;
+    if(anoF.pair&&r.pair!==anoF.pair)return false;
     return true;
   });
   var w=filtered.filter(function(r){return r.result==='win';}).length;
   var l=filtered.filter(function(r){return r.result==='lose';}).length;
   var t=filtered.length,wr=t?Math.round(w/t*100):0;
   var wd_opts=['月','火','水','木','金','土','日'].map(function(d){return '<option value="'+d+'" '+(anoF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
+  var anoDateInput='<input type="text" placeholder="例: 04/27" value="'+(anoF.dateStr||'')+'" onchange="anoF.dateStr=this.value;renderHistory()" style="margin-top:2px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #555;background:#2a2a4e;color:#fff;width:100%">';
   var filteredSk=filtered.filter(function(r){return r.result==='skip';}).length;
   var skTxt=filteredSk?'['+filteredSk+'ス]':'';
   var rows_html=filtered.length?filtered.map(function(r){
@@ -922,8 +937,10 @@ function renderAnoTab(list){
 
     '<div class="xl-wrap"><table class="xl-table"><thead>'+
       '<tr>'+
-        '<th style="min-width:110px"><div>日付</div><select onchange="anoF.weekday=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全曜日</option>'+wd_opts+'</select></th>'+
-        '<th>時間</th><th>方向</th><th>通貨</th>'+
+        '<th style="min-width:120px"><div>日付</div>'+anoDateInput+'<select onchange="anoF.weekday=this.value;renderHistory()" style="margin-top:2px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全曜日</option>'+wd_opts+'</select></th>'+
+        '<th><div>時間</div><select onchange="anoF.time=this.value;renderHistory()" style="margin-top:2px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全</option>'+anoTimeOpts+'</select></th>'+
+        '<th><div>方向</div><select onchange="anoF.dir=this.value;renderHistory()" style="margin-top:2px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全</option><option value="↑" '+(anoF.dir==="↑"?'selected':'')+'>↑</option><option value="↓" '+(anoF.dir==="↓"?'selected':'')+'>↓</option><option value="↑↓" '+(anoF.dir==="↑↓"?'selected':'')+'>↑↓</option></select></th>'+
+        '<th><div>通貨</div><select onchange="anoF.pair=this.value;renderHistory()" style="margin-top:2px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全</option>'+anoPairOpts+'</select></th>'+
         '<th><div>結果</div><select onchange="anoF.result=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全</option><option value="win" '+(anoF.result==="win"?'selected':'')+'>○</option><option value="lose" '+(anoF.result==="lose"?'selected':'')+'>✕</option><option value="skip" '+(anoF.result==="skip"?'selected':'')+'>－</option></select></th>'+
         '<th><div>メモ</div><select onchange="anoF.memo=this.value;renderHistory()" style="margin-top:3px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%"><option value="">全</option><option value="1" '+(anoF.memo==="1"?'selected':'')+'>あり</option></select></th>'+
       '</tr>'+
@@ -936,11 +953,9 @@ function renderOptTab(list){
   var filtered=rows.filter(function(r){
     if(optF.name&&r.name!==optF.name)return false;
     if(optF.weekday&&!r.date.includes(optF.weekday+'曜'))return false;
-    if(optF.result){
-      var hasResult=r.rounds.some(function(v){return v===optF.result;});
-      if(!hasResult)return false;
-    }
+    if(optF.result){var hasResult=r.rounds.some(function(v){return v===optF.result;});if(!hasResult)return false;}
     if(optF.memo&&!r.memo)return false;
+    if(optF.dateStr&&!r.date.includes(optF.dateStr))return false;
     return true;
   });
   var w=0,l=0;filtered.forEach(function(r){r.rounds.forEach(function(v){if(v==='win')w++;else if(v==='lose')l++;});});
@@ -952,6 +967,7 @@ function renderOptTab(list){
   var filtSk=filtered.reduce(function(s,r){return s+r.rounds.filter(function(v){return v==='skip';}).length;},0);
   var skT=filtSk?'['+filtSk+'ス]':'';
   var wd_opt=['月','火','水','木','金','土','日'].map(function(d){return '<option value="'+d+'" '+(optF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
+  var optDateInput='<input type="text" placeholder="例: 04/27" value="'+(optF.dateStr||'')+'" onchange="optF.dateStr=this.value;renderHistory()" style="margin-top:2px;font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #555;background:#2a2a4e;color:#fff;width:100%">';
   return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">オプション</span><span class="win-c" style="font-weight:600">単発'+wr+'%('+w+'勝'+l+'敗'+skT+' '+t+'件)</span></div>'+
 
     '<div class="xl-wrap"><table class="xl-table"><thead>'+
