@@ -319,7 +319,7 @@ textarea{min-height:36px;resize:vertical}
       <div class="fg"><label>方向</label><select id="cond-dir"><option value="">↑↓両方</option><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select></div>
       <div class="fg"><label>ライン</label><select id="cond-line"><option value="">全ライン</option><option>P</option><option>S1</option><option>S2</option><option>S3</option><option>R1</option><option>R2</option><option>R3</option><option>1000S</option><option>1000E</option><option>2160S</option><option>2160E</option><option>1450S</option><option>1843S</option><option>0.0</option><option>18.2</option><option>23.6</option><option>38.2</option><option>50.0</option><option>61.8</option><option>76.4</option><option>81.8</option><option>100.0</option></select></div>
       <div class="fg"><label>時間帯</label><select id="cond-time"><option value="">全時間帯</option><option>07:00〜</option><option>07:15〜</option><option>07:30〜</option><option>07:45〜</option><option>08:00〜</option><option>08:15〜</option><option>08:30〜</option><option>08:45〜</option><option>09:00〜</option><option>09:15〜</option><option>09:30〜</option><option>09:45〜</option><option>10:00〜</option><option>10:15〜</option><option>10:30〜</option><option>10:45〜</option><option>11:00〜</option><option>11:15〜</option><option>11:30〜</option><option>11:45〜</option><option>14:45〜</option><option>15:00〜</option><option>15:45〜</option><option>16:00〜</option><option>16:45〜</option><option>17:00〜</option><option>17:45〜</option></select></div>
-      <div class="fg"><label>通貨ペア</label><select id="cond-pair"><option value="">全通貨</option><option>USD/JPY</option><option>EUR/USD</option><option>GBP/USD</option><option>AUD/USD</option><option>EUR/JPY</option><option>GBP/JPY</option><option>AUD/JPY</option><option>NZD/JPY</option></select></div>
+      <div class="fg"><label>通貨ペア</label><select id="cond-pair"><option value="">全通貨</option><option>USD/JPY</option><option>EUR/USD</option><option>EUR/AUD</option><option>AUD/USD</option><option>EUR/JPY</option><option>GBP/JPY</option><option>AUD/JPY</option><option>NZD/JPY</option></select></div>
       <div style="display:flex;align-items:flex-end"><button onclick="runCond()" style="width:100%;padding:8px;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;border:none;background:#1a1a2e;color:#fff;font-family:inherit">分析する</button></div>
     </div>
     <div id="cond-result"></div>
@@ -348,7 +348,7 @@ var INJS=[
   {name:'IRAZU',tag:'レベル',lines:['—','1000S','1000E','2160S','2160E','1450S','1843S']},
   {name:'HUNO',tag:'フィボ',lines:['—','0.0','18.2','23.6','38.2','50.0','61.8','76.4','81.8','100.0']}
 ];
-var PAIRS=['USD/JPY','EUR/USD','GBP/USD','AUD/USD','EUR/JPY','GBP/JPY','AUD/JPY','NZD/JPY','その他'];
+var PAIRS=['USD/JPY','EUR/USD','EUR/AUD','AUD/USD','EUR/JPY','GBP/JPY','AUD/JPY','NZD/JPY','その他'];
 var ANOMALIES=[
   {time:'8:00〜',dir:'↑↓',pairs:['クロス円']},
   {time:'8:27',dir:'↑',pairs:['GBP/JPY']},
@@ -372,7 +372,7 @@ ANOMALIES.forEach(function(a){a.pairs.forEach(function(p){ANO_LABELS.push(a.time
 // ===== 状態 =====
 var trades=[],dailyMemos={},anoState={},optBlocks=[],injEntries={0:[],1:[],2:[]},entList=[];
 var curDateIso='',dateMode='picker',histPeriod='all',anaPeriod='all',curSub='summary';
-var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',memo:''},anoF={result:'',weekday:'',memo:''},optF={name:'',memo:''};
+var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',memo:''},anoF={result:'',weekday:'',memo:''},optF={name:'',memo:'',weekday:'',result:''};
 
 // ===== 日付ユーティリティ =====
 function todayIso(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
@@ -453,20 +453,23 @@ function badge2(v){
   if(v==='skip')return'<span class="badge b-skip">－</span>';
   return'';
 }
-function wrl(pct,w,l,t,sk){
-  var sk_s=sk?'['+sk+'ス]':'';
-  return'<span style="font-weight:600">'+pct+'%</span><span style="color:#aaa;font-size:10px;margin-left:3px">('+w+'勝'+l+'敗'+sk_s+') '+t+'件</span>';
+function wrl(pct,w,l,t,wm){
+  // w=単発勝ち, wm=1M勝ち(省略可)
+  return'<span style="font-weight:600">'+pct+'%</span><span style="color:#aaa;font-size:10px;margin-left:3px">('+w+'勝'+l+'敗) '+t+'件</span>';
 }
+function skTxt(sk){return sk?'['+sk+'ス]':'';}
 function fmtWR(s,noMartin){
-  var sk_s=s.sk?'['+s.sk+'ス]':'';
-  var r='<span class="win-c">単発 <b>'+s.s+'%</b>('+s.w+'勝'+s.l+'敗'+sk_s+' '+s.t+'件)</span>';
-  if(!noMartin)r+=' / <span class="martin-c">1M込 <b>'+s.mt+'%</b>('+(s.w+s.m)+'勝'+s.l+'敗 '+s.t+'件)</span>';
+  var sk=skTxt(s.sk);
+  var total_s=s.t+(s.sk||0);
+  var r='<span class="win-c">単発 <b>'+s.s+'%</b>('+s.w+'勝'+s.l+'敗 '+s.t+'件'+sk+')</span>';
+  if(!noMartin)r+=' / <span class="martin-c">1M込 <b>'+s.mt+'%</b>('+s.wm+'勝'+s.l+'敗 '+s.t+'件)</span>';
   return r;
 }
 function fmtCatWR(cs,noMartin){
-  var sk_s=cs.sk?'['+cs.sk+'ス]':'';
-  var r='<span class="win-c">'+cs.wr+'%('+cs.w+'勝'+cs.l+'敗'+sk_s+' '+cs.t+'件)</span>';
-  if(!noMartin&&cs.m)r+=' / <span class="martin-c">1M'+cs.wrm+'%</span>';
+  var sk=skTxt(cs.sk);
+  var total_s=cs.t+(cs.sk||0);
+  var r='<span class="win-c">単発<b>'+cs.wr+'%</b>('+cs.w+'勝'+cs.l+'敗 '+cs.t+'件'+sk+')</span>';
+  if(!noMartin&&cs.wm)r+=' / <span class="martin-c">1M<b>'+cs.wrm+'%</b>('+cs.wm+'勝'+cs.l+'敗)</span>';
   return r;
 }
 function calcWR(list){
@@ -478,19 +481,20 @@ function calcWR(list){
   return{t:t,w:w,m:m,l:l,s:t?Math.round(w/t*100):0,mt:t?Math.round((w+m)/t*100):0};
 }
 function calcCat(list,cat){
-  var t=0,w=0,m=0,l=0,sk=0;
+  var t=0,ws=0,wm=0,l=0,sk=0;
   list.forEach(function(tr){
-    if(cat==='inj')tr.injs.forEach(function(i){if(!i.result||i.result==='none')return;if(i.result==='win'){t++;w++;}else if(i.result==='martin'){t++;m++;}else if(i.result==='lose'){t++;l++;}});
-    if(cat==='ano')tr.anos.forEach(function(a){if(!a.result||a.result==='none')return;if(a.result==='skip')sk++;else{t++;if(a.result==='win')w++;else l++;}});
-    if(cat==='opt')tr.opts.forEach(function(o){(o.rounds||[o.result]).forEach(function(r){if(!r||r==='none')return;if(r==='skip')sk++;else{t++;if(r==='win')w++;else l++;}});});
-    if(cat==='entry')(tr.entries||[]).forEach(function(e){if(!e.result||e.result==='none')return;if(e.result==='win'){t++;w++;}else if(e.result==='martin'){t++;m++;}else if(e.result==='lose'){t++;l++;}});
+    function addR(r){if(!r||r==='none')return;t++;if(r==='win'){ws++;wm++;}else if(r==='martin'){wm++;}else if(r==='lose'){l++;}}
+    if(cat==='inj')tr.injs.forEach(function(i){addR(i.result);});
+    if(cat==='ano')tr.anos.forEach(function(a){if(!a.result||a.result==='none')return;if(a.result==='skip')sk++;else{t++;if(a.result==='win'){ws++;wm++;}else l++;}});
+    if(cat==='opt')tr.opts.forEach(function(o){(o.rounds||[o.result]).forEach(function(r){if(!r||r==='none')return;if(r==='skip')sk++;else{t++;if(r==='win'){ws++;wm++;}else l++;}});});
+    if(cat==='entry')(tr.entries||[]).forEach(function(e){addR(e.result);});
   });
-  return{t:t,w:w,m:m,l:l,sk:sk,wr:t?Math.round(w/t*100):0,wrm:t?Math.round((w+m)/t*100):0};
+  return{t:t,w:ws,m:wm-ws,wm:wm,l:l,sk:sk,wr:t?Math.round(ws/t*100):0,wrm:t?Math.round(wm/t*100):0};
 }
 function calcInj(list,name){
-  var t=0,w=0,m=0,l=0;
-  list.forEach(function(tr){tr.injs.filter(function(i){return i.name===name&&i.result!=='none';}).forEach(function(i){if(i.result==='win'){t++;w++;}else if(i.result==='martin'){t++;m++;}else if(i.result==='lose'){t++;l++;}});});
-  return{t:t,w:w,m:m,l:l,s:t?Math.round(w/t*100):0,mt:t?Math.round((w+m)/t*100):0};
+  var t=0,ws=0,wm=0,l=0;
+  list.forEach(function(tr){tr.injs.filter(function(i){return i.name===name&&i.result!=='none';}).forEach(function(i){t++;if(i.result==='win'){ws++;wm++;}else if(i.result==='martin'){wm++;}else if(i.result==='lose'){l++;}});});
+  return{t:t,w:ws,m:wm-ws,wm:wm,l:l,s:t?Math.round(ws/t*100):0,mt:t?Math.round(wm/t*100):0};
 }
 
 // ===== ダッシュボード =====
@@ -518,11 +522,19 @@ function renderTodayList(){
   document.getElementById('today-ttl').textContent='今日の記録（'+tdList.length+'件）';
   var wrEl=document.getElementById('today-wr');
   if(tdList.length){
-    var injS2=calcCat(tdList,'inj'),anoS2=calcCat(tdList,'ano'),optS2=calcCat(tdList,'opt');
-    wrEl.innerHTML=fmtWR(s)+'<br>'+
-      (injS2.t?'インジ '+fmtCatWR(injS2)+' ':'')+
-      (anoS2.t?'アノマリー '+fmtCatWR(anoS2,true)+' ':'')+
-      (optS2.t?'オプション '+fmtCatWR(optS2,true):'');
+    var injS2=calcCat(tdList,'inj'),anoS2=calcCat(tdList,'ano'),optS2=calcCat(tdList,'opt'),entS2=calcCat(tdList,'entry');
+    var rows=[];
+    rows.push('<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:3px">'+
+      '<span class="win-c" style="font-weight:500">単発 <b>'+s.s+'%</b>('+s.w+'勝'+s.l+'敗 '+s.t+'件)</span>'+
+      '<span class="martin-c" style="font-weight:500">1M込 <b>'+s.mt+'%</b>('+s.wm+'勝'+s.l+'敗 '+s.t+'件)</span>'+
+    '</div>');
+    var cats=[];
+    if(injS2.t)cats.push('インジ 単発<b class="win-c">'+injS2.wr+'%</b>('+injS2.w+'勝'+injS2.l+'敗) 1M<b class="martin-c">'+injS2.wrm+'%</b>('+injS2.wm+'勝'+injS2.l+'敗) '+injS2.t+'件');
+    if(anoS2.t)cats.push('アノマリー 単発<b class="win-c">'+anoS2.wr+'%</b>('+anoS2.w+'勝'+anoS2.l+'敗'+(anoS2.sk?'['+anoS2.sk+'ス]':'')+' '+anoS2.t+'件)');
+    if(optS2.t)cats.push('オプション 単発<b class="win-c">'+optS2.wr+'%</b>('+optS2.w+'勝'+optS2.l+'敗'+(optS2.sk?'['+optS2.sk+'ス]':'')+' '+optS2.t+'件)');
+    if(entS2.t)cats.push('エントリー 単発<b class="win-c">'+entS2.wr+'%</b>('+entS2.w+'勝'+entS2.l+'敗) 1M<b class="martin-c">'+entS2.wrm+'%</b> '+entS2.t+'件');
+    if(cats.length)rows.push('<div style="font-size:10px;color:#666;line-height:1.8">'+cats.join('　')+'</div>');
+    wrEl.innerHTML=rows.join('');
   }else{wrEl.innerHTML='';}
   var el=document.getElementById('today-items');
   if(!tdList.length){el.innerHTML='<div class="today-empty">まだ今日の記録はありません</div>';return;}
@@ -567,7 +579,19 @@ function renderTodayList(){
       lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>オプション: '+odet+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">単発<b class="'+ocls+'">'+owr+'%</b>('+ow+'勝'+(ot-ow)+'敗'+optSkTxt+' '+optTot+'件)</span></span>');
     }
     var entA=(tr.entries||[]).filter(function(e){return e.result!=='none';});
-    if(entA.length)lines.push('エントリー: '+entA.map(function(e){return e.pair+' '+(e.dir==='up'?'↑':'↓')+' '+badge(e.result);}).join(' '));
+    if(entA.length){
+      var eWs=entA.filter(function(e){return e.result==='win';}).length;
+      var eWm=entA.filter(function(e){return e.result==='win'||e.result==='martin';}).length;
+      var eL=entA.filter(function(e){return e.result==='lose';}).length;
+      var eWRs=Math.round(eWs/entA.length*100);
+      var eWRm=Math.round(eWm/entA.length*100);
+      var eCls=eWRs>=60?'win-c':eWRs>=50?'martin-c':'lose-c';
+      var eTxt=entA.map(function(e){return e.pair+' '+(e.dir==='up'?'↑':'↓')+' '+badge(e.result);}).join(' ');
+      var eWrTxt=eWm>eWs?
+        '単発<b class="'+eCls+'">'+eWRs+'%</b>('+eWs+'勝'+eL+'敗) / 1M<b class="martin-c">'+eWRm+'%</b>('+eWm+'勝'+eL+'敗) '+entA.length+'件':
+        '単発<b class="'+eCls+'">'+eWRs+'%</b>('+eWs+'勝'+eL+'敗) '+entA.length+'件';
+      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>エントリー: '+eTxt+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">'+eWrTxt+'</span></span>');
+    }
     return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body">'+(lines.join('<br>')||'（詳細なし）')+'</div>'+
       '<div style="display:flex;flex-direction:column;gap:4px">'+
         '<button class="today-del" onclick="delToday('+tr.id+')" style="white-space:nowrap">削除</button>'+
@@ -909,14 +933,26 @@ function renderAnoTab(list){
 function renderOptTab(list){
   var rows=[];
   list.forEach(function(t){t.opts.forEach(function(o){var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});if(!rs.length)return;rows.push({date:t.dateDisplay||t.date,name:o.name,rounds:rs,memo:o.memo});});});
-  var filtered=rows.filter(function(r){if(optF.name&&r.name!==optF.name)return false;return true;});
+  var filtered=rows.filter(function(r){
+    if(optF.name&&r.name!==optF.name)return false;
+    if(optF.weekday&&!r.date.includes(optF.weekday+'曜'))return false;
+    if(optF.result){
+      var hasResult=r.rounds.some(function(v){return v===optF.result;});
+      if(!hasResult)return false;
+    }
+    if(optF.memo&&!r.memo)return false;
+    return true;
+  });
   var w=0,l=0;filtered.forEach(function(r){r.rounds.forEach(function(v){if(v==='win')w++;else if(v==='lose')l++;});});
   var t=w+l,wr=t?Math.round(w/t*100):0;
   var nOpts=[...new Set(rows.map(function(r){return r.name;}))].map(function(n){return '<option value="'+n+'" '+(optF.name===n?'selected':'')+'>'+n.slice(0,20)+'</option>';}).join('');
   var rows_html=filtered.length?filtered.map(function(r){
     return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td style="font-size:11px;font-weight:500">'+r.name+'</td><td>'+r.rounds.map(function(v){return badge2(v);}).join(' ')+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';
   }).join(''):'<tr><td colspan="4" style="text-align:center;padding:2rem;color:#ccc">データがありません</td></tr>';
-  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">オプション</span><span class="win-c" style="font-weight:600">単発'+wr+'%('+w+'勝'+l+'敗 '+t+'件)</span></div>'+
+  var filtSk=filtered.reduce(function(s,r){return s+r.rounds.filter(function(v){return v==='skip';}).length;},0);
+  var skT=filtSk?'['+filtSk+'ス]':'';
+  var wd_opt=['月','火','水','木','金','土','日'].map(function(d){return '<option value="'+d+'" '+(optF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
+  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">オプション</span><span class="win-c" style="font-weight:600">単発'+wr+'%('+w+'勝'+l+'敗'+skT+' '+t+'件)</span></div>'+
 
     '<div class="xl-wrap"><table class="xl-table"><thead>'+
       '<tr><th>日付</th><th>オプション名</th><th>結果</th><th>メモ</th></tr>'+
