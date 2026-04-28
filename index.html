@@ -234,7 +234,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.04.28-A"main-tabs">
+  <span class="ver">v2026.04.28-A-A"main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
   <button class="main-tab" onclick="showMain('history')">履歴</button>
   <button class="main-tab" onclick="showMain('analysis')">分析</button>
@@ -438,11 +438,30 @@ function timeSlot(t){if(!t)return'時間不明';var p=t.split(':').map(Number);v
 
 // ===== タブ切替 =====
 var curSub='summary';
-var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',dateStr:'',memo:''};
+var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',dateStr:'',memo:'',dateFrom:'',dateTo:''};
 
-var anoF={result:'',weekday:'',dateStr:'',time:'',dir:'',pair:'',memo:''};
-var optF={name:'',result:'',weekday:'',dateStr:'',memo:''};
+var anoF={result:'',weekday:'',dateStr:'',time:'',dir:'',pair:'',memo:'',dateFrom:'',dateTo:''};
+var optF={name:'',result:'',weekday:'',dateStr:'',memo:'',dateFrom:'',dateTo:''};
 // ===== サブタブ =====
+function matchDateRange(dateDisp,from,to){
+  // dateDisp例: "2026年04月28日（火）"
+  // from/to例: "04/25"
+  if(!from&&!to)return true;
+  var m=dateDisp.match(/(\d{4})年(\d{2})月(\d{2})日/);
+  if(!m)return true;
+  var d=m[1]+'/'+m[2]+'/'+m[3];  // "2026/04/28"
+  if(from){
+    var fp=from.split('/');
+    var fd='2026/'+('00'+fp[0]).slice(-2)+'/'+('00'+fp[1]).slice(-2);
+    if(d<fd)return false;
+  }
+  if(to){
+    var tp=to.split('/');
+    var td='2026/'+('00'+tp[0]).slice(-2)+'/'+('00'+tp[1]).slice(-2);
+    if(d>td)return false;
+  }
+  return true;
+}
 function showSub(s){
   curSub=s;
   document.querySelectorAll('#hist-stabs .sub-tab').forEach(function(b){
@@ -460,6 +479,25 @@ function showMain(t){
 }
 // ===== カレンダーフィルター =====
   // {id: {year,month,selected:Set}}
+function matchDateRange(dateDisp,from,to){
+  // dateDisp例: "2026年04月28日（火）"
+  // from/to例: "04/25"
+  if(!from&&!to)return true;
+  var m=dateDisp.match(/(\d{4})年(\d{2})月(\d{2})日/);
+  if(!m)return true;
+  var d=m[1]+'/'+m[2]+'/'+m[3];  // "2026/04/28"
+  if(from){
+    var fp=from.split('/');
+    var fd='2026/'+('00'+fp[0]).slice(-2)+'/'+('00'+fp[1]).slice(-2);
+    if(d<fd)return false;
+  }
+  if(to){
+    var tp=to.split('/');
+    var td='2026/'+('00'+tp[0]).slice(-2)+'/'+('00'+tp[1]).slice(-2);
+    if(d>td)return false;
+  }
+  return true;
+}
 function showSub(s){
   curSub=s;
   document.querySelectorAll('#hist-stabs .sub-tab').forEach(function(b){
@@ -1139,6 +1177,7 @@ function renderInjTab(list,injName){
     if(injF.weekday&&!r.date.includes(injF.weekday+'曜'))return false;
     if(injF.dateStr&&!r.date.includes(injF.dateStr))return false;
     if(injF.memo&&!r.memo)return false;
+    if(!matchDateRange(r.date,injF.dateFrom,injF.dateTo))return false;
     return true;
   });
   var ws=filtered.filter(function(r){return r.result==='win';}).length;
@@ -1187,6 +1226,7 @@ function renderAnoTab(list){
     if(anoF.dir&&r.dir!==anoF.dir)return false;
     if(anoF.pair&&r.pair!==anoF.pair)return false;
     if(anoF.memo&&!r.memo)return false;
+    if(!matchDateRange(r.date,anoF.dateFrom,anoF.dateTo))return false;
     return true;
   });
   var ws=filtered.filter(function(r){return r.result==='win';}).length;
@@ -1221,6 +1261,7 @@ function renderOptTab(list){
     if(optF.dateStr&&!r.date.includes(optF.dateStr))return false;
     if(optF.result){var has=r.rounds.some(function(v){return v===optF.result;});if(!has)return false;}
     if(optF.memo&&!r.memo)return false;
+    if(!matchDateRange(r.date,optF.dateFrom,optF.dateTo))return false;
     return true;
   });
   var ws=0,l=0,sk=0;
