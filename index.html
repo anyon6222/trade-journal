@@ -157,6 +157,25 @@ textarea{min-height:36px;resize:vertical}
 .xl-table tr:last-child td{border-bottom:none}
 .xl-table tr:hover td{background:#f8fff8}
 .xl-fi{font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%;margin-top:2px;display:block}
+.cal-wrap{position:relative;display:inline-block;width:100%}
+.cal-btn{font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;cursor:pointer;width:100%;margin-top:2px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-popup{position:absolute;top:100%;left:0;z-index:9999;background:#fff;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15);padding:10px;width:220px;margin-top:2px}
+.cal-popup.hidden{display:none}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-nav{background:none;border:none;cursor:pointer;font-size:14px;color:#1a1a2e;padding:2px 6px;border-radius:4px}
+.cal-nav:hover{background:#f0f0f0}
+.cal-title{font-size:12px;font-weight:500;color:#1a1a2e}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-wd{font-size:9px;color:#aaa;text-align:center;padding:2px 0}
+.cal-day{font-size:11px;text-align:center;padding:4px 2px;border-radius:4px;cursor:pointer;color:#333}
+.cal-day:hover{background:#f0f0f0}
+.cal-day.sel{background:#1a1a2e;color:#fff;font-weight:500}
+.cal-day.today{border:1px solid #7c6af7;color:#7c6af7}
+.cal-day.other{color:#ccc}
+.cal-day.sel.today{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.cal-footer{margin-top:8px;display:flex;gap:4px}
+.cal-clear{font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid #ddd;background:#fff;color:#888;cursor:pointer;flex:1}
+.cal-apply{font-size:10px;padding:3px 8px;border-radius:4px;border:none;background:#1a1a2e;color:#fff;cursor:pointer;flex:1}
 .xl-fr th{background:#f5f5f5;padding:5px 6px}
 .xl-fr select,.xl-fr input{padding:4px 6px;font-size:11px;border:1px solid #ddd;border-radius:5px;width:100%;background:#fff}
 .xl-stat{background:#f0f4ff;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
@@ -205,6 +224,25 @@ textarea{min-height:36px;resize:vertical}
 .xl-table tr:last-child td{border-bottom:none}
 .xl-table tr:hover td{background:#f8fff8}
 .xl-fi{font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%;margin-top:2px;display:block}
+.cal-wrap{position:relative;display:inline-block;width:100%}
+.cal-btn{font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;cursor:pointer;width:100%;margin-top:2px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-popup{position:absolute;top:100%;left:0;z-index:9999;background:#fff;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15);padding:10px;width:220px;margin-top:2px}
+.cal-popup.hidden{display:none}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-nav{background:none;border:none;cursor:pointer;font-size:14px;color:#1a1a2e;padding:2px 6px;border-radius:4px}
+.cal-nav:hover{background:#f0f0f0}
+.cal-title{font-size:12px;font-weight:500;color:#1a1a2e}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-wd{font-size:9px;color:#aaa;text-align:center;padding:2px 0}
+.cal-day{font-size:11px;text-align:center;padding:4px 2px;border-radius:4px;cursor:pointer;color:#333}
+.cal-day:hover{background:#f0f0f0}
+.cal-day.sel{background:#1a1a2e;color:#fff;font-weight:500}
+.cal-day.today{border:1px solid #7c6af7;color:#7c6af7}
+.cal-day.other{color:#ccc}
+.cal-day.sel.today{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.cal-footer{margin-top:8px;display:flex;gap:4px}
+.cal-clear{font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid #ddd;background:#fff;color:#888;cursor:pointer;flex:1}
+.cal-apply{font-size:10px;padding:3px 8px;border-radius:4px;border:none;background:#1a1a2e;color:#fff;cursor:pointer;flex:1}
 .xl-stat{background:#f0f4ff;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
 .sum-total{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;border-top:3px solid #1a1a2e}
 .sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
@@ -234,7 +272,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.04.28</span>
+  <span class="ver">v2026.04.28-A</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -440,10 +478,110 @@ function timeSlot(t){if(!t)return'時間不明';var p=t.split(':').map(Number);v
 
 // ===== タブ切替 =====
 var curSub='summary';
-var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',dateStr:'',memo:''};
+var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',dateStr:'',memo:'',calDates:''};
 
-var anoF={result:'',weekday:'',dateStr:'',time:'',dir:'',pair:'',memo:''};
-var optF={name:'',result:'',weekday:'',dateStr:'',memo:''};
+var anoF={result:'',weekday:'',dateStr:'',time:'',dir:'',pair:'',memo:'',calDates:''};
+var optF={name:'',result:'',weekday:'',dateStr:'',memo:'',calDates:''};
+// ===== カレンダーフィルター =====
+var calState={};  // {id: {year,month,selected:Set}}
+function initCal(id){
+  var now=new Date();
+  if(!calState[id])calState[id]={year:now.getFullYear(),month:now.getMonth(),selected:[]};
+}
+function renderCal(id,filterVar,filterKey){
+  initCal(id);
+  var st=calState[id];
+  var popup=document.getElementById('cal-popup-'+id);
+  if(!popup)return;
+  var year=st.year,month=st.month;
+  var monthNames=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  var wdNames=['日','月','火','水','木','金','土'];
+  var first=new Date(year,month,1).getDay();
+  var days=new Date(year,month+1,0).getDate();
+  var today=new Date();
+  var todayStr=today.getFullYear()+'-'+pad(today.getMonth()+1)+'-'+pad(today.getDate());
+  var pv='calPrev('+JSON.stringify(id)+','+JSON.stringify(filterVar)+','+JSON.stringify(filterKey)+')';
+  var nx='calNext('+JSON.stringify(id)+','+JSON.stringify(filterVar)+','+JSON.stringify(filterKey)+')';
+  var cl='calClear('+JSON.stringify(id)+','+JSON.stringify(filterVar)+','+JSON.stringify(filterKey)+')';
+  var cs='calClose('+JSON.stringify(id)+')';
+  var html='<div class="cal-header">'+
+    '<button class="cal-nav" onclick="'+pv+'">◀</button>'+
+    '<span class="cal-title">'+year+'年 '+monthNames[month]+'</span>'+
+    '<button class="cal-nav" onclick="'+nx+'">▶</button>'+
+  '</div><div class="cal-grid">';
+  wdNames.forEach(function(d){html+='<div class="cal-wd">'+d+'</div>';});
+  for(var i=0;i<first;i++)html+='<div class="cal-day other"></div>';
+  for(var d=1;d<=days;d++){
+    var dateStr=year+'-'+pad(month+1)+'-'+pad(d);
+    var disp=(month+1)+'/'+pad(d);
+    var isSel=st.selected.indexOf(dateStr)>=0;
+    var isToday=dateStr===todayStr;
+    var cls='cal-day'+(isSel?' sel':'')+(isToday?' today':'');
+    html+='<div class="'+cls+'" onclick="calToggle('+JSON.stringify(id)+','+JSON.stringify(dateStr)+','+JSON.stringify(filterVar)+','+JSON.stringify(filterKey)+')">'+d+'</div>';
+  }
+  html+='</div><div class="cal-footer">'+
+    '<button class="cal-clear" onclick="'+cl+'">クリア</button>'+
+    '<button class="cal-apply" onclick="'+cs+'">閉じる</button>'+
+  '</div>';
+  popup.innerHTML=html;
+  // ボタンのラベル更新
+  var btn=document.getElementById('cal-lbl-'+id);
+  if(btn)btn.textContent=st.selected.length?st.selected.map(function(s){var p=s.split('-');return p[1]+'/'+p[2];}).join(','):'📅 日付を選択';
+}
+function calToggle(id,dateStr,filterVar,filterKey){
+  initCal(id);
+  var idx=calState[id].selected.indexOf(dateStr);
+  if(idx>=0)calState[id].selected.splice(idx,1);
+  else calState[id].selected.push(dateStr);
+  // フィルター変数を更新
+  if(filterVar==='injF')injF[filterKey]=calState[id].selected.join(',');
+  else if(filterVar==='anoF')anoF[filterKey]=calState[id].selected.join(',');
+  else if(filterVar==='optF')optF[filterKey]=calState[id].selected.join(',');
+  renderCal(id,filterVar,filterKey);
+  renderHistory();
+}
+function calClear(id,filterVar,filterKey){
+  initCal(id);
+  calState[id].selected=[];
+  if(filterVar==='injF')injF[filterKey]='';
+  else if(filterVar==='anoF')anoF[filterKey]='';
+  else if(filterVar==='optF')optF[filterKey]='';
+  renderCal(id,filterVar,filterKey);
+  renderHistory();
+}
+function calPrev(id,filterVar,filterKey){
+  initCal(id);
+  calState[id].month--;
+  if(calState[id].month<0){calState[id].month=11;calState[id].year--;}
+  renderCal(id,filterVar,filterKey);
+}
+function calNext(id,filterVar,filterKey){
+  initCal(id);
+  calState[id].month++;
+  if(calState[id].month>11){calState[id].month=0;calState[id].year++;}
+  renderCal(id,filterVar,filterKey);
+}
+function calOpen(id,filterVar,filterKey){
+  var popup=document.getElementById('cal-popup-'+id);
+  if(!popup)return;
+  var isHidden=popup.classList.contains('hidden');
+  // 全ポップアップを閉じる
+  document.querySelectorAll('.cal-popup').forEach(function(p){p.classList.add('hidden');});
+  if(isHidden){popup.classList.remove('hidden');renderCal(id,filterVar,filterKey);}
+}
+function calClose(id){
+  var popup=document.getElementById('cal-popup-'+id);
+  if(popup)popup.classList.add('hidden');
+}
+// ページクリックで閉じる
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.cal-wrap'))document.querySelectorAll('.cal-popup').forEach(function(p){p.classList.add('hidden');});
+});
+function mkCal(id,fv,fk,cv){
+  var lbl=cv?cv.split(',').map(function(s){var p=s.split('-');return p[1]+'/'+p[2];}).join(','):'📅 日付を選択';
+  var onclick='event.stopPropagation();calOpen('+JSON.stringify(id)+','+JSON.stringify(fv)+','+JSON.stringify(fk)+')';
+  return '<div class="cal-wrap"><button class="cal-btn" id="cal-lbl-'+id+'" onclick="'+onclick+'">'+lbl+'</button><div class="cal-popup hidden" id="cal-popup-'+id+'"></div></div>';
+}
 function showSub(s){
   curSub=s;
   document.querySelectorAll('#hist-stabs .sub-tab').forEach(function(b){
@@ -458,6 +596,115 @@ function showMain(t){
   if(t==='history')renderHistory();
   if(t==='analysis')renderAnalysis();
   if(t==='memo')renderMemos();
+}
+// ===== カレンダーフィルター =====
+var calState={};  // {id: {year,month,selected:Set}}
+function initCal(id){
+  var now=new Date();
+  if(!calState[id])calState[id]={year:now.getFullYear(),month:now.getMonth(),selected:[]};
+}
+function renderCal(id,filterVar,filterKey){
+  initCal(id);
+  var st=calState[id];
+  var popup=document.getElementById('cal-popup-'+id);
+  if(!popup)return;
+  var year=st.year,month=st.month;
+  var monthNames=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  var wdNames=['日','月','火','水','木','金','土'];
+  var first=new Date(year,month,1).getDay();
+  var days=new Date(year,month+1,0).getDate();
+  var today=new Date();
+  var todayStr=today.getFullYear()+'-'+pad(today.getMonth()+1)+'-'+pad(today.getDate());
+  var pv='calPrev('+JSON.stringify(id)+','+JSON.stringify(filterVar)+','+JSON.stringify(filterKey)+')';
+  var nx='calNext('+JSON.stringify(id)+','+JSON.stringify(filterVar)+','+JSON.stringify(filterKey)+')';
+  var cl='calClear('+JSON.stringify(id)+','+JSON.stringify(filterVar)+','+JSON.stringify(filterKey)+')';
+  var cs='calClose('+JSON.stringify(id)+')';
+  var html='<div class="cal-header">'+
+    '<button class="cal-nav" onclick="'+pv+'">◀</button>'+
+    '<span class="cal-title">'+year+'年 '+monthNames[month]+'</span>'+
+    '<button class="cal-nav" onclick="'+nx+'">▶</button>'+
+  '</div><div class="cal-grid">';
+  wdNames.forEach(function(d){html+='<div class="cal-wd">'+d+'</div>';});
+  for(var i=0;i<first;i++)html+='<div class="cal-day other"></div>';
+  for(var d=1;d<=days;d++){
+    var dateStr=year+'-'+pad(month+1)+'-'+pad(d);
+    var disp=(month+1)+'/'+pad(d);
+    var isSel=st.selected.indexOf(dateStr)>=0;
+    var isToday=dateStr===todayStr;
+    var cls='cal-day'+(isSel?' sel':'')+(isToday?' today':'');
+    html+='<div class="'+cls+'" onclick="calToggle('+JSON.stringify(id)+','+JSON.stringify(dateStr)+','+JSON.stringify(filterVar)+','+JSON.stringify(filterKey)+')">'+d+'</div>';
+  }
+  html+='</div><div class="cal-footer">'+
+    '<button class="cal-clear" onclick="'+cl+'">クリア</button>'+
+    '<button class="cal-apply" onclick="'+cs+'">閉じる</button>'+
+  '</div>';
+  popup.innerHTML=html;
+  // ボタンのラベル更新
+  var btn=document.getElementById('cal-lbl-'+id);
+  if(btn)btn.textContent=st.selected.length?st.selected.map(function(s){var p=s.split('-');return p[1]+'/'+p[2];}).join(','):'📅 日付を選択';
+}
+function calToggle(id,dateStr,filterVar,filterKey){
+  initCal(id);
+  var idx=calState[id].selected.indexOf(dateStr);
+  if(idx>=0)calState[id].selected.splice(idx,1);
+  else calState[id].selected.push(dateStr);
+  // フィルター変数を更新
+  if(filterVar==='injF')injF[filterKey]=calState[id].selected.join(',');
+  else if(filterVar==='anoF')anoF[filterKey]=calState[id].selected.join(',');
+  else if(filterVar==='optF')optF[filterKey]=calState[id].selected.join(',');
+  renderCal(id,filterVar,filterKey);
+  renderHistory();
+}
+function calClear(id,filterVar,filterKey){
+  initCal(id);
+  calState[id].selected=[];
+  if(filterVar==='injF')injF[filterKey]='';
+  else if(filterVar==='anoF')anoF[filterKey]='';
+  else if(filterVar==='optF')optF[filterKey]='';
+  renderCal(id,filterVar,filterKey);
+  renderHistory();
+}
+function calPrev(id,filterVar,filterKey){
+  initCal(id);
+  calState[id].month--;
+  if(calState[id].month<0){calState[id].month=11;calState[id].year--;}
+  renderCal(id,filterVar,filterKey);
+}
+function calNext(id,filterVar,filterKey){
+  initCal(id);
+  calState[id].month++;
+  if(calState[id].month>11){calState[id].month=0;calState[id].year++;}
+  renderCal(id,filterVar,filterKey);
+}
+function calOpen(id,filterVar,filterKey){
+  var popup=document.getElementById('cal-popup-'+id);
+  if(!popup)return;
+  var isHidden=popup.classList.contains('hidden');
+  // 全ポップアップを閉じる
+  document.querySelectorAll('.cal-popup').forEach(function(p){p.classList.add('hidden');});
+  if(isHidden){popup.classList.remove('hidden');renderCal(id,filterVar,filterKey);}
+}
+function calClose(id){
+  var popup=document.getElementById('cal-popup-'+id);
+  if(popup)popup.classList.add('hidden');
+}
+// ページクリックで閉じる
+document.addEventListener('click',function(e){
+  if(!e.target.closest('.cal-wrap'))document.querySelectorAll('.cal-popup').forEach(function(p){p.classList.add('hidden');});
+});
+function mkCal(id,filterVar,filterKey,currentVal){
+  var lbl=currentVal?currentVal.split(',').map(function(s){var p=s.split('-');return p[1]+'/'+p[2];}).join(','):'📅 日付を選択';
+  return '<div class="cal-wrap"><button class="cal-btn" id="cal-lbl-'+id+'" onclick="event.stopPropagation();calOpen(''+id+'',''+filterVar+'',''+filterKey+'')">'+lbl+'</button><div class="cal-popup hidden" id="cal-popup-'+id+'"></div></div>';
+}
+// フィルターにカレンダー日付を適用する共通関数
+function matchCalDates(dateDisp,calDatesStr){
+  if(!calDatesStr)return true;
+  var dates=calDatesStr.split(',');
+  return dates.some(function(d){
+    var p=d.split('-');
+    var m=parseInt(p[1]),day=parseInt(p[2]);
+    return dateDisp.includes(m+'/'+pad(day))||dateDisp.includes(m+'月'+pad(day));
+  });
 }
 function showSub(s){
   curSub=s;
@@ -1138,6 +1385,7 @@ function renderInjTab(list,injName){
     if(injF.weekday&&!r.date.includes(injF.weekday+'曜'))return false;
     if(injF.dateStr&&!r.date.includes(injF.dateStr))return false;
     if(injF.memo&&!r.memo)return false;
+    if(injF.calDates&&!matchCalDates(r.date,injF.calDates))return false;
     return true;
   });
   var ws=filtered.filter(function(r){return r.result==='win';}).length;
@@ -1160,7 +1408,8 @@ function renderInjTab(list,injName){
     '<span class="martin-c" style="font-weight:600">1M込'+wrm+'%('+wm+'勝'+(t-wm)+'敗 '+t+'件)</span></div>';
   return statHtml+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
-    '<th style="min-width:120px"><div>日付</div>'+
+    '<th style="min-width:140px"><div>日付</div>'+
+      mkCal('inj-cal','injF','calDates',injF.calDates)+
       '<input type="text" class="xl-fi" placeholder="例:04/28" value="'+(injF.dateStr||'')+'" onchange="injF.dateStr=this.value;renderHistory()">'+
       '<select class="xl-fi" onchange="injF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('通貨',mkSel(injF.pair,'injF.pair=this.value;renderHistory()',pOpts))+
@@ -1186,6 +1435,7 @@ function renderAnoTab(list){
     if(anoF.dir&&r.dir!==anoF.dir)return false;
     if(anoF.pair&&r.pair!==anoF.pair)return false;
     if(anoF.memo&&!r.memo)return false;
+    if(anoF.calDates&&!matchCalDates(r.date,anoF.calDates))return false;
     return true;
   });
   var ws=filtered.filter(function(r){return r.result==='win';}).length;
@@ -1199,7 +1449,10 @@ function renderAnoTab(list){
   var tbody=filtered.length?filtered.map(function(r){return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.time+'</td><td style="color:#7c6af7">'+r.dir+'</td><td>'+r.pair+'</td><td>'+badge2(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';}).join(''):'<tr><td colspan="6" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span>'+fmtWRs(wr,ws,l,t,sk)+'</div>'+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
-    '<th style="min-width:120px"><div>日付</div><input type="text" placeholder="例:04/27" value="'+(anoF.dateStr||'')+'" onchange="anoF.dateStr=this.value;renderHistory()"><br><select onchange="anoF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
+    '<th style="min-width:140px"><div>日付</div>'+
+      mkCal('ano-cal','anoF','calDates',anoF.calDates)+
+      '<input type="text" class="xl-fi" placeholder="例:04/27" value="'+(anoF.dateStr||'')+'" onchange="anoF.dateStr=this.value;renderHistory()">'+
+      '<select class="xl-fi" onchange="anoF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('時間',mkSel(anoF.time,'anoF.time=this.value;renderHistory()',tOpts))+
     mkTh('方向',mkSel(anoF.dir,'anoF.dir=this.value;renderHistory()',dOpts))+
     mkTh('通貨',mkSel(anoF.pair,'anoF.pair=this.value;renderHistory()',pOpts))+
@@ -1218,6 +1471,7 @@ function renderOptTab(list){
     if(optF.dateStr&&!r.date.includes(optF.dateStr))return false;
     if(optF.result){var has=r.rounds.some(function(v){return v===optF.result;});if(!has)return false;}
     if(optF.memo&&!r.memo)return false;
+    if(optF.calDates&&!matchCalDates(r.date,optF.calDates))return false;
     return true;
   });
   var ws=0,l=0,sk=0;
@@ -1234,7 +1488,8 @@ function renderOptTab(list){
   return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">オプション</span>'+
     '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span></div>'+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
-    '<th style="min-width:120px"><div>日付</div>'+
+    '<th style="min-width:140px"><div>日付</div>'+
+      mkCal('opt-cal','optF','calDates',optF.calDates)+
       '<input type="text" class="xl-fi" placeholder="例:04/28" value="'+(optF.dateStr||'')+'" onchange="optF.dateStr=this.value;renderHistory()">'+
       '<select class="xl-fi" onchange="optF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('オプション名',mkSel(optF.name,'optF.name=this.value;renderHistory()',nOpts))+
