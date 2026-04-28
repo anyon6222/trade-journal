@@ -442,7 +442,7 @@ function timeSlot(t){if(!t)return'時間不明';var p=t.split(':').map(Number);v
 var curSub='summary';
 var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',dateStr:'',memo:''};
 
-var anoF={result:'',weekday:'',dateStr:'',time:'',dir:'',pair:''};
+var anoF={result:'',weekday:'',dateStr:'',time:'',dir:'',pair:'',memo:''};
 var optF={name:'',result:'',weekday:'',dateStr:'',memo:''};
 function showSub(s){
   curSub=s;
@@ -1185,6 +1185,7 @@ function renderAnoTab(list){
     if(anoF.time&&r.time!==anoF.time)return false;
     if(anoF.dir&&r.dir!==anoF.dir)return false;
     if(anoF.pair&&r.pair!==anoF.pair)return false;
+    if(anoF.memo&&!r.memo)return false;
     return true;
   });
   var ws=filtered.filter(function(r){return r.result==='win';}).length;
@@ -1203,25 +1204,43 @@ function renderAnoTab(list){
     mkTh('方向',mkSel(anoF.dir,'anoF.dir=this.value;renderHistory()',dOpts))+
     mkTh('通貨',mkSel(anoF.pair,'anoF.pair=this.value;renderHistory()',pOpts))+
     mkTh('結果',mkSel(anoF.result,'anoF.result=this.value;renderHistory()',rOpts))+
-    '<th>メモ</th></tr></thead><tbody>'+tbody+'</tbody></table></div>';
+    mkTh('メモ',mkSel(anoF.memo,'anoF.memo=this.value;renderHistory()','<option value="">全</option><option value="1" '+(anoF.memo==="1"?'selected':'')+'>あり</option>'))+
+    '</tr></thead><tbody>'+tbody+'</tbody></table></div>';
 }
 function renderOptTab(list){
   var rows=[];
   list.forEach(function(t){t.opts.forEach(function(o){var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});if(!rs.length)return;rows.push({date:t.dateDisplay||t.date,name:o.name,rounds:rs,memo:o.memo});});});
-  var filtered=rows.filter(function(r){if(optF.name&&r.name!==optF.name)return false;return true;});
-  var w=0,l=0;filtered.forEach(function(r){r.rounds.forEach(function(v){if(v==='win')w++;else if(v==='lose')l++;});});
-  var t=w+l,wr=t?Math.round(w/t*100):0;
-  var nOpts=[...new Set(rows.map(function(r){return r.name;}))].map(function(n){return '<option value="'+n+'" '+(optF.name===n?'selected':'')+'>'+n.slice(0,20)+'</option>';}).join('');
+  var WD=['月','火','水','木','金','土','日'];
+  var names=[];rows.forEach(function(r){if(names.indexOf(r.name)<0)names.push(r.name);});
+  var filtered=rows.filter(function(r){
+    if(optF.name&&r.name!==optF.name)return false;
+    if(optF.weekday&&!r.date.includes(optF.weekday+'曜'))return false;
+    if(optF.dateStr&&!r.date.includes(optF.dateStr))return false;
+    if(optF.result){var has=r.rounds.some(function(v){return v===optF.result;});if(!has)return false;}
+    if(optF.memo&&!r.memo)return false;
+    return true;
+  });
+  var ws=0,l=0,sk=0;
+  filtered.forEach(function(r){r.rounds.forEach(function(v){if(v==='win')ws++;else if(v==='lose')l++;else if(v==='skip')sk++;});});
+  var t=ws+l;var wr=t?Math.round(ws/t*100):0;
+  var nOpts='<option value="">全オプション</option>'+names.map(function(n){return '<option value="'+n+'" '+(optF.name===n?'selected':'')+'>'+n.slice(0,18)+'</option>';}).join('');
+  var rOpts='<option value="">全結果</option><option value="win" '+(optF.result==='win'?'selected':'')+'>○</option><option value="lose" '+(optF.result==='lose'?'selected':'')+'>✕</option><option value="skip" '+(optF.result==='skip'?'selected':'')+'>－</option>';
+  var wdOpts='<option value="">（曜日を選択）</option>'+WD.map(function(d){return '<option value="'+d+'" '+(optF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
+  var mOpts='<option value="">全</option><option value="1" '+(optF.memo==='1'?'selected':'')+'>あり</option>';
+  var skStr=sk?'['+sk+'ス '+(t+sk)+'件]':'';
   var rows_html=filtered.length?filtered.map(function(r){
-    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td style="font-size:11px;font-weight:500">'+r.name+'</td><td>'+r.rounds.map(function(v){return badge2(v);}).join(' ')+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';
-  }).join(''):'<tr><td colspan="4" style="text-align:center;padding:2rem;color:#ccc">データがありません</td></tr>';
-  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">オプション</span><span class="win-c" style="font-weight:600">単発'+wr+'%</span><span style="color:#aaa;font-size:12px">'+w+'勝'+l+'敗 '+t+'件</span></div>'+
-    '<div class="filter-row">'+
-      '<select onchange="optF.name=this.value;renderHistory()"><option value="">全オプション</option>'+nOpts+'</select>'+
-    '</div>'+
-    '<div class="xl-wrap"><table class="xl-table"><thead>'+
-      '<tr><th>日付</th><th>オプション名</th><th>結果</th><th>メモ</th></tr>'+
-    '</thead><tbody>'+rows_html+'</tbody></table></div>';
+    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td style="font-size:11px">'+r.name+'</td><td>'+r.rounds.map(function(v){return badge2(v);}).join(' ')+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';
+  }).join(''):'<tr><td colspan="4" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">オプション</span>'+
+    '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span></div>'+
+    '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
+    '<th style="min-width:120px"><div>日付</div>'+
+      '<input type="text" class="xl-fi" placeholder="例:04/28" value="'+(optF.dateStr||'')+'" onchange="optF.dateStr=this.value;renderHistory()">'+
+      '<select class="xl-fi" onchange="optF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
+    mkTh('オプション名',mkSel(optF.name,'optF.name=this.value;renderHistory()',nOpts))+
+    mkTh('結果',mkSel(optF.result,'optF.result=this.value;renderHistory()',rOpts))+
+    mkTh('メモ',mkSel(optF.memo,'optF.memo=this.value;renderHistory()',mOpts))+
+    '</tr></thead><tbody>'+rows_html+'</tbody></table></div>';
 }
 
 // ===== 分析 =====
