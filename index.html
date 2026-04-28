@@ -638,11 +638,12 @@ function renderTodayList(){
       var eWs=entA.filter(function(e){return e.result==='win';}).length;
       var eWm=entA.filter(function(e){return e.result==='win'||e.result==='martin';}).length;
       var eL=entA.filter(function(e){return e.result==='lose'||e.result==='martin';}).length;
+      var eLose=entA.filter(function(e){return e.result==='lose';}).length;
       var eWRs=Math.round(eWs/entA.length*100);
       var eCls=eWRs>=60?'win-c':eWRs>=50?'martin-c':'lose-c';
       var eTxt=entA.map(function(e){return e.pair+' '+(e.dir==='up'?'↑':'↓')+' '+badge(e.result);}).join(' ');
       var eStat='単発<b class="'+eCls+'">'+eWRs+'%</b>('+eWs+'勝'+eL+'敗)';
-      if(eWm>eWs)eStat+=' 1M<b class="martin-c">'+Math.round(eWm/entA.length*100)+'%</b>('+eWm+'勝'+eL+'敗)';
+      if(eWm>eWs)eStat+=' 1M<b class="martin-c">'+Math.round(eWm/entA.length*100)+'%</b>('+eWm+'勝'+eLose+'敗)';
       eStat+=' '+entA.length+'件';
       lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>エントリー: '+eTxt+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">'+eStat+'</span></span>');
     }
