@@ -205,6 +205,25 @@ textarea{min-height:36px;resize:vertical}
 .xl-table tr:last-child td{border-bottom:none}
 .xl-table tr:hover td{background:#f8fff8}
 .xl-fi{font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%;margin-top:2px;display:block}
+.cal-wrap{position:relative;display:inline-block;width:100%}
+.cal-btn{font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;cursor:pointer;width:100%;margin-top:2px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-popup{position:absolute;top:100%;left:0;z-index:9999;background:#fff;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15);padding:10px;width:220px;margin-top:2px}
+.cal-popup.hidden{display:none}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-nav{background:none;border:none;cursor:pointer;font-size:14px;color:#1a1a2e;padding:2px 6px;border-radius:4px}
+.cal-nav:hover{background:#f0f0f0}
+.cal-title{font-size:12px;font-weight:500;color:#1a1a2e}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-wd{font-size:9px;color:#aaa;text-align:center;padding:2px 0}
+.cal-day{font-size:11px;text-align:center;padding:4px 2px;border-radius:4px;cursor:pointer;color:#333}
+.cal-day:hover{background:#f0f0f0}
+.cal-day.sel{background:#1a1a2e;color:#fff;font-weight:500}
+.cal-day.today{border:1px solid #7c6af7;color:#7c6af7}
+.cal-day.other{color:#ccc}
+.cal-day.sel.today{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.cal-footer{margin-top:8px;display:flex;gap:4px}
+.cal-clear{font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid #ddd;background:#fff;color:#888;cursor:pointer;flex:1}
+.cal-apply{font-size:10px;padding:3px 8px;border-radius:4px;border:none;background:#1a1a2e;color:#fff;cursor:pointer;flex:1}
 .xl-stat{background:#f0f4ff;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
 .sum-total{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;border-top:3px solid #1a1a2e}
 .sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
@@ -234,7 +253,9 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.04.28-A-A"main-tabs">
+  <span class="ver">v2026.04.28-A</span>
+</div>
+<div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
   <button class="main-tab" onclick="showMain('history')">履歴</button>
   <button class="main-tab" onclick="showMain('analysis')">分析</button>
@@ -438,30 +459,11 @@ function timeSlot(t){if(!t)return'時間不明';var p=t.split(':').map(Number);v
 
 // ===== タブ切替 =====
 var curSub='summary';
-var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',dateStr:'',memo:'',dateFrom:'',dateTo:''};
+var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',dateStr:'',memo:''};
 
-var anoF={result:'',weekday:'',dateStr:'',time:'',dir:'',pair:'',memo:'',dateFrom:'',dateTo:''};
-var optF={name:'',result:'',weekday:'',dateStr:'',memo:'',dateFrom:'',dateTo:''};
-// ===== サブタブ =====
-function matchDateRange(dateDisp,from,to){
-  // dateDisp例: "2026年04月28日（火）"
-  // from/to例: "04/25"
-  if(!from&&!to)return true;
-  var m=dateDisp.match(/(\d{4})年(\d{2})月(\d{2})日/);
-  if(!m)return true;
-  var d=m[1]+'/'+m[2]+'/'+m[3];  // "2026/04/28"
-  if(from){
-    var fp=from.split('/');
-    var fd='2026/'+('00'+fp[0]).slice(-2)+'/'+('00'+fp[1]).slice(-2);
-    if(d<fd)return false;
-  }
-  if(to){
-    var tp=to.split('/');
-    var td='2026/'+('00'+tp[0]).slice(-2)+'/'+('00'+tp[1]).slice(-2);
-    if(d>td)return false;
-  }
-  return true;
-}
+var anoF={result:'',weekday:'',dateStr:'',time:'',dir:'',pair:'',memo:''};
+var optF={name:'',result:'',weekday:'',dateStr:'',memo:''};
+// ===== カレンダーフィルター =====  // {id: {year,month,selected:Set}}
 function showSub(s){
   curSub=s;
   document.querySelectorAll('#hist-stabs .sub-tab').forEach(function(b){
@@ -477,27 +479,7 @@ function showMain(t){
   if(t==='analysis')renderAnalysis();
   if(t==='memo')renderMemos();
 }
-// ===== カレンダーフィルター =====
-  // {id: {year,month,selected:Set}}
-function matchDateRange(dateDisp,from,to){
-  // dateDisp例: "2026年04月28日（火）"
-  // from/to例: "04/25"
-  if(!from&&!to)return true;
-  var m=dateDisp.match(/(\d{4})年(\d{2})月(\d{2})日/);
-  if(!m)return true;
-  var d=m[1]+'/'+m[2]+'/'+m[3];  // "2026/04/28"
-  if(from){
-    var fp=from.split('/');
-    var fd='2026/'+('00'+fp[0]).slice(-2)+'/'+('00'+fp[1]).slice(-2);
-    if(d<fd)return false;
-  }
-  if(to){
-    var tp=to.split('/');
-    var td='2026/'+('00'+tp[0]).slice(-2)+'/'+('00'+tp[1]).slice(-2);
-    if(d>td)return false;
-  }
-  return true;
-}
+// ===== カレンダーフィルター =====  // {id: {year,month,selected:Set}}
 function showSub(s){
   curSub=s;
   document.querySelectorAll('#hist-stabs .sub-tab').forEach(function(b){
@@ -1177,7 +1159,6 @@ function renderInjTab(list,injName){
     if(injF.weekday&&!r.date.includes(injF.weekday+'曜'))return false;
     if(injF.dateStr&&!r.date.includes(injF.dateStr))return false;
     if(injF.memo&&!r.memo)return false;
-    if(!matchDateRange(r.date,injF.dateFrom,injF.dateTo))return false;
     return true;
   });
   var ws=filtered.filter(function(r){return r.result==='win';}).length;
@@ -1201,7 +1182,7 @@ function renderInjTab(list,injName){
   return statHtml+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
     '<th style="min-width:120px"><div>日付</div>'+
-'<input type="text" class="xl-fi" placeholder="例:04/28" value="'+(injF.dateStr||'')+'" onchange="injF.dateStr=this.value;renderHistory()">'+
+      '<input type="text" class="xl-fi" placeholder="例:04/28" value="'+(injF.dateStr||'')+'" onchange="injF.dateStr=this.value;renderHistory()">'+
       '<select class="xl-fi" onchange="injF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('通貨',mkSel(injF.pair,'injF.pair=this.value;renderHistory()',pOpts))+
     mkTh('時間',mkSel(injF.time,'injF.time=this.value;renderHistory()',tOpts))+
@@ -1226,7 +1207,6 @@ function renderAnoTab(list){
     if(anoF.dir&&r.dir!==anoF.dir)return false;
     if(anoF.pair&&r.pair!==anoF.pair)return false;
     if(anoF.memo&&!r.memo)return false;
-    if(!matchDateRange(r.date,anoF.dateFrom,anoF.dateTo))return false;
     return true;
   });
   var ws=filtered.filter(function(r){return r.result==='win';}).length;
@@ -1241,7 +1221,7 @@ function renderAnoTab(list){
   return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span>'+fmtWRs(wr,ws,l,t,sk)+'</div>'+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
     '<th style="min-width:120px"><div>日付</div>'+
-'<input type="text" class="xl-fi" placeholder="例:04/27" value="'+(anoF.dateStr||'')+'" onchange="anoF.dateStr=this.value;renderHistory()">'+
+      '<input type="text" class="xl-fi" placeholder="例:04/27" value="'+(anoF.dateStr||'')+'" onchange="anoF.dateStr=this.value;renderHistory()">'+
       '<select class="xl-fi" onchange="anoF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('時間',mkSel(anoF.time,'anoF.time=this.value;renderHistory()',tOpts))+
     mkTh('方向',mkSel(anoF.dir,'anoF.dir=this.value;renderHistory()',dOpts))+
@@ -1261,7 +1241,6 @@ function renderOptTab(list){
     if(optF.dateStr&&!r.date.includes(optF.dateStr))return false;
     if(optF.result){var has=r.rounds.some(function(v){return v===optF.result;});if(!has)return false;}
     if(optF.memo&&!r.memo)return false;
-    if(!matchDateRange(r.date,optF.dateFrom,optF.dateTo))return false;
     return true;
   });
   var ws=0,l=0,sk=0;
@@ -1279,7 +1258,7 @@ function renderOptTab(list){
     '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span></div>'+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
     '<th style="min-width:120px"><div>日付</div>'+
-'<input type="text" class="xl-fi" placeholder="例:04/28" value="'+(optF.dateStr||'')+'" onchange="optF.dateStr=this.value;renderHistory()">'+
+      '<input type="text" class="xl-fi" placeholder="例:04/28" value="'+(optF.dateStr||'')+'" onchange="optF.dateStr=this.value;renderHistory()">'+
       '<select class="xl-fi" onchange="optF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('オプション名',mkSel(optF.name,'optF.name=this.value;renderHistory()',nOpts))+
     mkTh('結果',mkSel(optF.result,'optF.result=this.value;renderHistory()',rOpts))+
