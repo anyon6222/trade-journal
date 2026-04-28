@@ -578,15 +578,15 @@ function renderTodayList(){
     ['GORILLA','IRAZU','HUNO'].forEach(function(name){
       var arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none';});
       if(!arr.length)return;
-      var injW=arr.filter(function(i){return i.result==='win'||i.result==='martin';}).length;
-      var injWR=Math.round(injW/arr.length*100);
-      var cls=injWR>=60?'win-c':injWR>=50?'martin-c':'lose-c';
-      var detail=arr.map(function(i){return (i.line&&i.line!=='—'?'['+i.line+']':'')+' '+(i.time||'')+' '+(i.dir==='up'?'↑':'↓')+' '+badge(i.result);}).join('　');
       var injWs=arr.filter(function(i){return i.result==='win';}).length;
       var injWm=arr.filter(function(i){return i.result==='win'||i.result==='martin';}).length;
       var injL=arr.filter(function(i){return i.result==='lose';}).length;
-      var injStat='単発<b class="'+cls+'">'+injWR+'%</b>('+injWs+'勝'+injL+'敗)';
-      if(injWm>injWs)injStat+=' 1M<b class="martin-c">'+Math.round(injWm/arr.length*100)+'%</b>('+injWm+'勝'+injL+'敗)';
+      var injWRs=arr.length?Math.round(injWs/arr.length*100):0;
+      var injWRm=arr.length?Math.round(injWm/arr.length*100):0;
+      var cls=injWRs>=60?'win-c':injWRs>=50?'martin-c':'lose-c';
+      var detail=arr.map(function(i){return (i.line&&i.line!=='—'?'['+i.line+']':'')+' '+(i.time||'')+' '+(i.dir==='up'?'↑':'↓')+' '+badge(i.result);}).join('　');
+      var injStat='単発<b class="'+cls+'">'+injWRs+'%</b>('+injWs+'勝'+injL+'敗)';
+      if(injWm>injWs)injStat+=' 1M<b class="martin-c">'+injWRm+'%</b>('+injWm+'勝'+injL+'敗)';
       injStat+=' '+arr.length+'件';
       lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span><b>'+name+'</b>: '+detail+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">'+injStat+'</span></span>');
     });
@@ -622,10 +622,93 @@ function renderTodayList(){
       eStat+=' '+entA.length+'件';
       lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>エントリー: '+eTxt+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">'+eStat+'</span></span>');
     }
-    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body">'+(lines.join('<br>')||'（詳細なし）')+'</div><button class="today-del" onclick="delToday('+tr.id+')">削除</button></div>';
+    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body">'+(lines.join('<br>')||'（詳細なし）')+'</div><div style="display:flex;flex-direction:column;gap:3px"><button class="today-del" onclick="editToday('+tr.id+')" style="background:#f0f4ff;border-color:#5a8aee;color:#5a8aee">編集</button><button class="today-del" onclick="delToday('+tr.id+')">削除</button></div></div>';
   }).join('');
 }
 function delToday(id){if(!confirm('削除しますか？'))return;trades=trades.filter(function(t){return t.id!==id;});saveData();renderTodayList();renderDash();}
+function editToday(id){
+  var tr=trades.find(function(t){return t.id===id;});
+  if(!tr)return;
+  if(!confirm('この記録を編集モードで読み込みます。現在の入力内容はクリアされます。よろしいですか？'))return;
+  // 日付セット
+  var iso=toIso(tr.date);
+  document.getElementById('f-date-pk').value=iso;
+  updateDateDisp(iso);
+  // インジ復元
+  injEntries={0:[],1:[],2:[]};
+  var byInj={GORILLA:[],IRAZU:[],HUNO:[]};
+  tr.injs.forEach(function(i){if(byInj[i.name])byInj[i.name].push(i);});
+  INJS.forEach(function(inj,idx){
+    var arr=byInj[inj.name];
+    if(arr.length===0)arr=[{result:'none'}];
+    injEntries[idx]=arr.map(function(i){return{id:Date.now()+Math.random()*1000|0,result:i.result,_pair:i.pair,_time:i.time,_dir:i.dir,_line:i.line,_memo:i.memo};});
+  });
+  buildInj();
+  INJS.forEach(function(inj,idx){
+    injEntries[idx].forEach(function(e){
+      sv('ep-'+e.id,e._pair);sv('et-'+e.id,e._time);sv('ed-'+e.id,e._dir);sv('el-'+e.id,e._line);sv('em-'+e.id,e._memo);
+      if(e.result!=='none'){
+        var card=document.querySelector('[id="ep-'+e.id+'"]');
+        if(card){
+          var parent=card.closest('.entry-card');
+          if(parent){
+            parent.className='entry-card '+(e.result==='win'?'done-win':e.result==='martin'?'done-martin':'done-lose');
+            var btns=parent.querySelectorAll('.rbtn');
+            btns.forEach(function(b){b.className='rbtn';});
+            var targetCls=e.result==='win'?'sel-win':e.result==='martin'?'sel-martin':'sel-lose';
+            if(btns[e.result==='win'?0:e.result==='martin'?1:2])btns[e.result==='win'?0:e.result==='martin'?1:2].classList.add(targetCls);
+          }
+        }
+      }
+    });
+  });
+  // アノマリー復元
+  buildAno();
+  tr.anos.forEach(function(a){
+    var key=null;
+    ANOMALIES.forEach(function(ano,ai){
+      ano.pairs.forEach(function(p,pi){
+        if(ano.time===a.time&&p===a.pair)key=ai+'_'+pi;
+      });
+    });
+    if(key&&a.result!=='none'){
+      anoState[key]=a.result;
+      var row=document.getElementById('ar-'+key);
+      if(row){
+        var btns=row.querySelectorAll('.rbtn');
+        btns.forEach(function(b){b.className='rbtn';});
+        var idx=a.result==='win'?0:a.result==='lose'?1:2;
+        if(btns[idx])btns[idx].classList.add(a.result==='win'?'sel-win':a.result==='lose'?'sel-lose':'sel-skip');
+        row.className='ano-row'+(a.result==='win'?' done-win':a.result==='lose'?' done-lose':a.result==='skip'?' done-skip':'');
+      }
+      var memo=document.getElementById('am-'+key);
+      if(memo&&a.memo)memo.value=a.memo;
+    }
+  });
+  // オプション復元
+  buildOpt();
+  tr.opts.forEach(function(o,oi){
+    if(oi>=optBlocks.length)return;
+    var rounds=o.rounds||[o.result];
+    optBlocks[oi].rounds=rounds.map(function(r,ri){return{id:Date.now()+oi*100+ri,result:r||'none'};});
+    if(o.memo)optBlocks[oi].memo=o.memo;
+  });
+  renderOpt();
+  // エントリー復元
+  entList=(tr.entries||[]).map(function(e){return{id:Date.now()+Math.random()*1000|0,result:e.result||'none',_pair:e.pair,_time:e.time,_dir:e.dir,_inj:e.inj,_opt:e.opt,_ano:e.ano,_memo:e.memo};});
+  renderEnt();
+  entList.forEach(function(e){
+    sv('enp-'+e.id,e._pair);sv('ent-'+e.id,e._time);sv('end-'+e.id,e._dir);
+    sv('eni-'+e.id,e._inj);sv('eno-'+e.id,e._opt);sv('ena-'+e.id,e._ano);
+    sv('enm-'+e.id,e._memo);
+  });
+  // 元の記録を削除（再記録で上書き）
+  trades=trades.filter(function(t){return t.id!==id;});
+  saveData();renderTodayList();renderDash();
+  // 編集中セクションを開く
+  toggle('inj');toggle('ano');toggle('opt');
+  window.scrollTo(0,0);
+}
 
 // ===== インジブロック =====
 function dcls(r){return r==='win'?'done-win':r==='martin'?'done-martin':r==='lose'?'done-lose':'';}
