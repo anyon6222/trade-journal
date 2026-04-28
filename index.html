@@ -488,24 +488,41 @@ function badge2(v){
 }
 function wrl(pct,w,l,t){return'<span style="font-weight:600">'+pct+'%</span><span style="color:#aaa;font-size:10px;margin-left:3px">('+w+'勝'+l+'敗) '+t+'件</span>';}
 function calcWR(list){
+  // 全カテゴリ合算
+  // インジ/エントリー: ○=単発+1M勝 / ✕○=単発負+1M勝 / ✕✕=両負
+  // アノマリー/オプション: ○=勝 / ✕=負 / スルー=件数外
   var t=0,ws=0,wm=0,l=0,sk=0;
   list.forEach(function(tr){
-    tr.injs.concat(tr.entries||[]).forEach(function(e){
+    // インジ
+    tr.injs.forEach(function(e){
       if(!e.result||e.result==='none')return;
       t++;
       if(e.result==='win'){ws++;wm++;}
       else if(e.result==='martin'){wm++;}
       else if(e.result==='lose'){l++;}
     });
+    // アノマリー（スルーはsk、勝敗のみt）
+    tr.anos.forEach(function(a){
+      if(!a.result||a.result==='none')return;
+      if(a.result==='skip'){sk++;}
+      else{t++;if(a.result==='win'){ws++;wm++;}else l++;}
+    });
+    // オプション（スルーはsk、勝敗のみt）
     tr.opts.forEach(function(o){
       (o.rounds||[o.result]).forEach(function(r){
         if(!r||r==='none')return;
         if(r==='skip'){sk++;}
-        else if(r==='win'){t++;ws++;wm++;}
-        else{t++;l++;}
+        else{t++;if(r==='win'){ws++;wm++;}else l++;}
       });
     });
-    tr.anos.forEach(function(a){if(a.result==='skip')sk++;});
+    // エントリー
+    (tr.entries||[]).forEach(function(e){
+      if(!e.result||e.result==='none')return;
+      t++;
+      if(e.result==='win'){ws++;wm++;}
+      else if(e.result==='martin'){wm++;}
+      else if(e.result==='lose'){l++;}
+    });
   });
   return{t:t,w:ws,wm:wm,l:l,sk:sk,s:t?Math.round(ws/t*100):0,mt:t?Math.round(wm/t*100):0};
 }
@@ -622,7 +639,7 @@ function renderTodayList(){
       eStat+=' '+entA.length+'件';
       lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>エントリー: '+eTxt+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">'+eStat+'</span></span>');
     }
-    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body">'+(lines.join('<br>')||'（詳細なし）')+'</div><div style="display:flex;flex-direction:column;gap:3px"><button class="today-del" onclick="editToday('+tr.id+')" style="background:#f0f4ff;border-color:#5a8aee;color:#5a8aee">編集</button><button class="today-del" onclick="delToday('+tr.id+')">削除</button></div></div>';
+    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body">'+(lines.join('<br>')||'（詳細なし）')+'</div><button class="today-del" onclick="delToday('+tr.id+')">削除</button></div>';
   }).join('');
 }
 function delToday(id){if(!confirm('削除しますか？'))return;trades=trades.filter(function(t){return t.id!==id;});saveData();renderTodayList();renderDash();}
@@ -914,7 +931,15 @@ function saveTrade(){
     anos.push({time:a.time,dir:a.dir,pair:a.pairs[p[1]],result:anoState[k],memo:ge('am-'+k)});
   });
   var dv=getDateVal();
-  trades.unshift({id:Date.now(),date:dv,dateDisplay:fmtDisp(toIso(dv)),injs:collectInjs(),anos:anos,opts:collectOpts(),entries:collectEnts()});
+  var newRec={id:Date.now(),date:dv,dateDisplay:fmtDisp(toIso(dv)),injs:collectInjs(),anos:anos,opts:collectOpts(),entries:collectEnts()};
+  // 同じ日の既存記録があれば確認して上書き
+  var existing=trades.filter(function(t){return toIso(t.date)===toIso(dv);});
+  if(existing.length>0){
+    if(confirm('同じ日の記録があります。上書きしますか？（キャンセルで追記）')){
+      trades=trades.filter(function(t){return toIso(t.date)!==toIso(dv);});
+    }
+  }
+  trades.unshift(newRec);
   saveData();
   var msg=document.getElementById('msg');msg.textContent='記録しました！';setTimeout(function(){msg.textContent='';},2000);
   renderTodayList();renderDash();
@@ -1045,7 +1070,7 @@ function renderAnoTab(list){
   var sk=filtered.filter(function(r){return r.result==='skip';}).length;
   var t=filtered.length-sk;var l=t-ws;var wr=t?Math.round(ws/t*100):0;
   var rOpts='<option value="">全結果</option><option value="win" '+(anoF.result==='win'?'selected':'')+'>○</option><option value="lose" '+(anoF.result==='lose'?'selected':'')+'>✕</option><option value="skip" '+(anoF.result==='skip'?'selected':'')+'>－</option>';
-  var wdOpts='<option value="">全曜日</option>'+WD.map(function(d){return '<option value="'+d+'" '+(anoF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
+  var wdOpts='<option value="">（曜日を選択）</option>'+WD.map(function(d){return '<option value="'+d+'" '+(anoF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
   var tOpts='<option value="">全時間</option>'+times.map(function(v){return '<option value="'+v+'" '+(anoF.time===v?'selected':'')+'>'+v+'</option>';}).join('');
   var dOpts='<option value="">全方向</option><option value="↑" '+(anoF.dir==='↑'?'selected':'')+'>↑</option><option value="↓" '+(anoF.dir==='↓'?'selected':'')+'>↓</option><option value="↑↓" '+(anoF.dir==='↑↓'?'selected':'')+'>↑↓</option>';
   var pOpts='<option value="">全通貨</option>'+pairs.map(function(p){return '<option value="'+p+'" '+(anoF.pair===p?'selected':'')+'>'+p+'</option>';}).join('');
