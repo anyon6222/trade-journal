@@ -387,6 +387,7 @@ var ANOMALIES=[
   {time:'17:55',dir:'↑',pairs:['GBP/JPY']}
 ];
 var OPTIONS=['GBP/JPY 前日終値(YC)','AUD/JPY 当日始値(O)','AUD/JPY 6〜8(1分)','AUD/JPY 6〜8(5分)','AUD/JPY 6〜8(更新)','GBP/JPY 前日高安値(YHL)','USD/JPY 200EMA','NZD/JPY 前日FB','GBP/JPY 前日FB'];
+var OPT_ABBR={'GBP/JPY 前日終値(YC)':'G/J YC','AUD/JPY 当日始値(O)':'A/J O','AUD/JPY 6〜8(1分)':'A/J M1','AUD/JPY 6〜8(5分)':'A/J M5','AUD/JPY 6〜8(更新)':'A/J 更新','GBP/JPY 前日高安値(YHL)':'G/J YHL','USD/JPY 200EMA':'U/J 200','NZD/JPY 前日FB':'N/J FB','GBP/JPY 前日FB':'G/J FB'};
 var WD=['日','月','火','水','木','金','土'];
 var ANO_LABELS=[];
 ANOMALIES.forEach(function(a){a.pairs.forEach(function(p){ANO_LABELS.push(a.time+' '+a.dir+' '+p);});});
@@ -609,20 +610,26 @@ function renderTodayList(){
     });
     var anoA=tr.anos.filter(function(a){return a.result!=='none';});
     if(anoA.length){
+      var anoSk=anoA.filter(function(a){return a.result==='skip';}).length;
+      var anoT=anoA.length-anoSk;
       var aw=anoA.filter(function(a){return a.result==='win';}).length;
-      var at=anoA.filter(function(a){return a.result!=='skip';}).length;
-      var awr=at?Math.round(aw/at*100):0;
+      var awr=anoT?Math.round(aw/anoT*100):0;
       var acls=awr>=60?'win-c':awr>=50?'martin-c':'lose-c';
       var adet=anoA.map(function(a){return a.time+' '+badge2(a.result);}).join(' ');
-      lines.push('<span style="display:flex;justify-content:space-between"><span>アノマリー: '+adet+'</span><span style="font-size:10px;color:#888;margin-left:6px">'+at+'件 <b class="'+acls+'">'+awr+'%</b></span></span>');
+      var anoSkStr=anoSk?'['+anoSk+'ス '+anoA.length+'件]':'';
+      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>アノマリー: '+adet+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">単発<b class="'+acls+'">'+awr+'%</b>('+aw+'勝'+(anoT-aw)+'敗 '+anoT+'件'+anoSkStr+')</span></span>');
     }
-    var optA=tr.opts.filter(function(o){return (o.rounds||[o.result]).some(function(r){return r&&r!=='none';});});
-    if(optA.length){
+    var allOpts=tr.opts.filter(function(o){return (o.rounds||[o.result]).some(function(r){return r&&r!=='none';});});
+    if(allOpts.length){
       var ow=0,ot=0,osk=0;
-      optA.forEach(function(o){(o.rounds||[o.result]).forEach(function(r){if(!r||r==='none')return;if(r==='skip'){osk++;}else{ot++;if(r==='win')ow++;}});});
+      allOpts.forEach(function(o){(o.rounds||[o.result]).forEach(function(r){if(!r||r==='none')return;if(r==='skip'){osk++;}else{ot++;if(r==='win')ow++;}});});
       var owr=ot?Math.round(ow/ot*100):0;
       var ocls=owr>=60?'win-c':owr>=50?'martin-c':'lose-c';
-      var odet=optA.map(function(o){var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});return o.name.slice(0,8)+' '+rs.map(function(r){return badge2(r);}).join('');}).join(' ');
+      var odet=allOpts.map(function(o,oi){
+        var abbr=OPT_ABBR[o.name]||o.name.slice(0,8);
+        var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});
+        return (oi+1)+'.'+abbr+' '+rs.map(function(r){return badge2(r);}).join('');
+      }).join(' ');
       var oskStr=osk?'['+osk+'ス '+(ot+osk)+'件]':'';
       lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>オプション: '+odet+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">単発<b class="'+ocls+'">'+owr+'%</b>('+ow+'勝'+(ot-ow)+'敗 '+ot+'件'+oskStr+')</span></span>');
     }
