@@ -234,9 +234,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.04.28</span>
-</div>
-<div class="main-tabs">
+  <span class="ver">v2026.04.28-A"main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
   <button class="main-tab" onclick="showMain('history')">履歴</button>
   <button class="main-tab" onclick="showMain('analysis')">分析</button>
@@ -444,6 +442,7 @@ var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',dateStr:'',memo:''
 
 var anoF={result:'',weekday:'',dateStr:'',time:'',dir:'',pair:'',memo:''};
 var optF={name:'',result:'',weekday:'',dateStr:'',memo:''};
+// ===== サブタブ =====
 function showSub(s){
   curSub=s;
   document.querySelectorAll('#hist-stabs .sub-tab').forEach(function(b){
@@ -459,6 +458,8 @@ function showMain(t){
   if(t==='analysis')renderAnalysis();
   if(t==='memo')renderMemos();
 }
+// ===== カレンダーフィルター =====
+  // {id: {year,month,selected:Set}}
 function showSub(s){
   curSub=s;
   document.querySelectorAll('#hist-stabs .sub-tab').forEach(function(b){
@@ -1161,7 +1162,7 @@ function renderInjTab(list,injName){
   return statHtml+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
     '<th style="min-width:120px"><div>日付</div>'+
-      '<input type="text" class="xl-fi" placeholder="例:04/28" value="'+(injF.dateStr||'')+'" onchange="injF.dateStr=this.value;renderHistory()">'+
+'<input type="text" class="xl-fi" placeholder="例:04/28" value="'+(injF.dateStr||'')+'" onchange="injF.dateStr=this.value;renderHistory()">'+
       '<select class="xl-fi" onchange="injF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('通貨',mkSel(injF.pair,'injF.pair=this.value;renderHistory()',pOpts))+
     mkTh('時間',mkSel(injF.time,'injF.time=this.value;renderHistory()',tOpts))+
@@ -1199,7 +1200,9 @@ function renderAnoTab(list){
   var tbody=filtered.length?filtered.map(function(r){return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.time+'</td><td style="color:#7c6af7">'+r.dir+'</td><td>'+r.pair+'</td><td>'+badge2(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';}).join(''):'<tr><td colspan="6" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span>'+fmtWRs(wr,ws,l,t,sk)+'</div>'+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
-    '<th style="min-width:120px"><div>日付</div><input type="text" placeholder="例:04/27" value="'+(anoF.dateStr||'')+'" onchange="anoF.dateStr=this.value;renderHistory()"><br><select onchange="anoF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
+    '<th style="min-width:120px"><div>日付</div>'+
+'<input type="text" class="xl-fi" placeholder="例:04/27" value="'+(anoF.dateStr||'')+'" onchange="anoF.dateStr=this.value;renderHistory()">'+
+      '<select class="xl-fi" onchange="anoF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('時間',mkSel(anoF.time,'anoF.time=this.value;renderHistory()',tOpts))+
     mkTh('方向',mkSel(anoF.dir,'anoF.dir=this.value;renderHistory()',dOpts))+
     mkTh('通貨',mkSel(anoF.pair,'anoF.pair=this.value;renderHistory()',pOpts))+
@@ -1235,7 +1238,7 @@ function renderOptTab(list){
     '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span></div>'+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
     '<th style="min-width:120px"><div>日付</div>'+
-      '<input type="text" class="xl-fi" placeholder="例:04/28" value="'+(optF.dateStr||'')+'" onchange="optF.dateStr=this.value;renderHistory()">'+
+'<input type="text" class="xl-fi" placeholder="例:04/28" value="'+(optF.dateStr||'')+'" onchange="optF.dateStr=this.value;renderHistory()">'+
       '<select class="xl-fi" onchange="optF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('オプション名',mkSel(optF.name,'optF.name=this.value;renderHistory()',nOpts))+
     mkTh('結果',mkSel(optF.result,'optF.result=this.value;renderHistory()',rOpts))+
