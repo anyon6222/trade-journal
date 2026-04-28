@@ -359,7 +359,7 @@ textarea{min-height:36px;resize:vertical}
     <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">🔍 条件組み合わせ分析</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
       <div class="fg"><label>インジ</label><select id="cond-inj"><option value="">全インジ</option><option>GORILLA</option><option>IRAZU</option><option>HUNO</option></select></div>
-      <div class="fg"><label>方向</label><select id="cond-dir"><option value="">↑↓両方</option><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select></div>
+      <div class="fg"><label>H/L</label><select id="cond-dir"><option value="">↑H↓L両方</option><option value="up">↑ HIGH</option><option value="down">↓ LOW</option></select></div>
       <div class="fg"><label>ライン</label><select id="cond-line"><option value="">全ライン</option><option>P</option><option>S1</option><option>S2</option><option>S3</option><option>R1</option><option>R2</option><option>R3</option><option>1000S</option><option>1000E</option><option>2160S</option><option>2160E</option><option>1450S</option><option>1843S</option><option>0.0</option><option>18.2</option><option>23.6</option><option>38.2</option><option>50.0</option><option>61.8</option><option>76.4</option><option>81.8</option><option>100.0</option></select></div>
       <div class="fg"><label>時間帯</label><select id="cond-time"><option value="">全時間帯</option><option>07:00〜</option><option>07:15〜</option><option>07:30〜</option><option>07:45〜</option><option>08:00〜</option><option>08:15〜</option><option>08:30〜</option><option>08:45〜</option><option>09:00〜</option><option>09:15〜</option><option>09:30〜</option><option>09:45〜</option><option>10:00〜</option><option>10:15〜</option><option>10:30〜</option><option>10:45〜</option><option>11:00〜</option><option>11:15〜</option><option>11:30〜</option><option>11:45〜</option><option>14:45〜</option><option>15:00〜</option><option>15:45〜</option><option>16:00〜</option><option>16:45〜</option><option>17:00〜</option><option>17:45〜</option></select></div>
       <div class="fg"><label>通貨ペア</label><select id="cond-pair"><option value="">全通貨</option><option>USD/JPY</option><option>EUR/USD</option><option>EUR/AUD</option><option>AUD/USD</option><option>EUR/JPY</option><option>GBP/JPY</option><option>AUD/JPY</option><option>NZD/JPY</option></select></div>
@@ -936,7 +936,7 @@ function renderInj(i){
       '<div class="ef">' +
         '<div class="fg"><label>通貨ペア</label><select id="ep-'+e.id+'">'+pOpts+'</select></div>' +
         '<div class="fg"><label>時間</label><input type="time" id="et-'+e.id+'"></div>' +
-        '<div class="fg"><label>方向</label><select id="ed-'+e.id+'"><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select></div>' +
+        '<div class="fg"><label>方向</label><select id="ed-'+e.id+'"><option value="up">↑ HIGH</option><option value="down">↓ LOW</option></select></div>' +
         '<div class="fg"><label>'+inj.tag+'</label><select id="el-'+e.id+'">'+lOpts+'</select></div>' +
         delBtn +
       '</div>' +
@@ -1069,7 +1069,7 @@ function renderEnt(){
       '<div class="ent-f1">' +
         '<div class="fg"><label>通貨ペア</label><select id="enp-'+e.id+'">'+pOpts+'</select></div>' +
         '<div class="fg"><label>時間</label><input type="time" id="ent-'+e.id+'"></div>' +
-        '<div class="fg"><label>方向</label><select id="end-'+e.id+'"><option value="up">↑ UP</option><option value="down">↓ DOWN</option></select></div>' +
+        '<div class="fg"><label>方向</label><select id="end-'+e.id+'"><option value="up">↑ HIGH</option><option value="down">↓ LOW</option></select></div>' +
         delBtn +
       '</div>' +
       '<div class="ent-f2">' +
@@ -1372,7 +1372,7 @@ function renderAnalysis(){
       acc(injMap,i.name,i.result);
       if(i.line&&i.line!=='—')acc(lineMap,i.name+'['+i.line+']',i.result);
       acc(pairMap,i.pair,i.result);
-      acc(dirMap,i.dir==='up'?'↑ UP':'↓ DOWN',i.result);
+      acc(dirMap,i.dir==='up'?'↑ HIGH':'↓ LOW',i.result);
       if(i.time)acc(timeMap,timeSlot(i.time),i.result);
     });
     t.anos.forEach(function(a){if(a.result==='none'||a.result==='skip')return;acc(anoMap,a.time+' '+a.pair,a.result);});
@@ -1391,7 +1391,7 @@ function renderAnalysis(){
       if(i.line&&i.line!=='—'){if(!iLine[i.line])iLine[i.line]={w:0,m:0,l:0,t:0};iLine[i.line].t++;if(w)iLine[i.line].w++;if(m)iLine[i.line].m++;if(l)iLine[i.line].l++;}
       var dk=i.dir==='up'?'up':'down';iDir[dk].t++;if(w)iDir[dk].w++;if(m)iDir[dk].m++;if(l)iDir[dk].l++;
     });});
-    var dirR=[{k:'↑ UP',v:iDir.up},{k:'↓ DOWN',v:iDir.down}].filter(function(d){return d.v.t>0;}).map(function(d){var v=d.v;return{k:d.k,t:v.t,w:v.w,m:v.m,l:v.l,s:Math.round(v.w/v.t*100),mt:Math.round((v.w+v.m)/v.t*100)};});
+    var dirR=[{k:'↑ HIGH',v:iDir.up},{k:'↓ LOW',v:iDir.down}].filter(function(d){return d.v.t>0;}).map(function(d){var v=d.v;return{k:d.k,t:v.t,w:v.w,m:v.m,l:v.l,s:Math.round(v.w/v.t*100),mt:Math.round((v.w+v.m)/v.t*100)};});
     var dirHTML=dirR.length?'<div class="inj-sub-ttl">UP / DOWN 別</div><table class="ana-tbl"><thead><tr><th>方向</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead><tbody>'+dirR.map(function(r){return '<tr><td style="font-weight:500">'+r.k+'</td><td class="win-c">'+wrl(r.s,r.w,r.l,r.t)+'</td><td class="martin-c">'+wrl(r.mt,r.w+r.m,r.l,r.t)+'</td><td><div class="bar-wrap"><div class="bar-fill amber" style="width:'+r.s+'%"></div></div></td></tr>';}).join('')+'</tbody></table>':'';
     injSec+='<div class="ana-sec" style="margin-bottom:14px">'+
       '<div class="inj-hdr"><span>'+iname+'</span><span style="font-size:12px;opacity:0.9">単発 <b>'+iWRs+'%</b> / 1M込 <b>'+iWRm+'%</b> ('+ir.w+'勝'+ir.l+'敗) '+ir.t+'件</span></div>'+
@@ -1416,7 +1416,7 @@ function runCond(){
   var t=matched.length,w=matched.filter(function(i){return i.result==='win';}).length,m=matched.filter(function(i){return i.result==='martin';}).length,l=matched.filter(function(i){return i.result==='lose';}).length;
   var ws=Math.round(w/t*100),wm=Math.round((w+m)/t*100);
   var cls=wm>=70?'good':wm>=55?'mid':'warn';
-  var conds=[fi,fd==='up'?'↑UP':fd==='down'?'↓DOWN':'',fl,ft,fp].filter(Boolean).join(' × ')||'全条件';
+  var conds=[fi,fd==='up'?'↑HIGH':fd==='down'?'↓LOW':'',fl,ft,fp].filter(Boolean).join(' × ')||'全条件';
   var comment=wm>=70?'<div style="margin-top:8px;font-size:12px;color:#1aaa6a;font-weight:500">✅ 優秀な組み合わせです！積極的に狙いましょう</div>':wm>=55?'<div style="margin-top:8px;font-size:12px;color:#5a8aee">📊 標準的な勝率です</div>':'<div style="margin-top:8px;font-size:12px;color:#ee6a50">⚠️ この条件は勝率が低めです</div>';
   el.innerHTML='<div class="cond-card '+cls+'"><div style="font-size:11px;color:#888;margin-bottom:6px">📋 条件: <b>'+conds+'</b></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:26px;font-weight:600" class="win-c">'+ws+'%</div><div style="font-size:11px;color:#888">単発勝率 '+w+'勝'+l+'敗 '+t+'件</div></div><div><div style="font-size:26px;font-weight:600" class="martin-c">'+wm+'%</div><div style="font-size:11px;color:#888">1M込み勝率 '+(w+m)+'勝'+l+'敗 '+t+'件</div></div></div>'+comment+'</div>';
 }
@@ -1432,10 +1432,10 @@ function runRanking(){
     list.forEach(function(t){t.injs.forEach(function(i){
       if(i.result==='none')return;
       var pats=[];
-      if(i.line&&i.line!=='—'&&i.time)pats.push(i.name+' × '+i.line+' × '+(i.dir==='up'?'↑UP':'↓DOWN')+' × '+timeSlot(i.time));
-      if(i.line&&i.line!=='—')pats.push(i.name+' × '+i.line+' × '+(i.dir==='up'?'↑UP':'↓DOWN'));
-      if(i.time)pats.push(i.name+' × '+timeSlot(i.time)+' × '+(i.dir==='up'?'↑UP':'↓DOWN'));
-      pats.push(i.name+' × '+i.pair+' × '+(i.dir==='up'?'↑UP':'↓DOWN'));
+      if(i.line&&i.line!=='—'&&i.time)pats.push(i.name+' × '+i.line+' × '+(i.dir==='up'?'↑HIGH':'↓LOW')+' × '+timeSlot(i.time));
+      if(i.line&&i.line!=='—')pats.push(i.name+' × '+i.line+' × '+(i.dir==='up'?'↑HIGH':'↓LOW'));
+      if(i.time)pats.push(i.name+' × '+timeSlot(i.time)+' × '+(i.dir==='up'?'↑HIGH':'↓LOW'));
+      pats.push(i.name+' × '+i.pair+' × '+(i.dir==='up'?'↑HIGH':'↓LOW'));
       pats.forEach(function(p){if(!pMap[p])pMap[p]={w:0,m:0,l:0,t:0};pMap[p].t++;if(i.result==='win')pMap[p].w++;else if(i.result==='martin')pMap[p].m++;else pMap[p].l++;});
     });});
     var ranked=Object.keys(pMap).filter(function(k){return pMap[k].t>=3;}).map(function(k){var v=pMap[k];return{k:k,t:v.t,w:v.w,m:v.m,l:v.l,wr:Math.round((v.w+v.m)/v.t*100)};}).sort(function(a,b){return b.wr-a.wr||b.t-a.t;}).slice(0,10);
@@ -1486,7 +1486,7 @@ function genAI(list){
   var bt=best(tMap);if(bt)items.push({icon:'⏰',text:'ゴールデンタイム: <span class="ai-good">'+bt+'</span> — 勝率 <b>'+wr(tMap,bt)+'%</b>（'+tMap[bt].t+'件）。この時間帯を狙い目にしましょう。'});
   var wt=worst(tMap);if(wt&&wr(tMap,wt)<50)items.push({icon:'⏸️',text:'避けたい時間: <span class="ai-warn">'+wt+'</span> — 勝率 <b>'+wr(tMap,wt)+'%</b>（'+tMap[wt].t+'件）。この時間帯はスルーも選択肢です。'});
   var upWR=dMap.up.t?Math.round((dMap.up.w+dMap.up.m)/dMap.up.t*100):0,dnWR=dMap.down.t?Math.round((dMap.down.w+dMap.down.m)/dMap.down.t*100):0;
-  if(dMap.up.t>2&&dMap.down.t>2){if(Math.abs(upWR-dnWR)>=10)items.push({icon:'↕️',text:'方向バイアス: <span class="'+(upWR>dnWR?'ai-good':'ai-note')+'">'+(upWR>dnWR?'↑UP':'↓DOWN')+'</span>のほうが勝率が高い傾向（↑'+upWR+'% vs ↓'+dnWR+'%）。'});else items.push({icon:'↕️',text:'方向バイアス: ↑UP '+upWR+'% / ↓DOWN '+dnWR+'% — 方向による差は少ないです。'});}
+  if(dMap.up.t>2&&dMap.down.t>2){if(Math.abs(upWR-dnWR)>=10)items.push({icon:'↕️',text:'方向バイアス: <span class="'+(upWR>dnWR?'ai-good':'ai-note')+'">'+(upWR>dnWR?'↑HIGH':'↓LOW')+'</span>のほうが勝率が高い傾向（↑'+upWR+'% vs ↓'+dnWR+'%）。'});else items.push({icon:'↕️',text:'方向バイアス: ↑UP '+upWR+'% / ↓DOWN '+dnWR+'% — 方向による差は少ないです。'});}
   var bp=best(pMap);if(bp)items.push({icon:'💱',text:'得意通貨: <span class="ai-good">'+bp+'</span> — 勝率 <b>'+wr(pMap,bp)+'%</b>（'+pMap[bp].t+'件）。'});
   var ba=best(aMap,2);if(ba)items.push({icon:'🎯',text:'信頼度高アノマリー: <span class="ai-good">'+ba+'</span> — 勝率 <b>'+Math.round(aMap[ba].w/aMap[ba].t*100)+'%</b>（'+aMap[ba].t+'件）。'});
   var bo=best(oMap,2);if(bo)items.push({icon:'⚡',text:'オプション注目: <span class="ai-good">'+bo.slice(0,16)+'</span> — 勝率 <b>'+Math.round(oMap[bo].w/oMap[bo].t*100)+'%</b>（'+oMap[bo].t+'件）。'});
