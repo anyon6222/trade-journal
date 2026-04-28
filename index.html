@@ -646,10 +646,109 @@ function renderTodayList(){
       eStat+=' '+entA.length+'件';
       lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>エントリー: '+eTxt+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">'+eStat+'</span></span>');
     }
-    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body">'+(lines.join('<br>')||'（詳細なし）')+'</div><button class="today-del" onclick="delToday('+tr.id+')">削除</button></div>';
+    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body">'+(lines.join('<br>')||'（詳細なし）')+'</div><div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0"><button class="today-del" style="background:#f0f4ff;border-color:#5a8aee;color:#5a8aee" onclick="editRecord('+tr.id+')">編集</button><button class="today-del" onclick="delToday('+tr.id+')">削除</button></div></div>';
   }).join('');
 }
 function delToday(id){if(!confirm('削除しますか？'))return;trades=trades.filter(function(t){return t.id!==id;});saveData();renderTodayList();renderDash();}
+function editRecord(id){
+  var tr=trades.find(function(t){return t.id===id;});
+  if(!tr)return;
+  // 日付セット
+  var iso=toIso(tr.date);
+  if(dateMode==='picker'){document.getElementById('f-date-pk').value=iso;}
+  else{document.getElementById('f-date-tx').value=isoToSlash(iso);}
+  updateDateDisp(iso);
+  // インジ復元（既存件数分のブロックを作る）
+  injEntries={0:[],1:[],2:[]};
+  INJS.forEach(function(inj,idx){
+    var arr=tr.injs.filter(function(i){return i.name===inj.name;});
+    if(arr.length===0)arr=[{result:'none'}];
+    injEntries[idx]=arr.map(function(i){
+      return{id:Date.now()+Math.floor(Math.random()*10000),result:i.result,
+        _pair:i.pair,_time:i.time,_dir:i.dir,_line:i.line,_memo:i.memo};
+    });
+  });
+  renderInj(0);renderInj(1);renderInj(2);
+  // DOM値を復元
+  INJS.forEach(function(inj,idx){
+    injEntries[idx].forEach(function(e){
+      sv('ep-'+e.id,e._pair);sv('et-'+e.id,e._time);
+      sv('ed-'+e.id,e._dir);sv('el-'+e.id,e._line);sv('em-'+e.id,e._memo);
+      // ボタン状態復元
+      if(e.result!=='none'){
+        var btns=document.querySelectorAll('[onclick*="setInjR('+idx+','+e.id+'"]');
+        if(!btns.length){
+          var card=document.getElementById('ep-'+e.id);
+          if(card){
+            card=card.closest('.entry-card');
+            if(card){
+              card.className='entry-card '+(e.result==='win'?'done-win':e.result==='martin'?'done-martin':'done-lose');
+              var rb=card.querySelectorAll('.rbtn');
+              rb.forEach(function(b){b.className='rbtn';});
+              var ri=e.result==='win'?0:e.result==='martin'?1:2;
+              if(rb[ri])rb[ri].classList.add(e.result==='win'?'sel-win':e.result==='martin'?'sel-martin':'sel-lose');
+            }
+          }
+        }
+      }
+    });
+  });
+  // アノマリー復元
+  buildAno();
+  ANOMALIES.forEach(function(ano,ai){
+    ano.pairs.forEach(function(p,pi){
+      var key=ai+'_'+pi;
+      var found=tr.anos.find(function(a){return a.time===ano.time&&a.pair===p;});
+      if(found&&found.result!=='none'){
+        anoState[key]=found.result;
+        var row=document.getElementById('ar-'+key);
+        if(row){
+          row.querySelectorAll('.rbtn').forEach(function(b){b.className='rbtn';});
+          var ri=found.result==='win'?0:found.result==='lose'?1:2;
+          var btns=row.querySelectorAll('.rbtn');
+          if(btns[ri])btns[ri].classList.add(found.result==='win'?'sel-win':found.result==='lose'?'sel-lose':'sel-skip');
+          row.className='ano-row'+(found.result==='win'?' done-win':found.result==='lose'?' done-lose':found.result==='skip'?' done-skip':'');
+        }
+        var memo=document.getElementById('am-'+key);
+        if(memo&&found.memo)memo.value=found.memo;
+      }
+    });
+  });
+  // オプション復元
+  buildOpt();
+  tr.opts.forEach(function(o,oi){
+    if(oi>=optBlocks.length)return;
+    var rounds=o.rounds||[o.result];
+    optBlocks[oi].rounds=rounds.map(function(r,ri){
+      return{id:Date.now()+oi*100+ri+Math.floor(Math.random()*1000),result:r||'none'};
+    });
+    if(o.memo)optBlocks[oi].memo=o.memo;
+  });
+  renderOpt();
+  // エントリー復元
+  entList=(tr.entries||[]).map(function(e){
+    return{id:Date.now()+Math.floor(Math.random()*10000),result:e.result||'none',
+      _pair:e.pair,_time:e.time,_dir:e.dir,_inj:e.inj,_opt:e.opt,_ano:e.ano,_memo:e.memo};
+  });
+  renderEnt();
+  entList.forEach(function(e){
+    sv('enp-'+e.id,e._pair);sv('ent-'+e.id,e._time);sv('end-'+e.id,e._dir);
+    sv('eni-'+e.id,e._inj);sv('eno-'+e.id,e._opt);sv('ena-'+e.id,e._ano);sv('enm-'+e.id,e._memo);
+  });
+  // 元の記録を削除（再記録で上書き）
+  trades=trades.filter(function(t){return t.id!==id;});
+  saveData();renderTodayList();renderDash();
+  // セクションを開く
+  var bodies=['inj','ano','opt','ent'];
+  bodies.forEach(function(b){
+    var el=document.getElementById('body-'+b);
+    if(el&&el.style.display==='none')toggle(b);
+  });
+  window.scrollTo(0,0);
+  var msg=document.getElementById('msg');
+  msg.style.color='#5a8aee';
+  msg.textContent='編集中です。修正して「記録する」を押してください。';
+}
 function editToday(id){
   var tr=trades.find(function(t){return t.id===id;});
   if(!tr)return;
@@ -939,16 +1038,12 @@ function saveTrade(){
   });
   var dv=getDateVal();
   var newRec={id:Date.now(),date:dv,dateDisplay:fmtDisp(toIso(dv)),injs:collectInjs(),anos:anos,opts:collectOpts(),entries:collectEnts()};
-  // 同じ日の既存記録があれば確認して上書き
-  var existing=trades.filter(function(t){return toIso(t.date)===toIso(dv);});
-  if(existing.length>0){
-    if(confirm('同じ日の記録があります。上書きしますか？（キャンセルで追記）')){
-      trades=trades.filter(function(t){return toIso(t.date)!==toIso(dv);});
-    }
-  }
+  // 同じ日の記録は追記（編集は編集ボタンから）
   trades.unshift(newRec);
   saveData();
-  var msg=document.getElementById('msg');msg.textContent='記録しました！';setTimeout(function(){msg.textContent='';},2000);
+  var msg=document.getElementById('msg');
+  msg.style.color='#1aaa6a';
+  msg.textContent='記録しました！';setTimeout(function(){msg.textContent='';},2000);
   renderTodayList();renderDash();
 }
 function resetForm(){
