@@ -498,7 +498,7 @@ function calcWR(list){
       if(!e.result||e.result==='none')return;
       t++;
       if(e.result==='win'){ws++;wm++;}
-      else if(e.result==='martin'){wm++;}
+      else if(e.result==='martin'){l++;wm++;}  // 単発は負け、1M込みは勝ち
       else if(e.result==='lose'){l++;}
     });
     // アノマリー（スルーはsk、勝敗のみt）
@@ -520,7 +520,7 @@ function calcWR(list){
       if(!e.result||e.result==='none')return;
       t++;
       if(e.result==='win'){ws++;wm++;}
-      else if(e.result==='martin'){wm++;}
+      else if(e.result==='martin'){l++;wm++;}  // 単発は負け、1M込みは勝ち
       else if(e.result==='lose'){l++;}
     });
   });
@@ -531,7 +531,7 @@ function calcCat(list,cat){
   list.forEach(function(tr){
     if(cat==='inj')tr.injs.forEach(function(i){
       if(!i.result||i.result==='none')return;t++;
-      if(i.result==='win'){ws++;wm++;}else if(i.result==='martin'){wm++;}else if(i.result==='lose'){l++;}
+      if(i.result==='win'){ws++;wm++;}else if(i.result==='martin'){l++;wm++;}else if(i.result==='lose'){l++;}
     });
     if(cat==='ano')tr.anos.forEach(function(a){
       if(!a.result||a.result==='none')return;
@@ -545,7 +545,7 @@ function calcCat(list,cat){
     });
     if(cat==='entry')(tr.entries||[]).forEach(function(e){
       if(!e.result||e.result==='none')return;t++;
-      if(e.result==='win'){ws++;wm++;}else if(e.result==='martin'){wm++;}else if(e.result==='lose'){l++;}
+      if(e.result==='win'){ws++;wm++;}else if(e.result==='martin'){l++;wm++;}else if(e.result==='lose'){l++;}
     });
   });
   return{t:t,w:ws,wm:wm,l:l,sk:sk,wr:t?Math.round(ws/t*100):0,wrm:t?Math.round(wm/t*100):0};
@@ -554,7 +554,7 @@ function calcInj(list,name){
   var t=0,ws=0,wm=0,l=0;
   list.forEach(function(tr){
     tr.injs.filter(function(i){return i.name===name&&i.result!=='none';}).forEach(function(i){
-      t++;if(i.result==='win'){ws++;wm++;}else if(i.result==='martin'){wm++;}else if(i.result==='lose'){l++;}
+      t++;if(i.result==='win'){ws++;wm++;}else if(i.result==='martin'){l++;wm++;}else if(i.result==='lose'){l++;}
     });
   });
   return{t:t,w:ws,wm:wm,l:l,s:t?Math.round(ws/t*100):0,mt:t?Math.round(wm/t*100):0};
@@ -597,7 +597,7 @@ function renderTodayList(){
       if(!arr.length)return;
       var injWs=arr.filter(function(i){return i.result==='win';}).length;
       var injWm=arr.filter(function(i){return i.result==='win'||i.result==='martin';}).length;
-      var injL=arr.filter(function(i){return i.result==='lose';}).length;
+      var injL=arr.filter(function(i){return i.result==='lose'||i.result==='martin';}).length;
       var injWRs=arr.length?Math.round(injWs/arr.length*100):0;
       var injWRm=arr.length?Math.round(injWm/arr.length*100):0;
       var cls=injWRs>=60?'win-c':injWRs>=50?'martin-c':'lose-c';
