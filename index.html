@@ -1163,25 +1163,26 @@ function renderSummary(list){
     return '<div class="sum-card" onclick="showSub(\''+o.sub+'\')" style="border-top:3px solid '+o.c+'">'+
       '<div class="sum-name">'+o.name+'<span style="font-size:9px;color:#bbb">→</span></div>'+
       '<div class="sum-wr '+(v.mt>=60?'win-c':v.mt>=50?'martin-c':v.t?'lose-c':'')+'">'+(v.t?v.mt+'%':'—')+'</div>'+
-      '<div class="sum-det">'+(v.t?'単発'+v.s+'% '+v.w+'勝'+v.l+'敗 '+v.t+'件':'')+'</div>'+
+      '<div class="sum-det">'+(v.t?'単発'+v.s+'%('+v.w+'勝'+v.l+'敗 '+v.t+'件) / 1M込'+v.mt+'%':'')+'</div>'+
     '</div>';
   }).join('');
+  var skStr=s.sk?'['+s.sk+'ス '+(s.t+s.sk)+'件]':'';
   return '<div class="sum-total">'+
     '<div style="font-size:11px;color:#888;margin-bottom:8px;font-weight:500">📊 全体トータル</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-      '<div><div style="font-size:26px;font-weight:600" class="win-c">'+s.s+'%</div><div style="font-size:11px;color:#aaa">単発 '+s.w+'勝'+s.l+'敗 '+s.t+'件</div></div>'+
-      '<div><div style="font-size:26px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:11px;color:#aaa">1M込み '+s.wm+'勝'+s.l+'敗 '+s.t+'件</div></div>'+
+      '<div><div style="font-size:24px;font-weight:600" class="win-c">'+s.s+'%</div><div style="font-size:10px;color:#aaa;margin-top:2px">単発 '+s.w+'勝'+s.l+'敗 '+s.t+'件'+skStr+'</div></div>'+
+      '<div><div style="font-size:24px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:10px;color:#aaa;margin-top:2px">1M込み '+s.wm+'勝'+s.l+'敗 '+s.t+'件</div></div>'+
     '</div></div>'+
     '<div class="sum-grid">'+injC+
       '<div class="sum-card" onclick="showSub(\'ano\')" style="border-top:3px solid #f0a020;cursor:pointer">'+
         '<div class="sum-name">アノマリー<span style="font-size:9px;color:#bbb">→</span></div>'+
         '<div class="sum-wr '+(anoS.wr>=60?'win-c':anoS.wr>=50?'martin-c':anoS.t?'lose-c':'')+'">'+(anoS.t?anoS.wr+'%':'—')+'</div>'+
-        '<div class="sum-det">'+(anoS.t?anoS.w+'勝'+anoS.l+'敗 '+anoS.t+'件':'')+'</div>'+
+        '<div class="sum-det">'+(anoS.t?'単発'+anoS.wr+'%('+anoS.w+'勝'+anoS.l+'敗 '+anoS.t+'件'+(anoS.sk?'['+anoS.sk+'ス]':'')+')'  :'')+'</div>'+
       '</div>'+
       '<div class="sum-card" onclick="showSub(\'opt\')" style="border-top:3px solid #ee6a50;cursor:pointer">'+
         '<div class="sum-name">オプション<span style="font-size:9px;color:#bbb">→</span></div>'+
         '<div class="sum-wr '+(optS.wr>=60?'win-c':optS.wr>=50?'martin-c':optS.t?'lose-c':'')+'">'+(optS.t?optS.wr+'%':'—')+'</div>'+
-        '<div class="sum-det">'+(optS.t?optS.w+'勝'+optS.l+'敗 '+optS.t+'件':'')+'</div>'+
+        '<div class="sum-det">'+(optS.t?'単発'+optS.wr+'%('+optS.w+'勝'+optS.l+'敗 '+optS.t+'件'+(optS.sk?'['+optS.sk+'ス]':'')+')'  :'')+'</div>'+
       '</div>'+
     '</div>'+
     '<div style="font-size:12px;font-weight:500;color:#888;margin-bottom:6px">📅 曜日別勝率（1マーチン込み）</div>'+
