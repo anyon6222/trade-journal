@@ -1456,79 +1456,9 @@ function runAI(){
   btn.textContent='分析中...';btn.disabled=true;
   setTimeout(function(){
     var items=genAI(list);
-    el.innerHTML='<div class="ai-card"><h4>✨ AI分析レポート</h4>'+items.map(function(i){return '<div class="ai-item"><span style="font-size:14px;flex-shrink:0;margin-top:1px">'+i.icon+'</span><span>'+i.text+'</span></div>';}).join('')+'</div>'+
-      '<div id="ai-qa" style="margin-top:8px;background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06)">'+
-        '<div style="font-size:12px;color:#888;margin-bottom:6px">💬 さらに詳しく聞く</div>'+
-        '<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px">'+
-          '<button onclick="qaAsk(this,'時間帯')" style="font-size:11px;padding:3px 9px;border-radius:15px;border:1px solid #ddd;background:#fff;color:#7c6af7;cursor:pointer">⏰ 時間帯</button>'+
-          '<button onclick="qaAsk(this,'曜日')" style="font-size:11px;padding:3px 9px;border-radius:15px;border:1px solid #ddd;background:#fff;color:#7c6af7;cursor:pointer">📅 曜日</button>'+
-          '<button onclick="qaAsk(this,'通貨')" style="font-size:11px;padding:3px 9px;border-radius:15px;border:1px solid #ddd;background:#fff;color:#7c6af7;cursor:pointer">💱 通貨</button>'+
-          '<button onclick="qaAsk(this,'ライン')" style="font-size:11px;padding:3px 9px;border-radius:15px;border:1px solid #ddd;background:#fff;color:#7c6af7;cursor:pointer">📍 ライン</button>'+
-          '<button onclick="qaAsk(this,'負け')" style="font-size:11px;padding:3px 9px;border-radius:15px;border:1px solid #ddd;background:#fff;color:#7c6af7;cursor:pointer">📉 負けパターン</button>'+
-        '</div>'+
-        '<div id="ai-qa-result"></div>'+
-      '</div>';
+    el.innerHTML='<div class="ai-card"><h4>✨ AI分析レポート</h4>'+items.map(function(i){return '<div class="ai-item"><span style="font-size:14px;flex-shrink:0;margin-top:1px">'+i.icon+'</span><span>'+i.text+'</span></div>';}).join('')+'</div>';
     btn.innerHTML='✨ AI分析を実行する';btn.disabled=false;
   },800);
-}
-function qaAsk(btn,type){
-  var list=filterPeriod(trades,anaPeriod);
-  var el=document.getElementById('ai-qa-result');
-  if(!el)return;
-  var tMap={},wdMap={},lMap={},pMap={};
-  list.forEach(function(t){
-    t.injs.forEach(function(i){
-      if(i.result==='none')return;
-      var w=i.result==='win',m=i.result==='martin';
-      if(i.time){var h=i.time.slice(0,5);if(!tMap[h])tMap[h]={ws:0,wm:0,t:0};tMap[h].t++;if(w){tMap[h].ws++;tMap[h].wm++;}else if(m)tMap[h].wm++;}
-      if(i.line&&i.line!=='—'){if(!lMap[i.line])lMap[i.line]={ws:0,wm:0,t:0};lMap[i.line].t++;if(w){lMap[i.line].ws++;lMap[i.line].wm++;}else if(m)lMap[i.line].wm++;}
-      if(i.pair){if(!pMap[i.pair])pMap[i.pair]={ws:0,wm:0,t:0};pMap[i.pair].t++;if(w){pMap[i.pair].ws++;pMap[i.pair].wm++;}else if(m)pMap[i.pair].wm++;}
-      var dt=new Date(toIso(t.date)+'T00:00:00');var wd=WD[dt.getDay()];
-      if(!wdMap[wd])wdMap[wd]={ws:0,wm:0,t:0};wdMap[wd].t++;if(w){wdMap[wd].ws++;wdMap[wd].wm++;}else if(m)wdMap[wd].wm++;
-    });
-  });
-  var html='';
-  if(type==='時間帯'){
-    var ts=Object.keys(tMap).filter(function(h){return tMap[h].t>=2;}).sort(function(a,b){return tMap[b].wm/tMap[b].t-tMap[a].wm/tMap[a].t;});
-    if(!ts.length){el.innerHTML='<div style="font-size:12px;color:#aaa;padding:8px">データが少なくまだ分析できません</div>';return;}
-    html='<div style="font-size:12px;font-weight:500;color:#1a1a2e;margin-bottom:6px">⏰ 時間帯別（1M込み勝率順）</div>'+
-      ts.map(function(h){var v=tMap[h];var wr=Math.round(v.wm/v.t*100);var cls=wr>=60?'#1aaa6a':wr>=50?'#f0a020':'#ee6a50';
-        return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5;font-size:12px">'+
-          '<span>'+h+'</span><span style="color:'+cls+';font-weight:500">'+wr+'%（'+v.t+'件）</span></div>';}).join('');
-  }else if(type==='曜日'){
-    var wds=['月','火','水','木','金'].filter(function(d){return wdMap[d]&&wdMap[d].t>0;}).sort(function(a,b){return wdMap[b].wm/wdMap[b].t-wdMap[a].wm/wdMap[a].t;});
-    if(!wds.length){el.innerHTML='<div style="font-size:12px;color:#aaa;padding:8px">データがありません</div>';return;}
-    html='<div style="font-size:12px;font-weight:500;color:#1a1a2e;margin-bottom:6px">📅 曜日別（1M込み勝率順）</div>'+
-      wds.map(function(d){var v=wdMap[d];var wr=Math.round(v.wm/v.t*100);var cls=wr>=60?'#1aaa6a':wr>=50?'#f0a020':'#ee6a50';
-        return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5;font-size:12px">'+
-          '<span>'+d+'曜</span><span style="color:'+cls+';font-weight:500">'+wr+'%（'+v.t+'件）</span></div>';}).join('');
-  }else if(type==='通貨'){
-    var ps=Object.keys(pMap).filter(function(p){return pMap[p].t>=2;}).sort(function(a,b){return pMap[b].wm/pMap[b].t-pMap[a].wm/pMap[a].t;});
-    if(!ps.length){el.innerHTML='<div style="font-size:12px;color:#aaa;padding:8px">データが少なくまだ分析できません</div>';return;}
-    html='<div style="font-size:12px;font-weight:500;color:#1a1a2e;margin-bottom:6px">💱 通貨別（1M込み勝率順）</div>'+
-      ps.map(function(p){var v=pMap[p];var wr=Math.round(v.wm/v.t*100);var cls=wr>=60?'#1aaa6a':wr>=50?'#f0a020':'#ee6a50';
-        return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5;font-size:12px">'+
-          '<span>'+p+'</span><span style="color:'+cls+';font-weight:500">'+wr+'%（'+v.t+'件）</span></div>';}).join('');
-  }else if(type==='ライン'){
-    var ls=Object.keys(lMap).filter(function(l){return lMap[l].t>=2;}).sort(function(a,b){return lMap[b].wm/lMap[b].t-lMap[a].wm/lMap[a].t;});
-    if(!ls.length){el.innerHTML='<div style="font-size:12px;color:#aaa;padding:8px">データが少なくまだ分析できません</div>';return;}
-    html='<div style="font-size:12px;font-weight:500;color:#1a1a2e;margin-bottom:6px">📍 ライン別（1M込み勝率順）</div>'+
-      ls.map(function(l){var v=lMap[l];var wr=Math.round(v.wm/v.t*100);var cls=wr>=60?'#1aaa6a':wr>=50?'#f0a020':'#ee6a50';
-        return '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5;font-size:12px">'+
-          '<span>'+l+'</span><span style="color:'+cls+';font-weight:500">'+wr+'%（'+v.t+'件）</span></div>';}).join('');
-  }else if(type==='負け'){
-    var items2=[];
-    var bt=Object.keys(tMap).filter(function(h){return tMap[h].t>=2;}).sort(function(a,b){return tMap[a].wm/tMap[a].t-tMap[b].wm/tMap[b].t;});
-    if(bt.length)items2.push('⏰ 最も勝率の低い時間帯: <b>'+bt[0]+'</b> (1M込み'+Math.round(tMap[bt[0]].wm/tMap[bt[0]].t*100)+'%)');
-    var bwd=['月','火','水','木','金'].filter(function(d){return wdMap[d]&&wdMap[d].t>=2;}).sort(function(a,b){return wdMap[a].wm/wdMap[a].t-wdMap[b].wm/wdMap[b].t;});
-    if(bwd.length)items2.push('📅 最も勝率の低い曜日: <b>'+bwd[0]+'曜</b> (1M込み'+Math.round(wdMap[bwd[0]].wm/wdMap[bwd[0]].t*100)+'%)');
-    var bl=Object.keys(lMap).filter(function(l){return lMap[l].t>=2;}).sort(function(a,b){return lMap[a].wm/lMap[a].t-lMap[b].wm/lMap[b].t;});
-    if(bl.length)items2.push('📍 最も勝率の低いライン: <b>'+bl[0]+'</b> (1M込み'+Math.round(lMap[bl[0]].wm/lMap[bl[0]].t*100)+'%)');
-    if(!items2.length){el.innerHTML='<div style="font-size:12px;color:#aaa;padding:8px">データが少なくまだ分析できません</div>';return;}
-    html='<div style="font-size:12px;font-weight:500;color:#ee6a50;margin-bottom:6px">📉 負けパターン</div>'+
-      items2.map(function(s){return '<div style="font-size:12px;padding:4px 0;border-bottom:1px solid #f5f5f5">'+s+'</div>';}).join('');
-  }
-  el.innerHTML='<div style="padding:8px 0">'+html+'</div>';
 }
 function genAI(list){
   var items=[],lMap={},pMap={},dMap={up:{w:0,m:0,t:0},down:{w:0,m:0,t:0}},tMap={},aMap={},oMap={};
