@@ -1454,78 +1454,189 @@ function runAI(){
   var btn=document.getElementById('ai-btn');
   if(document.getElementById('ai-chat-box')){
     var box=document.getElementById('ai-chat-box');
-    box.style.display=box.style.display==='none'?'block':'none';
-    btn.innerHTML=box.style.display==='none'?'💬 AIチャットを開く':'💬 AIチャットを閉じる';
+    var isHidden=box.style.display==='none';
+    box.style.display=isHidden?'block':'none';
+    btn.innerHTML=isHidden?'💬 チャットを閉じる':'💬 AIチャット分析を開く';
     return;
   }
-  btn.innerHTML='💬 AIチャットを閉じる';
+  btn.innerHTML='💬 チャットを閉じる';
   el.innerHTML='<div id="ai-chat-box">'+
     '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+
       '<button onclick="chatQ('一番勝率が高い時間帯は？')" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #ddd;cursor:pointer;color:#7c6af7;background:#fff">📊 勝率高い時間帯</button>'+
-      '<button onclick="chatQ('負けやすいパターンを教えて')" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #ddd;cursor:pointer;color:#7c6af7;background:#fff">📉 負けパターン</button>'+
-      '<button onclick="chatQ('曜日別の傾向を分析して')" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #ddd;cursor:pointer;color:#7c6af7;background:#fff">📅 曜日別傾向</button>'+
-      '<button onclick="chatQ('改善すべき点を教えて')" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #ddd;cursor:pointer;color:#7c6af7;background:#fff">💡 改善点</button>'+
+      '<button onclick="chatQ('負けやすいパターンは？')" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #ddd;cursor:pointer;color:#7c6af7;background:#fff">📉 負けパターン</button>'+
+      '<button onclick="chatQ('曜日別の傾向を教えて')" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #ddd;cursor:pointer;color:#7c6af7;background:#fff">📅 曜日別</button>'+
+      '<button onclick="chatQ('改善すべき点は？')" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #ddd;cursor:pointer;color:#7c6af7;background:#fff">💡 改善点</button>'+
+      '<button onclick="chatQ('全体のまとめを教えて')" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #ddd;cursor:pointer;color:#7c6af7;background:#fff">📋 まとめ</button>'+
     '</div>'+
-    '<div id="ai-chat-msgs" style="height:260px;overflow-y:auto;padding:10px;background:#fafafa;border-radius:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px">'+
-      '<div style="background:#fff;border:1px solid #e8e8f8;padding:8px 12px;border-radius:12px;font-size:12px;line-height:1.6">こんにちは🌸 トレードデータについて何でも聞いてください！</div>'+
+    '<div id="ai-chat-msgs" style="height:280px;overflow-y:auto;padding:10px;background:#fafafa;border-radius:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px">'+
+      '<div style="background:#fff;border:1px solid #e8e8f8;padding:10px 12px;border-radius:12px;font-size:12px;line-height:1.7">こんにちは🌸<br>トレードデータを分析してお答えします！<br>質問を選ぶか、自由に入力してください。</div>'+
     '</div>'+
     '<div style="display:flex;gap:6px">'+
-      '<input id="ai-chat-inp" type="text" placeholder="質問を入力..." onkeydown="if(event.key==='Enter')chatSendMsg()" style="flex:1;padding:8px 12px;border:1px solid #e0e0e0;border-radius:20px;font-size:12px;outline:none;font-family:inherit">'+
-      '<button id="ai-chat-btn" onclick="chatSendMsg()" style="padding:8px 16px;background:#7c6af7;color:#fff;border:none;border-radius:20px;cursor:pointer;font-size:12px;font-family:inherit">送信</button>'+
+      '<input id="ai-chat-inp" type="text" placeholder="例：一番勝率が高い通貨は？" onkeydown="if(event.key==='Enter')chatSend()" style="flex:1;padding:8px 12px;border:1px solid #e0e0e0;border-radius:20px;font-size:12px;outline:none;font-family:inherit">'+
+      '<button onclick="chatSend()" style="padding:8px 16px;background:#7c6af7;color:#fff;border:none;border-radius:20px;cursor:pointer;font-size:12px;font-family:inherit">送信</button>'+
     '</div>'+
   '</div>';
 }
-var chatMsgs=[];
-function chatQ(q){var inp=document.getElementById('ai-chat-inp');if(inp){inp.value=q;chatSendMsg();}}
-function chatSendMsg(){
-  var inp=document.getElementById('ai-chat-inp');
-  var btn=document.getElementById('ai-chat-btn');
-  var box=document.getElementById('ai-chat-msgs');
-  if(!inp||!btn||!box)return;
+function chatQ(q){var inp=document.getElementById('ai-chat-inp');if(inp){inp.value=q;chatSend();}}
+function chatAddMsg(text,isUser){
+  var box=document.getElementById('ai-chat-msgs');if(!box)return;
+  var d=document.createElement('div');
+  if(isUser){d.style.cssText='background:#1a1a2e;color:#fff;padding:8px 12px;border-radius:12px 12px 2px 12px;font-size:12px;max-width:80%;margin-left:auto;line-height:1.5';}
+  else{d.style.cssText='background:#fff;border:1px solid #e8e8f8;padding:10px 12px;border-radius:12px 12px 12px 2px;font-size:12px;max-width:92%;line-height:1.7';}
+  d.innerHTML=text;box.appendChild(d);box.scrollTop=box.scrollHeight;
+}
+function chatSend(){
+  var inp=document.getElementById('ai-chat-inp');if(!inp)return;
   var q=inp.value.trim();if(!q)return;inp.value='';
-  var ud=document.createElement('div');
-  ud.style.cssText='background:#1a1a2e;color:#fff;padding:8px 12px;border-radius:12px 12px 2px 12px;font-size:12px;max-width:80%;margin-left:auto;line-height:1.5';
-  ud.textContent=q;box.appendChild(ud);box.scrollTop=box.scrollHeight;
-  chatMsgs.push({role:'user',content:q});
-  btn.disabled=true;
-  var ld=document.createElement('div');
-  ld.style.cssText='padding:8px 12px;font-size:12px;color:#aaa;font-style:italic';
-  ld.textContent='分析中...';box.appendChild(ld);box.scrollTop=box.scrollHeight;
-  var list=filterPeriod(trades,anaPeriod),s=calcWR(list);
+  chatAddMsg(q,true);
+  var ans=chatAnalyze(q);
+  setTimeout(function(){chatAddMsg(ans,false);},400);
+}
+function chatAnalyze(q){
+  var list=filterPeriod(trades,anaPeriod);
+  if(list.length===0)return 'データがありません。まずトレードを記録してください🌸';
+  var s=calcWR(list);
   var gWR=calcInj(list,'GORILLA'),iWR=calcInj(list,'IRAZU'),hWR=calcInj(list,'HUNO');
   var anoS=calcCat(list,'ano'),optS=calcCat(list,'opt');
-  var tMap={},wdMap={};
+  // 時間帯別
+  var tMap={};
   list.forEach(function(t){t.injs.forEach(function(i){
-    if(i.result==='none')return;
-    var w=(i.result==='win'),m=(i.result==='martin');
-    if(i.time){var h=i.time.slice(0,5);if(!tMap[h])tMap[h]={ws:0,t:0};tMap[h].t++;if(w||m)tMap[h].ws++;}
-    var dt=new Date(toIso(t.date)+'T00:00:00');var wd=WD[dt.getDay()];
-    if(!wdMap[wd])wdMap[wd]={ws:0,t:0};wdMap[wd].t++;if(w||m)wdMap[wd].ws++;
+    if(i.result==='none'||!i.time)return;
+    var h=i.time.slice(0,5);if(!tMap[h])tMap[h]={ws:0,wm:0,l:0,t:0};
+    tMap[h].t++;
+    if(i.result==='win'){tMap[h].ws++;tMap[h].wm++;}
+    else if(i.result==='martin'){tMap[h].wm++;}
+    else tMap[h].l++;
   });});
-  var tS=Object.keys(tMap).sort().map(function(h){var v=tMap[h];return h+' '+Math.round(v.ws/v.t*100)+'%('+v.t+'件)';}).join(', ');
-  var wS=['月','火','水','木','金'].map(function(d){var v=wdMap[d];return v&&v.t?d+'曜'+Math.round(v.ws/v.t*100)+'%('+v.t+'件)':'';}).filter(Boolean).join(', ');
-  var data='全体:単発'+s.s+'% 1M込'+s.mt+'% '+s.t+'件, GORILLA:'+gWR.s+'% IRAZU:'+iWR.s+'% HUNO:'+hWR.s+'%, アノマリー:'+anoS.wr+'%('+anoS.t+'件), オプション:'+optS.wr+'%('+optS.t+'件), 時間帯:'+tS+', 曜日:'+wS;
-  var sys='バイナリーFXトレード記録分析AI。日本語で簡潔に答えてください。データ:'+data;
-  fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,system:sys,messages:chatMsgs.slice(-6)})
-  }).then(function(r){return r.json();}).then(function(d){
-    ld.remove();
-    var text=d.content&&d.content[0]?d.content[0].text:'エラーが発生しました';
-    var ad=document.createElement('div');
-    ad.style.cssText='background:#fff;border:1px solid #e8e8f8;padding:8px 12px;border-radius:12px 12px 12px 2px;font-size:12px;max-width:90%;line-height:1.6';
-    ad.innerHTML=text.replace(/
-/g,'<br>');
-    box.appendChild(ad);box.scrollTop=box.scrollHeight;
-    chatMsgs.push({role:'assistant',content:text});
-    btn.disabled=false;
-  }).catch(function(e){
-    ld.remove();
-    var ad=document.createElement('div');
-    ad.style.cssText='padding:8px 12px;font-size:12px;color:#ee6a50';
-    ad.textContent='エラー: '+e.message;
-    box.appendChild(ad);btn.disabled=false;
+  // 曜日別
+  var wdMap={};
+  list.forEach(function(t){
+    var dt=new Date(toIso(t.date)+'T00:00:00');var wd=WD[dt.getDay()];
+    if(!wdMap[wd])wdMap[wd]={ws:0,wm:0,l:0,t:0};
+    t.injs.forEach(function(i){
+      if(i.result==='none')return;
+      wdMap[wd].t++;
+      if(i.result==='win'){wdMap[wd].ws++;wdMap[wd].wm++;}
+      else if(i.result==='martin'){wdMap[wd].wm++;}
+      else wdMap[wd].l++;
+    });
   });
+  // ライン別
+  var lMap={};
+  list.forEach(function(t){t.injs.forEach(function(i){
+    if(i.result==='none'||!i.line||i.line==='—')return;
+    if(!lMap[i.line])lMap[i.line]={ws:0,wm:0,l:0,t:0};
+    lMap[i.line].t++;
+    if(i.result==='win'){lMap[i.line].ws++;lMap[i.line].wm++;}
+    else if(i.result==='martin'){lMap[i.line].wm++;}
+    else lMap[i.line].l++;
+  });});
+  // 通貨別
+  var pMap={};
+  list.forEach(function(t){t.injs.forEach(function(i){
+    if(i.result==='none'||!i.pair)return;
+    if(!pMap[i.pair])pMap[i.pair]={ws:0,wm:0,l:0,t:0};
+    pMap[i.pair].t++;
+    if(i.result==='win'){pMap[i.pair].ws++;pMap[i.pair].wm++;}
+    else if(i.result==='martin'){pMap[i.pair].wm++;}
+    else pMap[i.pair].l++;
+  });});
+  var qL=q.toLowerCase();
+  // 時間帯系
+  if(qL.indexOf('時間')>=0||qL.indexOf('時刻')>=0||qL.indexOf('ゴールデン')>=0){
+    var times=Object.keys(tMap).filter(function(h){return tMap[h].t>=2;});
+    if(!times.length)return 'まだ時間帯別のデータが少ないです（各時間2件以上必要）。';
+    times.sort(function(a,b){return tMap[b].wm/tMap[b].t-tMap[a].wm/tMap[a].t;});
+    var best=times[0],worst=times[times.length-1];
+    var bv=tMap[best],wv=tMap[worst];
+    return '📊 <b>時間帯別分析</b><br><br>'+
+      '🏆 <b>最強時間帯: '+best+'</b><br>'+
+      '　1M込み勝率 '+Math.round(bv.wm/bv.t*100)+'%('+bv.wm+'勝'+(bv.t-bv.wm)+'敗 '+bv.t+'件)<br><br>'+
+      '⚠️ <b>注意時間帯: '+worst+'</b><br>'+
+      '　1M込み勝率 '+Math.round(wv.wm/wv.t*100)+'%('+wv.wm+'勝'+(wv.t-wv.wm)+'敗 '+wv.t+'件)<br><br>'+
+      '全時間帯:<br>'+times.map(function(h){var v=tMap[h];return '　'+h+' → 単発'+Math.round(v.ws/v.t*100)+'% 1M込'+Math.round(v.wm/v.t*100)+'%('+v.t+'件)';}).join('<br>');
+  }
+  // 曜日系
+  if(qL.indexOf('曜日')>=0||qL.indexOf('曜')>=0){
+    var wds=['月','火','水','木','金'].filter(function(d){return wdMap[d]&&wdMap[d].t>0;});
+    if(!wds.length)return '曜日別データがまだありません。';
+    wds.sort(function(a,b){return wdMap[b].wm/wdMap[b].t-wdMap[a].wm/wdMap[a].t;});
+    var bwd=wds[0],wwd=wds[wds.length-1];
+    return '📅 <b>曜日別分析</b><br><br>'+
+      '🏆 <b>最強曜日: '+bwd+'曜日</b><br>'+
+      '　1M込み '+Math.round(wdMap[bwd].wm/wdMap[bwd].t*100)+'%('+wdMap[bwd].t+'件)<br><br>'+
+      (wds.length>1?'⚠️ <b>注意曜日: '+wwd+'曜日</b><br>　1M込み '+Math.round(wdMap[wwd].wm/wdMap[wwd].t*100)+'%('+wdMap[wwd].t+'件)<br><br>':'  ')+
+      '全曜日:<br>'+wds.map(function(d){var v=wdMap[d];return '　'+d+'曜 → 単発'+Math.round(v.ws/v.t*100)+'% 1M込'+Math.round(v.wm/v.t*100)+'%('+v.t+'件)';}).join('<br>');
+  }
+  // 負けパターン系
+  if(qL.indexOf('負け')>=0||qL.indexOf('ダメ')>=0||qL.indexOf('悪い')>=0||qL.indexOf('避け')>=0){
+    var msgs=[];
+    // 最悪時間帯
+    var btimes=Object.keys(tMap).filter(function(h){return tMap[h].t>=2;});
+    if(btimes.length){
+      btimes.sort(function(a,b){return tMap[a].wm/tMap[a].t-tMap[b].wm/tMap[b].t;});
+      var wt=btimes[0],wv2=tMap[wt];
+      msgs.push('⏰ <b>注意時間帯: '+wt+'</b> — 1M込み'+Math.round(wv2.wm/wv2.t*100)+'%('+wv2.t+'件)');
+    }
+    // 最悪曜日
+    var bwds=['月','火','水','木','金'].filter(function(d){return wdMap[d]&&wdMap[d].t>=2;});
+    if(bwds.length){
+      bwds.sort(function(a,b){return wdMap[a].wm/wdMap[a].t-wdMap[b].wm/wdMap[b].t;});
+      var wwd2=bwds[0],wv3=wdMap[wwd2];
+      msgs.push('📅 <b>注意曜日: '+wwd2+'曜日</b> — 1M込み'+Math.round(wv3.wm/wv3.t*100)+'%('+wv3.t+'件)');
+    }
+    // 最悪ライン
+    var blines=Object.keys(lMap).filter(function(l){return lMap[l].t>=2;});
+    if(blines.length){
+      blines.sort(function(a,b){return lMap[a].wm/lMap[a].t-lMap[b].wm/lMap[b].t;});
+      var wl=blines[0],wlv=lMap[wl];
+      msgs.push('📍 <b>注意ライン: '+wl+'</b> — 単発'+Math.round(wlv.ws/wlv.t*100)+'%('+wlv.t+'件)');
+    }
+    if(!msgs.length)return 'まだデータが少なく、明確な負けパターンは見つかりません。';
+    return '📉 <b>負けやすいパターン</b><br><br>'+msgs.join('<br><br>');
+  }
+  // 通貨系
+  if(qL.indexOf('通貨')>=0||qL.indexOf('ペア')>=0||qL.indexOf('JPY')>=0||qL.indexOf('USD')>=0){
+    var pairs=Object.keys(pMap).filter(function(p){return pMap[p].t>=2;});
+    if(!pairs.length)return '通貨別のデータがまだ少ないです。';
+    pairs.sort(function(a,b){return pMap[b].wm/pMap[b].t-pMap[a].wm/pMap[a].t;});
+    var bp=pairs[0],bpv=pMap[bp];
+    var wp=pairs[pairs.length-1],wpv=pMap[wp];
+    return '💱 <b>通貨ペア別分析</b><br><br>'+
+      '🏆 <b>最強: '+bp+'</b> — 1M込み'+Math.round(bpv.wm/bpv.t*100)+'%('+bpv.t+'件)<br>'+
+      (pairs.length>1?'⚠️ <b>注意: '+wp+'</b> — 1M込み'+Math.round(wpv.wm/wpv.t*100)+'%('+wpv.t+'件)<br>':'')+
+      '<br>全通貨:<br>'+pairs.map(function(p){var v=pMap[p];return '　'+p+' → 1M込'+Math.round(v.wm/v.t*100)+'%('+v.t+'件)';}).join('<br>');
+  }
+  // 改善系
+  if(qL.indexOf('改善')>=0||qL.indexOf('アドバイス')>=0||qL.indexOf('どうすれば')>=0){
+    var tips=[];
+    if(s.s<50)tips.push('📌 全体の単発勝率が'+s.s+'%です。エントリー精度を上げましょう。');
+    if(s.mt>=60)tips.push('✅ 1M込み勝率が'+s.mt+'%と良好！マーチン管理は上手くできています。');
+    var injBest=gWR.mt>=iWR.mt&&gWR.mt>=hWR.mt?'GORILLA':iWR.mt>=hWR.mt?'IRAZU':'HUNO';
+    tips.push('🏆 最も安定しているインジは<b>'+injBest+'</b>です。重点的に使いましょう。');
+    if(anoS.wr>=60)tips.push('📊 アノマリーの勝率が'+anoS.wr+'%と高いです！積極的に活用を。');
+    else tips.push('📊 アノマリーの勝率は'+anoS.wr+'%。スルーの判断も大切です。');
+    if(optS.wr>=60)tips.push('⭐ オプション勝率が'+optS.wr+'%！このシグナルを重視しましょう。');
+    return '💡 <b>改善アドバイス</b><br><br>'+tips.join('<br><br>');
+  }
+  // まとめ・全体系
+  if(qL.indexOf('まとめ')>=0||qL.indexOf('全体')>=0||qL.indexOf('総合')>=0||qL.indexOf('どう')>=0){
+    var injBest2=gWR.mt>=iWR.mt&&gWR.mt>=hWR.mt?'GORILLA':iWR.mt>=hWR.mt?'IRAZU':'HUNO';
+    var injWorst2=gWR.mt<=iWR.mt&&gWR.mt<=hWR.mt?'GORILLA':iWR.mt<=hWR.mt?'IRAZU':'HUNO';
+    return '📋 <b>総合まとめ</b><br><br>'+
+      '全体: 単発<b>'+s.s+'%</b> / 1M込み<b>'+s.mt+'%</b> ('+s.t+'件)<br><br>'+
+      '🏆 最強インジ: <b>'+injBest2+'</b> (1M込み'+Math.max(gWR.mt,iWR.mt,hWR.mt)+'%)<br>'+
+      '⚠️ 注意インジ: <b>'+injWorst2+'</b> (1M込み'+Math.min(gWR.mt,iWR.mt,hWR.mt)+'%)<br><br>'+
+      'アノマリー: 単発<b>'+anoS.wr+'%</b> ('+anoS.t+'件)<br>'+
+      'オプション: 単発<b>'+optS.wr+'%</b> ('+optS.t+'件)<br><br>'+
+      (s.mt>=60?'✅ 全体的に良好な成績です！':'📌 1M込み勝率'+s.mt+'%。エントリー精度を上げる余地があります。');
+  }
+  // デフォルト
+  return '🤔 「<b>'+q+'</b>」について...<br><br>'+
+    '現在のデータ ('+s.t+'件):<br>'+
+    '単発勝率: <b>'+s.s+'%</b> ('+s.w+'勝'+s.l+'敗)<br>'+
+    '1M込み勝率: <b>'+s.mt+'%</b><br><br>'+
+    '以下のボタンで詳しく聞いてみてください🌸';
 }
 function genAI(list){
   var items=[],lMap={},pMap={},dMap={up:{w:0,m:0,t:0},down:{w:0,m:0,t:0}},tMap={},aMap={},oMap={};
