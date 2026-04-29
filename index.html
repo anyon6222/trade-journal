@@ -1455,9 +1455,10 @@ function runAI(){
   if(document.getElementById('ai-chat-box')){
     var box=document.getElementById('ai-chat-box');
     box.style.display=box.style.display==='none'?'block':'none';
+    btn.innerHTML=box.style.display==='none'?'💬 AIチャットを開く':'💬 AIチャットを閉じる';
     return;
   }
-  btn.innerHTML='💬 チャットを閉じる';
+  btn.innerHTML='💬 AIチャットを閉じる';
   el.innerHTML='<div id="ai-chat-box">'+
     '<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">'+
       '<button onclick="chatQ('一番勝率が高い時間帯は？')" style="font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #ddd;cursor:pointer;color:#7c6af7;background:#fff">📊 勝率高い時間帯</button>'+
@@ -1520,11 +1521,12 @@ function chatSendMsg(){
     btn.disabled=false;
   }).catch(function(e){
     ld.remove();
-    var ad=document.createElement('div');ad.style.cssText='padding:8px 12px;font-size:12px;color:#ee6a50';
-    ad.textContent='エラー: '+e.message;box.appendChild(ad);btn.disabled=false;
+    var ad=document.createElement('div');
+    ad.style.cssText='padding:8px 12px;font-size:12px;color:#ee6a50';
+    ad.textContent='エラー: '+e.message;
+    box.appendChild(ad);btn.disabled=false;
   });
 }
-
 function genAI(list){
   var items=[],lMap={},pMap={},dMap={up:{w:0,m:0,t:0},down:{w:0,m:0,t:0}},tMap={},aMap={},oMap={};
   list.forEach(function(t){
