@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-J</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-K</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -596,7 +596,102 @@ function runAI(){
     var dMap2={};ae.forEach(function(e){var rn=e.noshi;if(!rn||rn==='none')return;var k=e.dir==='high'?'↑HIGH':'↓LOW';if(!dMap2[k])dMap2[k]={w:0,m:0,t:0};dMap2[k].t++;if(rn==='win'){dMap2[k].w++;dMap2[k].m++;}else if(rn==='martin')dMap2[k].m++;});
     var hwr=dMap2['↑HIGH']?wr2(dMap2['↑HIGH']):0,lwr=dMap2['↓LOW']?wr2(dMap2['↓LOW']):0;
     if(dMap2['↑HIGH']&&dMap2['↓LOW']&&Math.abs(hwr-lwr)>=8)items.push('↕️ <b>方向バイアス:</b> '+(hwr>lwr?'↑HIGH':'↓LOW')+'のほうが勝率が高い傾向（↑HIGH '+hwr+'% vs ↓LOW '+lwr+'%）。');
-    el.innerHTML='<div class="ai-out">'+items.map(function(s){return'<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #eee">'+s+'</div>';}).join('')+'</div>';
+    // 脳死×裁量一致分析
+    var matchBoth={ww:0,wx:0,xw:0,xx:0,tw:0,tx:0,tt:0};
+    ae.forEach(function(e){
+      var rn=e.noshi,rs=e.sairyo;
+      if((!rn||rn==='none')&&(!rs||rs==='none'))return;
+      if(rn!=='none'&&rs!=='none'&&rn&&rs){
+        matchBoth.tt++;
+        var nb=(rn==='win'||rn==='martin'),sb=(rs==='win'||rs==='martin');
+        if(nb&&sb)matchBoth.ww++;
+        else if(nb&&!sb)matchBoth.wx++;
+        else if(!nb&&sb)matchBoth.xw++;
+        else matchBoth.xx++;
+      }
+    });
+    if(matchBoth.tt>=3){
+      var wwPct=Math.round(matchBoth.ww/matchBoth.tt*100);
+      var xxPct=Math.round(matchBoth.xx/matchBoth.tt*100);
+      items.push('🎯 <b>脳死×裁量 一致分析</b>（'+matchBoth.tt+'件）<br>'+
+        '両方勝ち: <b style="color:#1aaa6a">'+matchBoth.ww+'件('+wwPct+'%)</b> / '+
+        '脳死○裁量✕: '+matchBoth.wx+'件 / '+
+        '脳死✕裁量○: '+matchBoth.xw+'件 / '+
+        '両方負け: <b style="color:#ee6a50">'+matchBoth.xx+'件('+xxPct+'%)</b><br>'+
+        (wwPct>=60?'両方エントリーした時の成績が優秀です！':'両方一致の時でも慎重に。'));
+    }
+    // 時間×H/Lマトリックス
+    var SLOTS=['09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','12:00'];
+    var mxMap={};
+    ae.forEach(function(e){
+      var rn=e.noshi;if(!rn||rn==='none')return;
+      if(e.time&&e.dir){
+        var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));
+        var slot=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);
+        var k=slot+'|'+e.dir;
+        if(!mxMap[k])mxMap[k]={w:0,m:0,t:0};
+        mxMap[k].t++;if(rn==='win'){mxMap[k].w++;mxMap[k].m++;}else if(rn==='martin')mxMap[k].m++;
+      }
+    });
+    var existSlots=SLOTS.filter(function(s){return mxMap[s+'|high']||mxMap[s+'|low'];});
+    if(existSlots.length>0){
+      var mxHtml='<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:6px">';
+      mxHtml+='<thead><tr><th style="background:#1a1a2e;color:#fff;padding:5px;text-align:left">時間</th>';
+      mxHtml+='<th style="background:#1a1a2e;color:#fff;padding:5px;text-align:center">↑HIGH</th>';
+      mxHtml+='<th style="background:#1a1a2e;color:#fff;padding:5px;text-align:center">↓LOW</th></tr></thead><tbody>';
+      existSlots.forEach(function(s,i){
+        var h=mxMap[s+'|high'],l=mxMap[s+'|low'];
+        var hw=h?Math.round(h.m/h.t*100):null,lw=l?Math.round(l.m/l.t*100):null;
+        function cell(v,t){
+          if(v===null)return'<td style="padding:4px 6px;text-align:center;color:#ccc;background:'+(i%2?'#fafafa':'#fff')+'">—</td>';
+          var c=v>=70?'#1aaa6a':v>=55?'#5a8aee':v<45?'#ee6a50':'#888';
+          return'<td style="padding:4px 6px;text-align:center;font-weight:500;color:'+c+';background:'+(i%2?'#fafafa':'#fff')+'">'+v+'%<span style="font-size:10px;color:#aaa;margin-left:2px">'+t+'件</span></td>';
+        }
+        mxHtml+='<tr><td style="padding:4px 6px;color:#555;background:'+(i%2?'#fafafa':'#fff')+'">'+s+'</td>'+cell(hw,h?h.t:0)+cell(lw,l?l.t:0)+'</tr>';
+      });
+      mxHtml+='</tbody></table>';
+      items.push('⏰ <b>時間×H/L マトリックス（脳死1M込み）</b>'+mxHtml);
+    }
+    // 曜日×時間 組み合わせ勝率（上位8件）
+    var WD2=['月','火','水','木','金'];
+    var wdtMap={};
+    ae.forEach(function(e){
+      var rn=e.noshi;if(!rn||rn==='none')return;
+      if(e.date&&e.time){
+        var wd=WD[new Date(e.date).getDay()];
+        if(WD2.indexOf(wd)<0)return;
+        var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));
+        var slot=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);
+        var k=wd+'曜 '+slot;
+        if(!wdtMap[k])wdtMap[k]={w:0,m:0,t:0};
+        wdtMap[k].t++;if(rn==='win'){wdtMap[k].w++;wdtMap[k].m++;}else if(rn==='martin')wdtMap[k].m++;
+      }
+    });
+    var wdtRanked=Object.keys(wdtMap).filter(function(k){return wdtMap[k].t>=3;})
+      .map(function(k){var v=wdtMap[k];return{k:k,wr:Math.round(v.m/v.t*100),t:v.t};})
+      .sort(function(a,b){return b.wr-a.wr||b.t-a.t;});
+    if(wdtRanked.length>0){
+      var topWDT=wdtRanked.slice(0,8);
+      var botWDT=wdtRanked.slice(-3).reverse();
+      var medals=['🥇','🥈','🥉'];
+      var rankHtml=topWDT.map(function(r,i){
+        var c=r.wr>=70?'#1aaa6a':r.wr>=60?'#5a8aee':r.wr>=50?'#888':'#ee6a50';
+        return'<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0">'+
+          '<span>'+(i<3?medals[i]:(i+1)+'位')+' <b>'+r.k+'</b></span>'+
+          '<span style="font-weight:600;color:'+c+'">'+r.wr+'%<span style="font-size:10px;color:#aaa;font-weight:normal;margin-left:4px">'+r.t+'件</span></span>'+
+        '</div>';
+      }).join('');
+      var botHtml=botWDT.map(function(r){
+        return'<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">'+
+          '<span style="color:#888">'+r.k+'</span>'+
+          '<span style="color:#ee6a50;font-weight:500">'+r.wr+'%<span style="font-size:10px;color:#aaa;font-weight:normal;margin-left:4px">'+r.t+'件</span></span>'+
+        '</div>';
+      }).join('');
+      items.push('📅 <b>曜日×時間 ランキング（脳死1M込み・3件以上）</b>'+
+        '<div style="margin-top:6px">'+rankHtml+'</div>'+
+        (botWDT.length?'<div style="margin-top:8px;font-size:11px;color:#888;margin-bottom:4px">⚠️ 避けたいパターン</div><div>'+botHtml+'</div>':''));
+    }
+    el.innerHTML='<div class="ai-out">'+items.map(function(s){return'<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">'+s+'</div>';}).join('')+'</div>';
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
   },600);
 }
