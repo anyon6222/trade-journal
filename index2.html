@@ -36,10 +36,11 @@ tr:nth-child(even) td{background:#fafafa}
 .bar-wrap{background:#f0f0f0;border-radius:4px;height:6px;width:70px;overflow:hidden;display:inline-block;vertical-align:middle}
 .bar-n{background:#1aaa6a;height:6px;border-radius:4px}
 .bar-s{background:#5a8aee;height:6px;border-radius:4px}
+.ai-out{background:#f8f8ff;border-radius:10px;padding:14px;font-size:13px;line-height:1.9;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-H</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-I</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -357,7 +358,10 @@ function renderAna(){
       '<select id="cond-wd" class="si"><option value="">曜日（全て）</option><option value="月曜">月曜</option><option value="火曜">火曜</option><option value="水曜">水曜</option><option value="木曜">木曜</option><option value="金曜">金曜</option></select>'+
     '</div>'+
     '<button onclick="runCond()" class="btn btn-dark" style="width:100%;margin-bottom:8px">分析する</button>'+
-    '<div id="cond-result"></div></div>';
+    '<div id="cond-result"></div></div>'+
+    '<div class="card"><div style="font-size:13px;font-weight:500;margin-bottom:8px">✨ AI分析</div>'+
+    '<button onclick="runAI()" id="ai-btn" class="btn" style="width:100%;background:linear-gradient(135deg,#7c6af7,#5a8aee);color:#fff;padding:10px;font-size:13px;margin-bottom:8px">✨ AI分析を実行する</button>'+
+    '<div id="ai-result"></div></div>';
 }
 function runCond(){
   var fd=document.getElementById('cond-dir').value;
@@ -494,6 +498,95 @@ load();
 document.getElementById('idate').value=today();
 addRows(8);
 renderToday();
+
+function wrColor(p){
+  if(p>=100)return'#cc0000';
+  if(p>=85)return'#ee4400';
+  if(p>=75)return'#ee8800';
+  if(p>=65)return'#5a8aee';
+  return'#888';
+}
+function fmtAI(txt){
+  txt=txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // %の数字に色付け（正規表現を使わずsplit方式）
+  var parts=txt.split('%');
+  var out='';
+  for(var i=0;i<parts.length-1;i++){
+    var s=parts[i];
+    // 末尾の数字を取り出す
+    var j=s.length-1;
+    while(j>=0&&s[j]>='0'&&s[j]<='9')j--;
+    var pre=s.slice(0,j+1);
+    var num=s.slice(j+1);
+    if(num.length>0){
+      out+=pre+'<b style="color:'+wrColor(parseInt(num))+'">'+num+'%</b>';
+    }else{
+      out+=s+'%';
+    }
+  }
+  out+=parts[parts.length-1];
+  out=out.replace(/\n/g,'<br>');
+  return out;
+}
+function runAI(){
+  var btn=document.getElementById('ai-btn'),el=document.getElementById('ai-result');
+  var ae=[];fp(db,ap).forEach(function(t){ae=ae.concat(t.entries);});
+  if(ae.length<5){el.innerHTML='<div class="ai-out">データが5件以上必要です（現在'+ae.length+'件）</div>';return;}
+  btn.textContent='分析中...';btn.disabled=true;
+  var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
+  var WD=['日','月','火','水','木','金','土'];
+  var tMap={},pMap={},wdMap={};
+  ae.forEach(function(e){
+    var rn=e.noshi;
+    if(!rn||rn==='none')return;
+    if(e.time){
+      var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));
+      var slot=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);
+      if(!tMap[slot])tMap[slot]={w:0,m:0,t:0};
+      tMap[slot].t++;if(rn==='win'){tMap[slot].w++;tMap[slot].m++;}else if(rn==='martin')tMap[slot].m++;
+    }
+    if(e.pair){
+      if(!pMap[e.pair])pMap[e.pair]={w:0,m:0,t:0};
+      pMap[e.pair].t++;if(rn==='win'){pMap[e.pair].w++;pMap[e.pair].m++;}else if(rn==='martin')pMap[e.pair].m++;
+    }
+    if(e.date){
+      var wd=WD[new Date(e.date).getDay()]+'曜';
+      if(!wdMap[wd])wdMap[wd]={w:0,m:0,t:0};
+      wdMap[wd].t++;if(rn==='win'){wdMap[wd].w++;wdMap[wd].m++;}else if(rn==='martin')wdMap[wd].m++;
+    }
+  });
+  function toRanked(map,minT){
+    return Object.keys(map).filter(function(k){return map[k].t>=minT;})
+      .map(function(k){var v=map[k];return{k:k,wr:Math.round(v.m/v.t*100),t:v.t};})
+      .sort(function(a,b){return b.wr-a.wr;});
+  }
+  var topT=toRanked(tMap,3).slice(0,5);
+  var botT=toRanked(tMap,3).slice(-3).reverse();
+  var topP=toRanked(pMap,1);
+  var topWD=toRanked(wdMap,1);
+  var prompt='以下はバイナリーオプション「2NDトレード」の脳死エントリー成績データです。\n\n';
+  prompt+='【全体勝率（脳死）】\n1M込み: '+sn.m+'% / 単発: '+sn.s+'% / '+sn.t+'件\n\n';
+  prompt+='【全体勝率（裁量）】\n1M込み: '+ss.m+'% / 単発: '+ss.s+'% / '+ss.t+'件\n\n';
+  prompt+='【時間帯別 上位5位（脳死1M込み）】\n'+topT.map(function(v){return v.k+': '+v.wr+'% ('+v.t+'件)';}).join('\n')+'\n\n';
+  prompt+='【時間帯別 下位3位（脳死1M込み）】\n'+botT.map(function(v){return v.k+': '+v.wr+'% ('+v.t+'件)';}).join('\n')+'\n\n';
+  prompt+='【通貨ペア別（脳死1M込み）】\n'+topP.map(function(v){return v.k+': '+v.wr+'% ('+v.t+'件)';}).join('\n')+'\n\n';
+  prompt+='【曜日別（脳死1M込み）】\n'+topWD.map(function(v){return v.k+': '+v.wr+'% ('+v.t+'件)';}).join('\n')+'\n\n';
+  prompt+='このデータをもとに、トレーダーへの実践的なアドバイスを日本語で4〜6点、箇条書きで具体的に教えてください。勝率が高い条件・低い条件・改善提案を含めてください。';
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.error){el.innerHTML='<div class="ai-out" style="color:#ee6a50">エラー: '+d.error.message+'</div>';btn.textContent='✨ AI分析を実行する';btn.disabled=false;return;}
+    var txt=d.content&&d.content[0]&&d.content[0].text?d.content[0].text:'';
+    if(!txt){el.innerHTML='<div class="ai-out" style="color:#ee6a50">応答が空でした。</div>';btn.textContent='✨ AI分析を実行する';btn.disabled=false;return;}
+    el.innerHTML='<div class="ai-out">'+fmtAI(txt)+'</div>';
+    btn.textContent='✨ AI分析を実行する';btn.disabled=false;
+  }).catch(function(err){
+    el.innerHTML='<div class="ai-out" style="color:#ee6a50">通信エラー: '+err+'</div>';
+    btn.textContent='✨ AI分析を実行する';btn.disabled=false;
+  });
+}
 </script>
 </body>
 </html>
