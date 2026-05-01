@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-I</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-J</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -572,20 +572,33 @@ function runAI(){
   prompt+='【通貨ペア別（脳死1M込み）】\n'+topP.map(function(v){return v.k+': '+v.wr+'% ('+v.t+'件)';}).join('\n')+'\n\n';
   prompt+='【曜日別（脳死1M込み）】\n'+topWD.map(function(v){return v.k+': '+v.wr+'% ('+v.t+'件)';}).join('\n')+'\n\n';
   prompt+='このデータをもとに、トレーダーへの実践的なアドバイスを日本語で4〜6点、箇条書きで具体的に教えてください。勝率が高い条件・低い条件・改善提案を含めてください。';
-  fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-  }).then(function(r){return r.json();}).then(function(d){
-    if(d.error){el.innerHTML='<div class="ai-out" style="color:#ee6a50">エラー: '+d.error.message+'</div>';btn.textContent='✨ AI分析を実行する';btn.disabled=false;return;}
-    var txt=d.content&&d.content[0]&&d.content[0].text?d.content[0].text:'';
-    if(!txt){el.innerHTML='<div class="ai-out" style="color:#ee6a50">応答が空でした。</div>';btn.textContent='✨ AI分析を実行する';btn.disabled=false;return;}
-    el.innerHTML='<div class="ai-out">'+fmtAI(txt)+'</div>';
+  setTimeout(function(){
+    var items=[];
+    function wr2(v){return v.t?Math.round(v.m/v.t*100):0;}
+    function best2(map,min){var ks=Object.keys(map).filter(function(k){return map[k].t>=(min||3);});return ks.sort(function(a,b){return wr2(map[b])-wr2(map[a]);})[0]||null;}
+    function worst2(map,min){var ks=Object.keys(map).filter(function(k){return map[k].t>=(min||3);});return ks.sort(function(a,b){return wr2(map[a])-wr2(map[b]);})[0]||null;}
+    // 全体
+    var ov=sn.m;
+    items.push('📊 <b>全体勝率（脳死1M込み）: '+ov+'%</b>（単発'+sn.s+'% / '+sn.t+'件）— '+(ov>=65?'安定した成績です！':ov>=55?'もう少しで安定ゾーンです。':'戦略の見直しを検討しましょう。'));
+    if(ss.t>0)items.push('🎯 <b>裁量勝率（1M込み）: '+ss.m+'%</b>（単発'+ss.s+'% / '+ss.t+'件）— '+(ss.m>sn.m?'脳死より裁量のほうが好成績です。':'脳死ロジックが安定しています。'));
+    // 時間帯
+    var bt=best2(tMap,3),wt=worst2(tMap,3);
+    if(bt)items.push('⏰ <b>ゴールデンタイム: '+bt+'</b> — 勝率 <b style="color:#1aaa6a">'+wr2(tMap[bt])+'%</b>（'+tMap[bt].t+'件）。この時間帯を優先的に狙いましょう。');
+    if(wt&&wr2(tMap[wt])<50)items.push('⏸️ <b>避けたい時間: '+wt+'</b> — 勝率 <b style="color:#ee6a50">'+wr2(tMap[wt])+'%</b>（'+tMap[wt].t+'件）。この時間帯はスルーも選択肢です。');
+    // 曜日
+    var bw=best2(wdMap,1),ww=worst2(wdMap,1);
+    if(bw&&ww&&bw!==ww)items.push('📅 <b>得意曜日: '+bw+'</b>（'+wr2(wdMap[bw])+'%）/ <b>苦手曜日: '+ww+'</b>（'+wr2(wdMap[ww])+'%）。曜日によるパターンを意識してみましょう。');
+    // 通貨ペア
+    var bp=best2(pMap,1),wp=worst2(pMap,3);
+    if(bp)items.push('💱 <b>得意通貨ペア: '+bp+'</b> — 勝率 <b style="color:#1aaa6a">'+wr2(pMap[bp])+'%</b>（'+pMap[bp].t+'件）。');
+    if(wp&&wr2(pMap[wp])<50)items.push('⚠️ <b>注意通貨ペア: '+wp+'</b> — 勝率 <b style="color:#ee6a50">'+wr2(pMap[wp])+'%</b>（'+pMap[wp].t+'件）。慎重なエントリーを心がけましょう。');
+    // H/L
+    var dMap2={};ae.forEach(function(e){var rn=e.noshi;if(!rn||rn==='none')return;var k=e.dir==='high'?'↑HIGH':'↓LOW';if(!dMap2[k])dMap2[k]={w:0,m:0,t:0};dMap2[k].t++;if(rn==='win'){dMap2[k].w++;dMap2[k].m++;}else if(rn==='martin')dMap2[k].m++;});
+    var hwr=dMap2['↑HIGH']?wr2(dMap2['↑HIGH']):0,lwr=dMap2['↓LOW']?wr2(dMap2['↓LOW']):0;
+    if(dMap2['↑HIGH']&&dMap2['↓LOW']&&Math.abs(hwr-lwr)>=8)items.push('↕️ <b>方向バイアス:</b> '+(hwr>lwr?'↑HIGH':'↓LOW')+'のほうが勝率が高い傾向（↑HIGH '+hwr+'% vs ↓LOW '+lwr+'%）。');
+    el.innerHTML='<div class="ai-out">'+items.map(function(s){return'<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #eee">'+s+'</div>';}).join('')+'</div>';
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
-  }).catch(function(err){
-    el.innerHTML='<div class="ai-out" style="color:#ee6a50">通信エラー: '+err+'</div>';
-    btn.textContent='✨ AI分析を実行する';btn.disabled=false;
-  });
+  },600);
 }
 </script>
 </body>
