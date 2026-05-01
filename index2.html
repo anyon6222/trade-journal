@@ -50,7 +50,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-G</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-H</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -337,7 +337,7 @@ function renderAna(){
   ae.forEach(function(e){
     var r={n:e.noshi,s:e.sairyo};
     if(r.n==='none'&&r.s==='none')return;
-    if(e.time){var h=e.time.slice(0,2)+':'+e.time.slice(3,5);acc2(tMap,h,r);}
+    if(e.time){var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));var mm15=Math.floor(mm/15)*15;var h=('0'+hh).slice(-2)+':'+('0'+mm15).slice(-2);acc2(tMap,h,r);}
     acc2(dMap,e.dir==='high'?'↑HIGH':'↓LOW',r);
     if(e.pair)acc2(pMap,e.pair,r);
     if(e.date){var dt=new Date(e.date);acc2(wdMap,WD[dt.getDay()]+'曜',r);}
@@ -406,7 +406,7 @@ function runAI(){
   ae.forEach(function(e){
     var r={n:e.noshi,s:e.sairyo};
     if(r.n==='none'&&r.s==='none')return;
-    if(e.time){var h=e.time.slice(0,5);if(!tMap[h])tMap[h]={wn:0,mn:0,tn:0};var v=tMap[h];if(r.n==='win'){v.wn++;v.mn++;}else if(r.n==='martin')v.mn++;v.tn++;}
+    if(e.time){var hh2=parseInt(e.time.slice(0,2)),mm2=parseInt(e.time.slice(3,5));var mm15b=Math.floor(mm2/15)*15;var h=('0'+hh2).slice(-2)+':'+('0'+mm15b).slice(-2);if(!tMap[h])tMap[h]={wn:0,mn:0,tn:0};var v=tMap[h];if(r.n==='win'){v.wn++;v.mn++;}else if(r.n==='martin')v.mn++;v.tn++;}
     if(e.pair){if(!pMap[e.pair])pMap[e.pair]={wn:0,mn:0,tn:0};var v2=pMap[e.pair];if(r.n==='win'){v2.wn++;v2.mn++;}else if(r.n==='martin')v2.mn++;v2.tn++;}
     if(e.date){var wd=WD[new Date(e.date).getDay()]+'曜';if(!wdMap[wd])wdMap[wd]={wn:0,mn:0,tn:0};var v3=wdMap[wd];if(r.n==='win'){v3.wn++;v3.mn++;}else if(r.n==='martin')v3.mn++;v3.tn++;}
   });
@@ -421,7 +421,7 @@ function runAI(){
   prompt+='このデータをもとに、トレーダーへの実践的なアドバイスを日本語で3〜5点、具体的に教えてください。勝率が高い条件・低い条件・改善提案を含めてください。';
   fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
   }).then(function(r){return r.json();}).then(function(d){
     var txt=d.content&&d.content[0]&&d.content[0].text?d.content[0].text:'分析結果を取得できませんでした。';
