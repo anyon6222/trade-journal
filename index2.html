@@ -331,17 +331,18 @@ function loadCSV(ev){
     csvRows=[];
     lines.forEach(function(line){
       var cols=line.split(',').map(function(s){return s.trim().replace(/^"|"$/g,'');});
-      var dateStr=cols[0]||'';
+      // CSV列: [0]=空, [1]=日付, [2]=時間区分, [3]=時間, [4]=H/L, [5]=脳死, [6]=分, [7]=裁量
+      var dateStr=cols[1]||'';
       var m=dateStr.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
       if(!m)return;
       var iso=m[1]+'-'+pad2(parseInt(m[2]))+'-'+pad2(parseInt(m[3]));
-      var timeStr=(cols[2]||'').replace(/[^\d:]/g,'');
+      var timeStr=(cols[3]||'').replace(/[：:]/g,':').replace(/[^\d:]/g,'');
       var tm=timeStr.match(/(\d{1,2}):(\d{2})/);
       var time=tm?pad2(parseInt(tm[1]))+':'+tm[2]:'';
-      var hl=(cols[3]||'').trim().toUpperCase();
+      var hl=(cols[4]||'').trim().toUpperCase();
       var dir=hl==='H'||hl==='HIGH'?'high':'low';
-      var noshi=convRes(cols[4]||'');
-      var sairyo=convRes(cols[5]||'');
+      var noshi=convRes(cols[5]||'');
+      var sairyo=convRes(cols[7]||'');
       if(noshi==='none'&&sairyo==='none')return;
       csvRows.push({date:iso,time:time,dir:dir,noshi:noshi,sairyo:sairyo});
     });
@@ -361,6 +362,7 @@ function loadCSV(ev){
 function convRes(s){
   var t=s.trim();
   if(!t||t==='-')return'none';
+  if(t.indexOf('\u25cb\u25cb')>=0)return'win';
   if(t.indexOf('OO')>=0)return'win';
   var hasCircle=t.indexOf('\u25cb')>=0||t.indexOf('O')>=0;
   var hasCross=t.indexOf('\u2715')>=0||t.indexOf('\u00d7')>=0||t.indexOf('X')>=0;
