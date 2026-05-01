@@ -33,24 +33,13 @@ tr:nth-child(even) td{background:#fafafa}
 .ptabs{display:flex;gap:5px;margin-bottom:10px}
 .ptab{padding:5px 12px;font-size:12px;border:1px solid #e0e0e0;border-radius:20px;cursor:pointer;background:#fff;color:#888;font-family:inherit}
 .ptab.on{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
-/* 分析強化 */
-.ana-tbl{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:4px}
-.ana-tbl th{background:#1a1a2e;color:#fff;padding:7px 8px;font-size:11px;white-space:nowrap;text-align:left}
-.ana-tbl td{padding:6px 8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
-.ana-tbl tr:nth-child(even) td{background:#fafafa}
-.bar-wrap{background:#f0f0f0;border-radius:4px;height:6px;width:80px;overflow:hidden}
-.bar-n{background:#1aaa6a;height:6px;border-radius:4px;transition:width .4s}
-.bar-s{background:#5a8aee;height:6px;border-radius:4px;transition:width .4s}
-.ana-sec{margin-bottom:10px}
-.cond-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:8px}
-.cond-card.good{border-left:4px solid #1aaa6a}
-.cond-card.mid{border-left:4px solid #5a8aee}
-.cond-card.warn{border-left:4px solid #ee6a50}
-.ai-out{background:#f8f8ff;border-radius:12px;padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.bar-wrap{background:#f0f0f0;border-radius:4px;height:6px;width:70px;overflow:hidden;display:inline-block;vertical-align:middle}
+.bar-n{background:#1aaa6a;height:6px;border-radius:4px}
+.bar-s{background:#5a8aee;height:6px;border-radius:4px}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-I</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-G</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -305,25 +294,29 @@ function renderHist(){
     '</table></div>';
 }
 
-function acc2(map,k,r){if(!map[k])map[k]={wn:0,mn:0,ln:0,tn:0,ws:0,ms:0,ls:0,ts:0};if(r.n==='win'){map[k].wn++;map[k].mn++;map[k].tn++;}else if(r.n==='martin'){map[k].ln++;map[k].mn++;map[k].tn++;}else if(r.n==='lose'){map[k].ln++;map[k].tn++;}if(r.s==='win'){map[k].ws++;map[k].ms++;map[k].ts++;}else if(r.s==='martin'){map[k].ls++;map[k].ms++;map[k].ts++;}else if(r.s==='lose'){map[k].ls++;map[k].ts++;}}
+function acc2(map,k,rn,rs){
+  if(!map[k])map[k]={wn:0,mn:0,ln:0,tn:0,ws:0,ms:0,ls:0,ts:0};
+  var v=map[k];
+  if(rn==='win'){v.wn++;v.mn++;v.tn++;}else if(rn==='martin'){v.mn++;v.ln++;v.tn++;}else if(rn==='lose'){v.ln++;v.tn++;}
+  if(rs==='win'){v.ws++;v.ms++;v.ts++;}else if(rs==='martin'){v.ms++;v.ls++;v.ts++;}else if(rs==='lose'){v.ls++;v.ts++;}
+}
 function mkRow2(lbl,v){
   var sn=v.tn?Math.round(v.mn/v.tn*100):null;
   var ss=v.ts?Math.round(v.ms/v.ts*100):null;
   var cn=sn>=60?'win':sn>=50?'mar':'lose';
   var cs=ss>=60?'win':ss>=50?'mar':'lose';
   return'<tr>'+
-    '<td style="font-weight:500">'+lbl+'</td>'+
-    '<td class="'+(sn!==null?cn:'')+'" style="font-weight:500">'+(sn!==null?sn+'%':'—')+'<span style="font-size:10px;color:#aaa;margin-left:3px">'+(v.tn?v.tn+'件':'')+'</span></td>'+
+    '<td style="font-size:11px;color:#555">'+lbl+'</td>'+
+    '<td class="'+(sn!==null?cn:'')+'" style="font-weight:500;white-space:nowrap">'+(sn!==null?sn+'%':'—')+'<span style="font-size:10px;color:#aaa;margin-left:3px">'+(v.tn||'')+'</span></td>'+
     '<td><div class="bar-wrap"><div class="bar-n" style="width:'+(sn||0)+'%"></div></div></td>'+
-    '<td class="'+(ss!==null?cs:'')+'" style="font-weight:500">'+(ss!==null?ss+'%':'—')+'<span style="font-size:10px;color:#aaa;margin-left:3px">'+(v.ts?v.ts+'件':'')+'</span></td>'+
+    '<td class="'+(ss!==null?cs:'')+'" style="font-weight:500;white-space:nowrap">'+(ss!==null?ss+'%':'—')+'<span style="font-size:10px;color:#aaa;margin-left:3px">'+(v.ts||'')+'</span></td>'+
     '<td><div class="bar-wrap"><div class="bar-s" style="width:'+(ss||0)+'%"></div></div></td>'+
   '</tr>';
 }
-function mkTbl2(title,map,sortFn){
-  var keys=Object.keys(map);if(!keys.length)return'';
-  if(sortFn)keys=keys.sort(sortFn);
-  return'<div class="card ana-sec"><div style="font-size:13px;font-weight:500;margin-bottom:10px">'+title+'</div>'+
-    '<table class="ana-tbl"><thead><tr><th>項目</th><th colspan="2">🧠 脳死 1M込み</th><th colspan="2">🎯 裁量 1M込み</th></tr></thead>'+
+function mkTbl2(title,map,keys){
+  if(!keys.length)return'';
+  return'<div class="card" style="margin-bottom:10px"><div style="font-size:13px;font-weight:500;margin-bottom:10px">'+title+'</div>'+
+    '<table><thead><tr><th>項目</th><th colspan="2">🧠 脳死</th><th colspan="2">🎯 裁量</th></tr></thead>'+
     '<tbody>'+keys.map(function(k){return mkRow2(k,map[k]);}).join('')+'</tbody></table></div>';
 }
 function renderAna(){
@@ -334,124 +327,28 @@ function renderAna(){
   var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
   var tMap={},dMap={},pMap={},wdMap={};
   var WD=['日','月','火','水','木','金','土'];
+  var WDKEYS=['月曜','火曜','水曜','木曜','金曜','土曜','日曜'];
   ae.forEach(function(e){
-    var r={n:e.noshi,s:e.sairyo};
-    if(r.n==='none'&&r.s==='none')return;
-    if(e.time){var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));var mm15=Math.floor(mm/15)*15;var h=('0'+hh).slice(-2)+':'+('0'+mm15).slice(-2);acc2(tMap,h,r);}
-    acc2(dMap,e.dir==='high'?'↑HIGH':'↓LOW',r);
-    if(e.pair)acc2(pMap,e.pair,r);
-    if(e.date){var dt=new Date(e.date);acc2(wdMap,WD[dt.getDay()]+'曜',r);}
+    var rn=e.noshi,rs=e.sairyo;
+    if((!rn||rn==='none')&&(!rs||rs==='none'))return;
+    if(e.time){
+      var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));
+      var slot=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);
+      acc2(tMap,slot,rn,rs);
+    }
+    acc2(dMap,e.dir==='high'?'↑HIGH':'↓LOW',rn,rs);
+    if(e.pair)acc2(pMap,e.pair,rn,rs);
+    if(e.date){var wd=WD[new Date(e.date).getDay()]+'曜';acc2(wdMap,wd,rn,rs);}
   });
   el.innerHTML=
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
       '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">🧠 脳死 全体</div><div style="font-size:22px;font-weight:600" class="'+(sn.m>=60?'win':sn.m>=50?'mar':'lose')+'">'+sn.m+'%</div><div style="font-size:10px;color:#aaa">単発'+sn.s+'% / '+sn.t+'件</div></div>'+
       '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">🎯 裁量 全体</div><div style="font-size:22px;font-weight:600" class="'+(ss.m>=60?'win':ss.m>=50?'mar':'lose')+'">'+ss.m+'%</div><div style="font-size:10px;color:#aaa">単発'+ss.s+'% / '+ss.t+'件</div></div>'+
     '</div>'+
-    mkTbl2('⏰ 時間帯別',tMap,function(a,b){return a.localeCompare(b);})+
-    mkTbl2('📅 曜日別',wdMap,function(a,b){return['月曜','火曜','水曜','木曜','金曜','土曜','日曜'].indexOf(a)-['月曜','火曜','水曜','木曜','金曜','土曜','日曜'].indexOf(b);})+
-    mkTbl2('🔀 H/L別',dMap)+
-    mkTbl2('💱 通貨ペア別',pMap)+
-    '<div class="card ana-sec"><div style="font-size:13px;font-weight:500;margin-bottom:10px">🔍 条件組み合わせ分析</div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'+
-      '<select id="cond-dir" class="si"><option value="">方向（全て）</option><option value="high">↑HIGH</option><option value="low">↓LOW</option></select>'+
-      '<select id="cond-pair" class="si"><option value="">通貨ペア（全て）</option>'+PAIRS.map(function(p){return'<option value="'+p+'">'+p+'</option>';}).join('')+'</select>'+
-      '<select id="cond-time" class="si"><option value="">時間（全て）</option>'+['09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','12:00'].map(function(t){return'<option value="'+t+'">'+t+'</option>';}).join('')+'</select>'+
-      '<select id="cond-wd" class="si"><option value="">曜日（全て）</option><option value="月曜">月曜</option><option value="火曜">火曜</option><option value="水曜">水曜</option><option value="木曜">木曜</option><option value="金曜">金曜</option></select>'+
-    '</div>'+
-    '<button onclick="runCond()" class="btn btn-dark" style="width:100%;margin-bottom:8px">分析する</button>'+
-    '<div id="cond-result"></div></div>'+
-    '<div class="card ana-sec"><div style="font-size:13px;font-weight:500;margin-bottom:8px">✨ AI分析</div>'+
-    '<button onclick="runAI()" id="ai-btn" class="btn" style="width:100%;background:linear-gradient(135deg,#7c6af7,#5a8aee);color:#fff;margin-bottom:8px">✨ AI分析を実行する</button>'+
-    '<div id="ai-result"></div></div>';
-}
-function runCond(){
-  var fd=document.getElementById('cond-dir').value;
-  var fp2=document.getElementById('cond-pair').value;
-  var ft=document.getElementById('cond-time').value;
-  var fw=document.getElementById('cond-wd').value;
-  var WD=['日','月','火','水','木','金','土'];
-  var ae=[];fp(db,ap).forEach(function(t){ae=ae.concat(t.entries);});
-  var matched=ae.filter(function(e){
-    if(fd&&e.dir!==fd)return false;
-    if(fp2&&e.pair!==fp2)return false;
-    if(ft&&(e.time||'').slice(0,5)!==ft)return false;
-    if(fw){var dt=new Date(e.date);if(WD[dt.getDay()]+'曜'!==fw)return false;}
-    return e.noshi!=='none'||e.sairyo!=='none';
-  });
-  var el=document.getElementById('cond-result');
-  if(!matched.length){el.innerHTML='<div class="cond-card"><div style="color:#aaa;font-size:13px;text-align:center">該当データがありません</div></div>';return;}
-  var sn=calcWR(matched,'noshi'),ss=calcWR(matched,'sairyo');
-  var conds=[fd==='high'?'↑HIGH':fd==='low'?'↓LOW':'',fp2,ft,fw].filter(Boolean).join(' × ')||'全条件';
-  var cls=sn.m>=60?'good':sn.m>=50?'mid':'warn';
-  var comment=sn.m>=60?'<div style="margin-top:6px;font-size:12px;color:#1aaa6a;font-weight:500">✅ 優秀な組み合わせです！積極的に狙いましょう</div>':sn.m>=50?'<div style="margin-top:6px;font-size:12px;color:#5a8aee">📊 標準的な勝率です</div>':'<div style="margin-top:6px;font-size:12px;color:#ee6a50">⚠️ この条件は勝率が低めです</div>';
-  el.innerHTML='<div class="cond-card '+cls+'">'+
-    '<div style="font-size:11px;color:#888;margin-bottom:8px">📋 条件: <b>'+conds+'</b></div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
-      '<div><div style="font-size:11px;color:#888;margin-bottom:4px">🧠 脳死</div>'+
-        '<div style="font-size:22px;font-weight:600" class="'+(sn.m>=60?'win':sn.m>=50?'mar':'lose')+'">'+sn.m+'%</div>'+
-        '<div style="font-size:11px;color:#aaa">1M込み / '+sn.t+'件</div></div>'+
-      '<div><div style="font-size:11px;color:#888;margin-bottom:4px">🎯 裁量</div>'+
-        '<div style="font-size:22px;font-weight:600" class="'+(ss.m>=60?'win':ss.m>=50?'mar':'lose')+'">'+ss.m+'%</div>'+
-        '<div style="font-size:11px;color:#aaa">1M込み / '+ss.t+'件</div></div>'+
-    '</div>'+comment+'</div>';
-}
-function wrColor(pct){
-  if(pct>=100)return'#cc0000';
-  if(pct>=85)return'#ee4400';
-  if(pct>=75)return'#ee8800';
-  if(pct>=65)return'#5a8aee';
-  return'#888';
-}
-function fmtAI(txt){
-  // %を色付きに変換
-  txt=txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  txt=txt.replace(/(\d+)%/g,function(m,n){
-    var p=parseInt(n);
-    return'<b style="color:'+wrColor(p)+'">'+n+'%</b>';
-  });
-  // 改行をbrに
-  txt=txt.replace(/
-/g,'<br>');
-  return txt;
-}
-function runAI(){
-  var btn=document.getElementById('ai-btn'),el=document.getElementById('ai-result');
-  var ae=[];fp(db,ap).forEach(function(t){ae=ae.concat(t.entries);});
-  if(ae.length<5){el.innerHTML='<div class="ai-out">データが5件以上必要です（現在'+ae.length+'件）</div>';return;}
-  btn.textContent='分析中...';btn.disabled=true;
-  var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
-  var WD=['日','月','火','水','木','金','土'];
-  var tMap={},dMap={high:{},low:{}},pMap={},wdMap={};
-  ae.forEach(function(e){
-    var r={n:e.noshi,s:e.sairyo};
-    if(r.n==='none'&&r.s==='none')return;
-    if(e.time){var hh2=parseInt(e.time.slice(0,2)),mm2=parseInt(e.time.slice(3,5));var mm15b=Math.floor(mm2/15)*15;var h=('0'+hh2).slice(-2)+':'+('0'+mm15b).slice(-2);if(!tMap[h])tMap[h]={wn:0,mn:0,tn:0};var v=tMap[h];if(r.n==='win'){v.wn++;v.mn++;}else if(r.n==='martin')v.mn++;v.tn++;}
-    if(e.pair){if(!pMap[e.pair])pMap[e.pair]={wn:0,mn:0,tn:0};var v2=pMap[e.pair];if(r.n==='win'){v2.wn++;v2.mn++;}else if(r.n==='martin')v2.mn++;v2.tn++;}
-    if(e.date){var wd=WD[new Date(e.date).getDay()]+'曜';if(!wdMap[wd])wdMap[wd]={wn:0,mn:0,tn:0};var v3=wdMap[wd];if(r.n==='win'){v3.wn++;v3.mn++;}else if(r.n==='martin')v3.mn++;v3.tn++;}
-  });
-  var topT=Object.entries(tMap).filter(function(kv){return kv[1].tn>=3;}).map(function(kv){return{k:kv[0],wr:Math.round(kv[1].mn/kv[1].tn*100),t:kv[1].tn};}).sort(function(a,b){return b.wr-a.wr;}).slice(0,3);
-  var topP=Object.entries(pMap).map(function(kv){return{k:kv[0],wr:Math.round(kv[1].mn/kv[1].tn*100),t:kv[1].tn};}).sort(function(a,b){return b.wr-a.wr;}).slice(0,3);
-  var topWD=Object.entries(wdMap).map(function(kv){return{k:kv[0],wr:Math.round(kv[1].mn/kv[1].tn*100),t:kv[1].tn};}).sort(function(a,b){return b.wr-a.wr;});
-  var prompt='以下はバイナリーオプション「2NDトレード」の脳死エントリー成績データです。\n\n';
-  prompt+='【全体勝率】\n脳死: 1M込み'+sn.m+'% (単発'+sn.s+'%) '+sn.t+'件\n裁量: 1M込み'+ss.m+'% (単発'+ss.s+'%) '+ss.t+'件\n\n';
-  prompt+='【時間帯別 上位3位（脳死1M込み）】\n'+topT.map(function(v){return v.k+': '+v.wr+'% ('+v.t+'件)';}).join('\n')+'\n\n';
-  prompt+='【通貨ペア別 上位3位（脳死1M込み）】\n'+topP.map(function(v){return v.k+': '+v.wr+'% ('+v.t+'件)';}).join('\n')+'\n\n';
-  prompt+='【曜日別（脳死1M込み）】\n'+topWD.map(function(v){return v.k+': '+v.wr+'% ('+v.t+'件)';}).join('\n')+'\n\n';
-  prompt+='このデータをもとに、トレーダーへの実践的なアドバイスを日本語で3〜5点、具体的に教えてください。勝率が高い条件・低い条件・改善提案を含めてください。';
-  fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-5-20251001',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-  }).then(function(r){return r.json();}).then(function(d){
-    if(d.error){el.innerHTML='<div class="ai-out" style="color:#ee6a50">エラー: '+d.error.message+'</div>';btn.textContent='✨ AI分析を実行する';btn.disabled=false;return;}
-    var txt=d.content&&d.content[0]&&d.content[0].text?d.content[0].text:'';
-    if(!txt){el.innerHTML='<div class="ai-out" style="color:#ee6a50">応答が空でした。</div>';btn.textContent='✨ AI分析を実行する';btn.disabled=false;return;}
-    el.innerHTML='<div class="ai-out">'+fmtAI(txt)+'</div>';
-    btn.textContent='✨ AI分析を実行する';btn.disabled=false;
-  }).catch(function(err){
-    el.innerHTML='<div class="ai-out" style="color:#ee6a50">通信エラー: '+err+'</div>';
-    btn.textContent='✨ AI分析を実行する';btn.disabled=false;
-  });
+    mkTbl2('⏰ 時間帯別',tMap,Object.keys(tMap).sort())+
+    mkTbl2('📅 曜日別',wdMap,WDKEYS.filter(function(k){return wdMap[k];}))+
+    mkTbl2('🔀 H/L別',dMap,Object.keys(dMap))+
+    mkTbl2('💱 通貨ペア別',pMap,PAIRS.filter(function(p){return pMap[p];}));
 }
 
 function loadCSV(ev){
