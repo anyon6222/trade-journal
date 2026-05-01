@@ -88,16 +88,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="tab-input" class="panel active">
   <div class="dash" id="dash"></div>
   <div class="card">
-    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">📅 日付を選択</div>
-    <input type="date" id="f-date" style="width:100%;padding:8px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit">
-    <div id="date-disp" style="font-size:12px;color:#888;margin-top:4px"></div>
-  </div>
-  <div class="card">
-    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">📝 エントリー入力</div>
-    <div class="form-row three">
-      <div class="form-group">
-        <label>通貨ペア</label>
-        <select id="f-pair">
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">📝 一括入力</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
+      <div class="form-group" style="flex:1;min-width:130px">
+        <label>📅 日付</label>
+        <input type="date" id="f-date" style="width:100%;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit">
+      </div>
+      <div class="form-group" style="flex:1;min-width:120px">
+        <label>💱 通貨ペア</label>
+        <select id="f-pair" style="width:100%;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;background:#fff">
           <option value="USD/JPY">USD/JPY</option>
           <option value="GBP/JPY">GBP/JPY</option>
           <option value="EUR/JPY">EUR/JPY</option>
@@ -107,54 +106,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <option value="NZD/JPY">NZD/JPY</option>
         </select>
       </div>
-      <div class="form-group">
-        <label>時間</label>
-        <input type="time" id="f-time" step="60">
-      </div>
-      <div class="form-group">
-        <label>H/L</label>
-        <select id="f-dir">
-          <option value="high">↑ HIGH</option>
-          <option value="low">↓ LOW</option>
-        </select>
-      </div>
+      <div id="date-disp" style="font-size:12px;color:#888;align-self:center"></div>
     </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>🧠 脳死 結果</label>
-        <div class="rbtn-group" id="noshi-btns">
-          <button class="rbtn" onclick="setResult('noshi','win',this)">○</button>
-          <button class="rbtn" onclick="setResult('noshi','martin',this)">✕○</button>
-          <button class="rbtn" onclick="setResult('noshi','lose',this)">✕✕</button>
-          <button class="rbtn" onclick="setResult('noshi','skip',this)">－</button>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>🎯 裁量 結果</label>
-        <div class="rbtn-group" id="sairyo-btns">
-          <button class="rbtn" onclick="setResult('sairyo','win',this)">○</button>
-          <button class="rbtn" onclick="setResult('sairyo','martin',this)">✕○</button>
-          <button class="rbtn" onclick="setResult('sairyo','lose',this)">✕✕</button>
-          <button class="rbtn" onclick="setResult('sairyo','skip',this)">－</button>
-        </div>
-      </div>
+    <div style="overflow-x:auto">
+      <table id="input-tbl" style="width:100%;border-collapse:collapse;font-size:12px;min-width:420px">
+        <thead>
+          <tr style="background:#1a1a2e;color:#fff">
+            <th style="padding:8px;text-align:center;font-weight:500;width:30px">#</th>
+            <th style="padding:8px;text-align:left;font-weight:500;min-width:65px">時間</th>
+            <th style="padding:8px;text-align:center;font-weight:500;min-width:80px">H/L</th>
+            <th style="padding:8px;text-align:center;font-weight:500;min-width:110px">🧠 脳死</th>
+            <th style="padding:8px;text-align:center;font-weight:500;min-width:110px">🎯 裁量</th>
+            <th style="padding:8px;text-align:left;font-weight:500;min-width:80px">メモ</th>
+          </tr>
+        </thead>
+        <tbody id="input-tbody"></tbody>
+      </table>
     </div>
-    <div class="form-group" style="margin-top:8px">
-      <label>メモ</label>
-      <input type="text" id="f-memo" placeholder="メモ・気づき">
-    </div>
-    <div class="btn-row">
-      <button class="btn primary" onclick="addEntry()">追加</button>
-      <button class="btn secondary" onclick="clearForm()">クリア</button>
-    </div>
-    <div id="add-msg" style="font-size:12px;margin-top:6px;color:#1aaa6a;min-height:16px"></div>
-  </div>
-  <div class="card">
-    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:8px">記録する</div>
-    <div id="entry-preview" style="font-size:12px;color:#888;margin-bottom:10px">エントリーを追加してください</div>
-    <div class="btn-row">
-      <button class="btn primary" onclick="saveTrade()">💾 記録する</button>
-      <button class="btn secondary" onclick="resetAll()">全クリア</button>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button onclick="addInputRows(5)" style="padding:7px 14px;font-size:12px;border-radius:8px;border:1px solid #1a1a2e;background:#fff;color:#1a1a2e;cursor:pointer;font-family:inherit">＋ 5行追加</button>
+      <button onclick="saveInputTable()" style="padding:7px 20px;font-size:12px;border-radius:8px;border:none;background:#1a1a2e;color:#fff;cursor:pointer;font-family:inherit;font-weight:500">💾 記録する</button>
+      <button onclick="clearInputTable()" style="padding:7px 14px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#aaa;cursor:pointer;font-family:inherit">クリア</button>
     </div>
     <div id="save-msg" style="font-size:12px;margin-top:6px;color:#1aaa6a;min-height:16px"></div>
   </div>
@@ -212,6 +184,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="bulk-msg" style="font-size:12px;margin-top:6px;color:#1aaa6a;min-height:16px"></div>
   </div>
   <div class="card">
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">📊 CSVインポート（スプレッドシートから）</div>
+    <div style="font-size:12px;color:#888;margin-bottom:8px;line-height:1.6">
+      スプレッドシートをCSV保存して読み込めます。<br>
+      列の順番：<b>日付 / 時間 / H or L / 脳死結果 / 裁量結果</b><br>
+      結果は「〇〇」「✕〇」「✕✕」で入力してください。
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;align-items:flex-end">
+      <div class="form-group" style="min-width:120px">
+        <label>通貨ペア</label>
+        <select id="csv-pair" style="width:100%;padding:7px;border:1px solid #e0e0e0;border-radius:8px;font-size:12px;font-family:inherit;background:#fff">
+          <option value="USD/JPY">USD/JPY</option>
+          <option value="GBP/JPY">GBP/JPY</option>
+          <option value="EUR/JPY">EUR/JPY</option>
+          <option value="EUR/USD">EUR/USD</option>
+          <option value="AUD/USD">AUD/USD</option>
+          <option value="AUD/JPY">AUD/JPY</option>
+          <option value="NZD/JPY">NZD/JPY</option>
+        </select>
+      </div>
+      <label style="padding:8px 16px;font-size:12px;border-radius:8px;cursor:pointer;border:1px solid #7c6af7;background:#fff;color:#7c6af7;font-family:inherit">
+        📂 CSVファイルを選択
+        <input type="file" accept=".csv,.txt" onchange="importCSV(event)" style="display:none">
+      </label>
+    </div>
+    <div id="csv-preview" style="font-size:12px;margin-bottom:8px;display:none">
+      <div style="font-weight:500;color:#1a1a2e;margin-bottom:4px">プレビュー（最初の5件）</div>
+      <div id="csv-preview-content"></div>
+      <button onclick="csvSave()" style="margin-top:8px;padding:7px 20px;font-size:12px;border-radius:8px;border:none;background:#1aaa6a;color:#fff;cursor:pointer;font-family:inherit">💾 この内容で保存</button>
+    </div>
+    <div id="csv-msg" style="font-size:12px;color:#1aaa6a;min-height:16px"></div>
+  </div>
+  <div class="card">
     <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">💾 データ管理</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button onclick="exportData()" style="padding:8px 16px;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid #1a1a2e;background:#1a1a2e;color:#fff;font-family:inherit">📥 バックアップ</button>
@@ -228,8 +232,6 @@ var trades=[];
 var curPeriod='all';
 var curAnaPeriod='all';
 var pendingEntries=[];
-var noshiResult='none';
-var sairyoResult='none';
 var bulkRowId=0;
 
 function ge(id){var el=document.getElementById(id);return el?el.value:'';}
@@ -282,38 +284,61 @@ document.getElementById('f-date').addEventListener('change',function(){
 document.getElementById('f-date').value=today();
 document.getElementById('date-disp').textContent=fmtDisp(today());
 
-// 結果セット
-function setResult(type,val,btn){
-  if(type==='noshi'){
-    noshiResult=val;
-    document.querySelectorAll('#noshi-btns .rbtn').forEach(function(b){b.className='rbtn';});
-  }else{
-    sairyoResult=val;
-    document.querySelectorAll('#sairyo-btns .rbtn').forEach(function(b){b.className='rbtn';});
-  }
-  var cls=val==='win'?'sel-win':val==='martin'?'sel-martin':val==='lose'?'sel-lose':'';
-  if(cls)btn.classList.add(cls);
+// Excel風入力テーブル
+var inputRowId=0;
+var INIT_ROWS=8;
+function mkRsel(id,val){
+  var opts=['<option value="none">—</option>',
+    '<option value="win">○</option>',
+    '<option value="martin">✕○</option>',
+    '<option value="lose">✕✕</option>',
+    '<option value="skip">－</option>'].join('');
+  return '<select id="'+id+'" style="width:100%;padding:4px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit;background:#fff">'+opts+'</select>';
 }
-
-// エントリー追加
-function addEntry(){
-  var pair=ge('f-pair'),time=ge('f-time'),dir=ge('f-dir'),memo=ge('f-memo');
-  if(!pair){showMsg('add-msg','通貨ペアを選択してください','#ee6a50');return;}
-  pendingEntries.push({pair:pair,time:time,dir:dir,noshi:noshiResult,sairyo:sairyoResult,memo:memo});
-  noshiResult='none';sairyoResult='none';
-  document.querySelectorAll('#noshi-btns .rbtn,#sairyo-btns .rbtn').forEach(function(b){b.className='rbtn';});
-  document.getElementById('f-memo').value='';
-  updatePreview();
-  showMsg('add-msg',pair+' '+time+' 追加しました！','#1aaa6a');
+function addInputRows(n){for(var i=0;i<n;i++)addInputRow();}
+function addInputRow(){
+  var tbody=document.getElementById('input-tbody');
+  var rid=inputRowId++;
+  var rowNum=tbody.querySelectorAll('tr').length+1;
+  var tr=document.createElement('tr');
+  tr.id='ir-'+rid;
+  tr.style.borderBottom='1px solid #f0f0f0';
+  tr.innerHTML=
+    '<td style="padding:4px 6px;text-align:center;font-size:11px;color:#aaa">'+rowNum+'</td>'+
+    '<td style="padding:4px"><input id="it-'+rid+'" type="time" style="width:100%;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit"></td>'+
+    '<td style="padding:4px"><select id="idir-'+rid+'" style="width:100%;padding:4px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit;background:#fff"><option value="high">↑HIGH</option><option value="low">↓LOW</option></select></td>'+
+    '<td style="padding:4px">'+mkRsel('in-'+rid)+'</td>'+
+    '<td style="padding:4px">'+mkRsel('is-'+rid)+'</td>'+
+    '<td style="padding:4px"><input id="im-'+rid+'" type="text" placeholder="メモ" style="width:100%;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit"></td>';
+  tbody.appendChild(tr);
 }
-
-function updatePreview(){
-  var el=document.getElementById('entry-preview');
-  if(!pendingEntries.length){el.textContent='エントリーを追加してください';return;}
-  el.innerHTML=pendingEntries.map(function(e,i){
-    return '<div style="padding:3px 0;border-bottom:1px solid #f5f5f5">'+(i+1)+'. '+e.pair+' '+e.time+' '+(e.dir==='high'?'↑HIGH':'↓LOW')+
-      ' 脳死:'+badge(e.noshi)+' 裁量:'+badge(e.sairyo)+'</div>';
-  }).join('');
+function clearInputTable(){
+  document.getElementById('input-tbody').innerHTML='';
+  inputRowId=0;
+  for(var i=0;i<INIT_ROWS;i++)addInputRow();
+}
+function saveInputTable(){
+  var iso=ge('f-date');if(!iso){showMsg('save-msg','日付を選択してください','#ee6a50');return;}
+  var pair=ge('f-pair');if(!pair){showMsg('save-msg','通貨ペアを選択してください','#ee6a50');return;}
+  var rows=document.getElementById('input-tbody').querySelectorAll('tr');
+  var entries=[];
+  rows.forEach(function(tr){
+    var rid=tr.id.replace('ir-','');
+    var time=ge('it-'+rid);
+    var dir=ge('idir-'+rid);
+    var noshi=ge('in-'+rid)||'none';
+    var sairyo=ge('is-'+rid)||'none';
+    var memo=ge('im-'+rid);
+    if(!time&&noshi==='none'&&sairyo==='none')return;
+    entries.push({pair:pair,time:time,dir:dir,noshi:noshi,sairyo:sairyo,memo:memo});
+  });
+  if(!entries.length){showMsg('save-msg','入力データがありません','#ee6a50');return;}
+  var existing=trades.find(function(t){return t.date===iso&&t.pair===pair;});
+  if(existing){existing.entries=existing.entries.concat(entries);}
+  else{trades.unshift({id:Date.now(),date:iso,pair:pair,dateDisplay:fmtDisp(iso),entries:entries});}
+  saveData();renderTodayList();renderDash();
+  showMsg('save-msg',entries.length+'件記録しました！','#1aaa6a');
+  clearInputTable();
 }
 
 function badge(r){
@@ -577,6 +602,81 @@ function showMsg(id,msg,color){
   setTimeout(function(){if(el)el.textContent='';},3000);
 }
 
+var csvData=[];
+function convResult(s){
+  if(!s)return'none';
+  var t=s.trim();
+  if(t==='〇〇'||t==='○○'||t==='OO')return'win';
+  if(t==='✕〇'||t==='✕○'||t==='XO')return'martin';
+  if(t==='✕✕'||t==='XX')return'lose';
+  if(t==='－'||t==='-'||t==='')return'skip';
+  return'none';
+}
+function parseDate(s){
+  if(!s)return null;
+  var t=s.trim().replace(/\(.*\)/,'').trim();
+  var m=t.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if(m)return m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2);
+  return null;
+}
+function parseTime(s){
+  if(!s)return'';
+  var t=s.trim().replace('：',':');
+  var m=t.match(/(\d{1,2}):(\d{2})/);
+  if(m)return('0'+m[1]).slice(-2)+':'+m[2];
+  return t;
+}
+function importCSV(ev){
+  var file=ev.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var text=e.target.result;
+    var lines=text.split(/
+?
+/).filter(function(l){return l.trim();});
+    csvData=[];
+    lines.forEach(function(line){
+      var cols=line.split(',');
+      if(cols.length<4)return;
+      var date=parseDate(cols[0]||cols[1]);
+      if(!date)return;
+      var time=parseTime(cols[2]||cols[3]);
+      var hl=(cols[3]||cols[4]||'').trim().toUpperCase();
+      var dir=hl==='HIGH'||hl==='H'?'high':'low';
+      var noshi=convResult(cols[4]||cols[5]);
+      var sairyo=convResult(cols[5]||cols[6]);
+      csvData.push({date:date,time:time,dir:dir,noshi:noshi,sairyo:sairyo});
+    });
+    if(!csvData.length){showMsg('csv-msg','データが読み込めませんでした','#ee6a50');return;}
+    var prev=document.getElementById('csv-preview');
+    var prevc=document.getElementById('csv-preview-content');
+    prev.style.display='block';
+    prevc.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:11px">'+
+      '<tr style="background:#f5f5f5"><th style="padding:4px">日付</th><th style="padding:4px">時間</th><th style="padding:4px">H/L</th><th style="padding:4px">脳死</th><th style="padding:4px">裁量</th></tr>'+
+      csvData.slice(0,5).map(function(r){
+        return '<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:4px">'+r.date+'</td><td style="padding:4px">'+r.time+'</td><td style="padding:4px">'+(r.dir==='high'?'↑HIGH':'↓LOW')+'</td><td style="padding:4px">'+badge(r.noshi)+'</td><td style="padding:4px">'+badge(r.sairyo)+'</td></tr>';
+      }).join('')+
+    '</table><div style="color:#888;margin-top:4px">計'+csvData.length+'件</div>';
+    showMsg('csv-msg',csvData.length+'件のデータを読み込みました。内容を確認して保存してください。','#5a8aee');
+  };
+  reader.readAsText(file,'UTF-8');
+}
+function csvSave(){
+  if(!csvData.length)return;
+  var pair=ge('csv-pair');
+  var saved=0;
+  csvData.forEach(function(r){
+    var existing=trades.find(function(t){return t.date===r.date&&t.pair===pair;});
+    var entry={pair:pair,time:r.time,dir:r.dir,noshi:r.noshi,sairyo:r.sairyo,memo:''};
+    if(existing){existing.entries.push(entry);}
+    else{trades.unshift({id:Date.now()+Math.random()*1000|0,date:r.date,pair:pair,dateDisplay:fmtDisp(r.date),entries:[entry]});}
+    saved++;
+  });
+  saveData();renderTodayList();renderDash();
+  csvData=[];
+  document.getElementById('csv-preview').style.display='none';
+  showMsg('csv-msg',saved+'件保存しました！','#1aaa6a');
+}
 function saveData(){try{localStorage.setItem('2nd_trades_v1',JSON.stringify(trades));}catch(e){}}
 function loadData(){try{var d=localStorage.getItem('2nd_trades_v1');if(d)trades=JSON.parse(d);}catch(e){}}
 
@@ -600,6 +700,7 @@ function importData(ev){
 }
 
 loadData();renderDash();renderTodayList();
+for(var i=0;i<INIT_ROWS;i++)addInputRow();
 </script>
 </body>
 </html>
