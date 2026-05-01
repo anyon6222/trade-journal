@@ -349,11 +349,29 @@ function loadCSV(ev){
     if(!csvRows.length){msg('cmsg','データが見つかりません','#ee6a50');return;}
     var prev=document.getElementById('cprev');
     prev.style.display='block';
+    // 結果種別カウント
+    var cnt={win:0,martin:0,lose:0,skip:0,none:0};
+    csvRows.forEach(function(r){
+      [r.noshi,r.sairyo].forEach(function(v){if(v&&v!=='none')cnt[v]=(cnt[v]||0)+1;});
+    });
+    // 各種別から1件ずつサンプル抽出してプレビュー
+    var seen={};var samples=[];
+    csvRows.forEach(function(r){
+      ['win','martin','lose'].forEach(function(type){
+        if(!seen[type]&&(r.noshi===type||r.sairyo===type)){seen[type]=true;samples.push(r);}
+      });
+    });
+    if(samples.length<5)samples=samples.concat(csvRows.slice(0,5-samples.length));
     document.getElementById('cprevtbl').innerHTML=
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+
+      '<span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;font-size:12px">○○勝ち '+cnt.win+'</span>'+
+      '<span style="background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:10px;font-size:12px">✕○マーチン '+cnt.martin+'</span>'+
+      '<span style="background:#fce4ec;color:#c62828;padding:2px 8px;border-radius:10px;font-size:12px">✕✕負け '+cnt.lose+'</span>'+
+      '</div>'+
       '<table style="min-width:360px;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.06)">'+
       '<thead><tr><th>日付</th><th>時間</th><th>H/L</th><th>脳死</th><th>裁量</th></tr></thead>'+
-      '<tbody>'+csvRows.slice(0,5).map(function(r){return'<tr><td>'+r.date+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='high'?'↑H':'↓L')+'</td><td>'+bdg(r.noshi)+'</td><td>'+bdg(r.sairyo)+'</td></tr>';}).join('')+'</tbody></table>'+
-      '<div style="color:#888;font-size:11px;margin-top:4px">計'+csvRows.length+'件</div>';
+      '<tbody>'+samples.map(function(r){return'<tr><td>'+r.date+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='high'?'↑H':'↓L')+'</td><td>'+bdg(r.noshi)+'</td><td>'+bdg(r.sairyo)+'</td></tr>';}).join('')+'</tbody></table>'+
+      '<div style="color:#888;font-size:11px;margin-top:4px">計'+csvRows.length+'件（各種別サンプル表示）</div>';
     msg('cmsg',csvRows.length+'件読み込みました','#5a8aee');
   };
   reader.readAsText(file,'UTF-8');
