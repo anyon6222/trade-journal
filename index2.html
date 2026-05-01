@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-L</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-N</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -672,7 +672,7 @@ function runAI(){
       .sort(function(a,b){return b.wr-a.wr||b.t-a.t;});
     if(wdtRanked.length>0){
       var topWDT=wdtRanked.slice(0,8);
-      var botWDT=wdtRanked.slice(-3).reverse();
+      var botWDT=wdtRanked.filter(function(r){return r.wr<50;}).slice(-3).reverse();
       var medals=['🥇','🥈','🥉'];
       var rankHtml=topWDT.map(function(r,i){
         var c=r.wr>=70?'#1aaa6a':r.wr>=60?'#5a8aee':r.wr>=50?'#888':'#ee6a50';
@@ -687,9 +687,12 @@ function runAI(){
           '<span style="color:#ee6a50;font-weight:500">'+r.wr+'%<span style="font-size:10px;color:#aaa;font-weight:normal;margin-left:4px">'+r.t+'件</span></span>'+
         '</div>';
       }).join('');
-      items.push('📅 <b>曜日×時間 ランキング（脳死1M込み・3件以上）</b>'+
-        '<div style="margin-top:6px">'+rankHtml+'</div>'+
-        (botWDT.length?'<div style="margin-top:8px;font-size:11px;color:#888;margin-bottom:4px">⚠️ 避けたいパターン</div><div>'+botHtml+'</div>':''));
+      var wdtOut='<div style="margin-top:6px">'+rankHtml+'</div>';
+      if(botWDT.length){
+        var botHtml2=botWDT.map(function(r){return'<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0"><span style="font-size:11px;color:#888">'+r.k+'</span><span style="color:#ee6a50;font-weight:500">'+r.wr+'%<span style="font-size:10px;color:#aaa;font-weight:normal;margin-left:3px">'+r.t+'件</span></span></div>';}).join('');
+        wdtOut+='<div style="margin-top:8px;font-size:11px;color:#888;margin-bottom:4px">⚠️ 避けたいパターン（50%未満）</div><div>'+botHtml2+'</div>';
+      }
+      items.push('📅 <b>曜日×時間 ランキング（脳死1M込み・3件以上）</b>'+wdtOut);
     }
     // 🏆 最強パターンランキング（時間×H/L×曜日 3件以上）
     var WD2=['月','火','水','木','金'];
