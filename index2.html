@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-K</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-L</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -690,6 +690,47 @@ function runAI(){
       items.push('📅 <b>曜日×時間 ランキング（脳死1M込み・3件以上）</b>'+
         '<div style="margin-top:6px">'+rankHtml+'</div>'+
         (botWDT.length?'<div style="margin-top:8px;font-size:11px;color:#888;margin-bottom:4px">⚠️ 避けたいパターン</div><div>'+botHtml+'</div>':''));
+    }
+    // 🏆 最強パターンランキング（時間×H/L×曜日 3件以上）
+    var WD2=['月','火','水','木','金'];
+    var ptnMap={};
+    ae.forEach(function(e){
+      var rn=e.noshi;if(!rn||rn==='none')return;
+      if(e.time&&e.dir&&e.date){
+        var wd=WD[new Date(e.date).getDay()];
+        if(WD2.indexOf(wd)<0)return;
+        var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));
+        var slot=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);
+        var k=wd+'曜 '+slot+' '+(e.dir==='high'?'↑H':'↓L');
+        if(!ptnMap[k])ptnMap[k]={w:0,m:0,t:0};
+        ptnMap[k].t++;if(rn==='win'){ptnMap[k].w++;ptnMap[k].m++;}else if(rn==='martin')ptnMap[k].m++;
+      }
+    });
+    var ptnRanked=Object.keys(ptnMap).filter(function(k){return ptnMap[k].t>=3;})
+      .map(function(k){var v=ptnMap[k];return{k:k,wr:Math.round(v.m/v.t*100),t:v.t};})
+      .sort(function(a,b){return b.wr-a.wr||b.t-a.t;});
+    if(ptnRanked.length>0){
+      var medals=['🥇','🥈','🥉'];
+      var topPtn=ptnRanked.slice(0,10);
+      var botPtn=ptnRanked.filter(function(r){return r.wr<50;}).slice(-5).reverse();
+      var topHtml=topPtn.map(function(r,i){
+        var c=r.wr>=75?'#ee8800':r.wr>=65?'#1aaa6a':r.wr>=55?'#5a8aee':'#888';
+        return'<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0">'+
+          '<span style="font-size:12px">'+(i<3?medals[i]:'<span style="color:#aaa;font-size:11px">'+(i+1)+'位</span>')+' <b>'+r.k+'</b></span>'+
+          '<span style="font-weight:700;font-size:14px;color:'+c+'">'+r.wr+'%<span style="font-size:10px;color:#aaa;font-weight:normal;margin-left:4px">'+r.t+'件</span></span>'+
+        '</div>';
+      }).join('');
+      var rankBlock='<div style="margin-top:6px">'+topHtml+'</div>';
+      if(botPtn.length){
+        var botHtml=botPtn.map(function(r){
+          return'<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0">'+
+            '<span style="font-size:11px;color:#888">'+r.k+'</span>'+
+            '<span style="color:#ee6a50;font-weight:500">'+r.wr+'%<span style="font-size:10px;color:#aaa;font-weight:normal;margin-left:3px">'+r.t+'件</span></span>'+
+          '</div>';
+        }).join('');
+        rankBlock+='<div style="margin-top:10px;font-size:11px;color:#888;margin-bottom:4px">⚠️ 避けたいパターン（50%未満）</div><div>'+botHtml+'</div>';
+      }
+      items.push('🏆 <b>最強パターンランキング（曜日×時間×H/L・脳死1M込み・3件以上）</b>'+rankBlock);
     }
     el.innerHTML='<div class="ai-out">'+items.map(function(s){return'<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">'+s+'</div>';}).join('')+'</div>';
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
