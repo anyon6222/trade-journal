@@ -50,7 +50,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-H</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-I</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -395,6 +395,25 @@ function runCond(){
         '<div style="font-size:11px;color:#aaa">1M込み / '+ss.t+'件</div></div>'+
     '</div>'+comment+'</div>';
 }
+function wrColor(pct){
+  if(pct>=100)return'#cc0000';
+  if(pct>=85)return'#ee4400';
+  if(pct>=75)return'#ee8800';
+  if(pct>=65)return'#5a8aee';
+  return'#888';
+}
+function fmtAI(txt){
+  // %を色付きに変換
+  txt=txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  txt=txt.replace(/(\d+)%/g,function(m,n){
+    var p=parseInt(n);
+    return'<b style="color:'+wrColor(p)+'">'+n+'%</b>';
+  });
+  // 改行をbrに
+  txt=txt.replace(/
+/g,'<br>');
+  return txt;
+}
 function runAI(){
   var btn=document.getElementById('ai-btn'),el=document.getElementById('ai-result');
   var ae=[];fp(db,ap).forEach(function(t){ae=ae.concat(t.entries);});
@@ -422,13 +441,15 @@ function runAI(){
   fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    body:JSON.stringify({model:'claude-sonnet-4-5-20251001',max_tokens:1000,messages:[{role:'user',content:prompt}]})
   }).then(function(r){return r.json();}).then(function(d){
-    var txt=d.content&&d.content[0]&&d.content[0].text?d.content[0].text:'分析結果を取得できませんでした。';
-    el.innerHTML='<div class="ai-out">'+txt.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</div>';
+    if(d.error){el.innerHTML='<div class="ai-out" style="color:#ee6a50">エラー: '+d.error.message+'</div>';btn.textContent='✨ AI分析を実行する';btn.disabled=false;return;}
+    var txt=d.content&&d.content[0]&&d.content[0].text?d.content[0].text:'';
+    if(!txt){el.innerHTML='<div class="ai-out" style="color:#ee6a50">応答が空でした。</div>';btn.textContent='✨ AI分析を実行する';btn.disabled=false;return;}
+    el.innerHTML='<div class="ai-out">'+fmtAI(txt)+'</div>';
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
-  }).catch(function(){
-    el.innerHTML='<div class="ai-out" style="color:#ee6a50">通信エラーが発生しました。</div>';
+  }).catch(function(err){
+    el.innerHTML='<div class="ai-out" style="color:#ee6a50">通信エラー: '+err+'</div>';
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
   });
 }
