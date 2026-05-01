@@ -16,36 +16,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .panel{display:none;padding:12px;max-width:900px;margin:0 auto}
 .panel.active{display:block}
 .card{background:#fff;border-radius:12px;padding:13px 15px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px}
-.sub-tabs{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1px solid #e0e0e0;margin-bottom:10px}
-.sub-tab{flex:1;padding:8px;font-size:12px;cursor:pointer;border:none;background:#fff;color:#888;font-family:inherit;text-align:center}
-.sub-tab.active{background:#1a1a2e;color:#fff;font-weight:500}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
-.form-row.three{grid-template-columns:1fr 1fr 1fr}
 .form-group label{font-size:11px;color:#888;display:block;margin-bottom:3px}
-.form-group select,.form-group input{width:100%;padding:8px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;background:#fff}
-.rbtn-group{display:flex;gap:6px}
-.rbtn{padding:7px 14px;font-size:12px;border:1px solid #ddd;border-radius:8px;cursor:pointer;background:#fff;font-family:inherit}
-.rbtn.sel-win{background:#e8f8f0;border-color:#1aaa6a;color:#1aaa6a;font-weight:500}
-.rbtn.sel-martin{background:#fff8e8;border-color:#f0a020;color:#f0a020;font-weight:500}
-.rbtn.sel-lose{background:#fff0ee;border-color:#ee6a50;color:#ee6a50;font-weight:500}
-.btn{padding:10px 20px;font-size:13px;border-radius:8px;cursor:pointer;border:none;font-family:inherit;font-weight:500}
-.btn.primary{background:#1a1a2e;color:#fff}
-.btn.secondary{background:#fff;color:#1a1a2e;border:1px solid #1a1a2e}
-.btn-row{display:flex;gap:8px;margin-top:10px}
-.today-list{margin-top:10px}
-.today-item{background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;align-items:flex-start;gap:8px}
-.today-num{background:#1a1a2e;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
-.today-body{flex:1;font-size:12px;line-height:1.7}
-.today-del{font-size:11px;padding:3px 7px;cursor:pointer;border:1px solid #ddd;border-radius:6px;background:#fff;color:#aaa;white-space:nowrap;flex-shrink:0}
-.today-del:hover{border-color:#ee6a50;color:#ee6a50}
-.wr-block{background:linear-gradient(135deg,#f5f0ff,#ffe8f0);border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:13px}
 .win-c{color:#1aaa6a}
 .lose-c{color:#ee6a50}
 .martin-c{color:#5a8aee}
+.wr-block{background:linear-gradient(135deg,#f5f0ff,#ffe8f0);border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:13px}
 .dash{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
 .dash-card{background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
 .dash-num{font-size:22px;font-weight:600}
 .dash-lbl{font-size:10px;color:#888;margin-top:3px}
+.today-item{background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,0.06);display:flex;align-items:flex-start;gap:8px}
+.today-num{background:#1a1a2e;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.today-body{flex:1;font-size:12px;line-height:1.7}
+.today-del{font-size:11px;padding:3px 7px;cursor:pointer;border:1px solid #ddd;border-radius:6px;background:#fff;color:#aaa;flex-shrink:0}
+.today-del:hover{border-color:#ee6a50;color:#ee6a50}
+.ptabs{display:flex;gap:5px;margin-bottom:11px;flex-wrap:wrap}
+.ptab{padding:5px 11px;font-size:12px;border:1px solid #e0e0e0;border-radius:20px;cursor:pointer;background:#fff;color:#888;font-family:inherit}
+.ptab.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
+.stat-item{background:#f8f8ff;border-radius:8px;padding:10px;text-align:center}
+.stat-pct{font-size:20px;font-weight:600}
+.stat-det{font-size:10px;color:#888;margin-top:2px}
 .xl-wrap{overflow-x:auto;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
 .xl-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;min-width:400px}
 .xl-table th{background:#1a1a2e;color:#fff;padding:8px 10px;text-align:left;font-size:11px;font-weight:500;white-space:nowrap;vertical-align:top}
@@ -53,43 +44,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .xl-table td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
 .xl-table tr:last-child td{border-bottom:none}
 .xl-table tr:hover td{background:#f8fff8}
-.ptabs{display:flex;gap:5px;margin-bottom:11px;flex-wrap:wrap}
-.ptab{padding:5px 11px;font-size:12px;border:1px solid #e0e0e0;border-radius:20px;cursor:pointer;background:#fff;color:#888;font-family:inherit}
-.ptab.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
-.stat-card{background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:8px}
-.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
-.stat-item{background:#f8f8ff;border-radius:8px;padding:10px;text-align:center}
-.stat-pct{font-size:20px;font-weight:600}
-.stat-det{font-size:10px;color:#888;margin-top:2px}
-.ana-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f5f5f5;font-size:12px}
-.ana-row:last-child{border-bottom:none}
 .bar-wrap{width:60px;background:#f0f0f0;border-radius:4px;height:5px;display:inline-block;vertical-align:middle;margin-left:6px}
 .bar-fill{height:5px;border-radius:4px;display:inline-block;background:#1aaa6a}
-.bulk-table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px}
-.bulk-table th{background:#1a1a2e;color:#fff;padding:7px 8px;text-align:left;font-size:11px;white-space:nowrap}
-.bulk-table td{padding:3px 4px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
-.bulk-inp{width:100%;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-size:11px;font-family:inherit;box-sizing:border-box}
-.bulk-sel{width:100%;padding:4px 4px;border:1px solid #e0e0e0;border-radius:6px;font-size:11px;font-family:inherit;background:#fff}
+.inp-tbl{width:100%;border-collapse:collapse;font-size:12px;min-width:400px}
+.inp-tbl th{background:#1a1a2e;color:#fff;padding:8px;text-align:center;font-size:11px;font-weight:500}
+.inp-tbl td{padding:3px 3px;border-bottom:1px solid #f0f0f0}
+.inp-tbl tr:nth-child(even) td{background:#fafafa}
+.inp-sel{width:100%;padding:4px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit;background:#fff}
+.inp-time{width:100%;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit}
+.inp-txt{width:100%;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit}
 </style>
 </head>
 <body>
 <div class="header">
   <h1>2ND トレード記録</h1>
-  <span class="ver">v2026.05.01-A</span>
+  <span class="ver">v2026.05.01-B</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showTab('input')">入力</button>
   <button class="main-tab" onclick="showTab('history')">履歴</button>
   <button class="main-tab" onclick="showTab('analysis')">分析</button>
-  <button class="main-tab" onclick="showTab('bulk')">一括入力</button>
+  <button class="main-tab" onclick="showTab('bulk')">一括・CSV</button>
 </div>
 
 <!-- 入力タブ -->
 <div id="tab-input" class="panel active">
   <div class="dash" id="dash"></div>
   <div class="card">
-    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">📝 一括入力</div>
-    <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:flex-end">
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">📝 Excel風一括入力</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:flex-end">
       <div class="form-group" style="flex:1;min-width:130px">
         <label>📅 日付</label>
         <input type="date" id="f-date" style="width:100%;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit">
@@ -97,110 +80,70 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="form-group" style="flex:1;min-width:120px">
         <label>💱 通貨ペア</label>
         <select id="f-pair" style="width:100%;padding:7px 10px;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;background:#fff">
-          <option value="USD/JPY">USD/JPY</option>
-          <option value="GBP/JPY">GBP/JPY</option>
-          <option value="EUR/JPY">EUR/JPY</option>
-          <option value="EUR/USD">EUR/USD</option>
-          <option value="AUD/USD">AUD/USD</option>
-          <option value="AUD/JPY">AUD/JPY</option>
-          <option value="NZD/JPY">NZD/JPY</option>
+          <option>USD/JPY</option><option>GBP/JPY</option><option>EUR/JPY</option>
+          <option>EUR/USD</option><option>AUD/USD</option><option>AUD/JPY</option><option>NZD/JPY</option>
         </select>
       </div>
-      <div id="date-disp" style="font-size:12px;color:#888;align-self:center"></div>
     </div>
     <div style="overflow-x:auto">
-      <table id="input-tbl" style="width:100%;border-collapse:collapse;font-size:12px;min-width:420px">
-        <thead>
-          <tr style="background:#1a1a2e;color:#fff">
-            <th style="padding:8px;text-align:center;font-weight:500;width:30px">#</th>
-            <th style="padding:8px;text-align:left;font-weight:500;min-width:65px">時間</th>
-            <th style="padding:8px;text-align:center;font-weight:500;min-width:80px">H/L</th>
-            <th style="padding:8px;text-align:center;font-weight:500;min-width:110px">🧠 脳死</th>
-            <th style="padding:8px;text-align:center;font-weight:500;min-width:110px">🎯 裁量</th>
-            <th style="padding:8px;text-align:left;font-weight:500;min-width:80px">メモ</th>
-          </tr>
-        </thead>
-        <tbody id="input-tbody"></tbody>
+      <table class="inp-tbl">
+        <thead><tr>
+          <th style="width:30px">#</th>
+          <th style="min-width:70px">時間</th>
+          <th style="min-width:85px">H/L</th>
+          <th style="min-width:100px">🧠 脳死</th>
+          <th style="min-width:100px">🎯 裁量</th>
+          <th style="min-width:80px">メモ</th>
+        </tr></thead>
+        <tbody id="inp-tbody"></tbody>
       </table>
     </div>
     <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-      <button onclick="addInputRows(5)" style="padding:7px 14px;font-size:12px;border-radius:8px;border:1px solid #1a1a2e;background:#fff;color:#1a1a2e;cursor:pointer;font-family:inherit">＋ 5行追加</button>
-      <button onclick="saveInputTable()" style="padding:7px 20px;font-size:12px;border-radius:8px;border:none;background:#1a1a2e;color:#fff;cursor:pointer;font-family:inherit;font-weight:500">💾 記録する</button>
-      <button onclick="clearInputTable()" style="padding:7px 14px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#aaa;cursor:pointer;font-family:inherit">クリア</button>
+      <button onclick="addRows(5)" style="padding:7px 14px;font-size:12px;border-radius:8px;border:1px solid #1a1a2e;background:#fff;color:#1a1a2e;cursor:pointer;font-family:inherit">＋ 5行追加</button>
+      <button onclick="saveTable()" style="padding:7px 20px;font-size:12px;border-radius:8px;border:none;background:#1a1a2e;color:#fff;cursor:pointer;font-family:inherit;font-weight:500">💾 記録する</button>
+      <button onclick="clearTable()" style="padding:7px 14px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#aaa;cursor:pointer;font-family:inherit">クリア</button>
     </div>
     <div id="save-msg" style="font-size:12px;margin-top:6px;color:#1aaa6a;min-height:16px"></div>
   </div>
   <div id="today-wr" class="wr-block" style="display:none"></div>
-  <div id="today-list" class="today-list"></div>
+  <div id="today-list"></div>
 </div>
 
 <!-- 履歴タブ -->
 <div id="tab-history" class="panel">
-  <div class="ptabs" id="hist-ptabs">
-    <button class="ptab active" onclick="setPeriod('all')">累計</button>
-    <button class="ptab" onclick="setPeriod('today')">本日</button>
-    <button class="ptab" onclick="setPeriod('week')">1週間</button>
-    <button class="ptab" onclick="setPeriod('month')">月間</button>
+  <div class="ptabs">
+    <button class="ptab active" onclick="setPeriod('all','hist')">累計</button>
+    <button class="ptab" onclick="setPeriod('week','hist')">1週間</button>
+    <button class="ptab" onclick="setPeriod('month','hist')">月間</button>
   </div>
   <div id="hist-content"></div>
 </div>
 
 <!-- 分析タブ -->
 <div id="tab-analysis" class="panel">
-  <div class="ptabs" id="ana-ptabs">
-    <button class="ptab active" onclick="setAnaPeriod('all')">累計</button>
-    <button class="ptab" onclick="setAnaPeriod('today')">本日</button>
-    <button class="ptab" onclick="setAnaPeriod('week')">1週間</button>
-    <button class="ptab" onclick="setAnaPeriod('month')">月間</button>
+  <div class="ptabs">
+    <button class="ptab active" onclick="setPeriod('all','ana')">累計</button>
+    <button class="ptab" onclick="setPeriod('week','ana')">1週間</button>
+    <button class="ptab" onclick="setPeriod('month','ana')">月間</button>
   </div>
   <div id="ana-content"></div>
 </div>
 
-<!-- 一括入力タブ -->
+<!-- 一括・CSVタブ -->
 <div id="tab-bulk" class="panel">
   <div class="card">
-    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">📋 過去データ一括入力</div>
-    <div style="font-size:12px;color:#888;margin-bottom:10px">日付・通貨・時間・H/L・脳死結果・裁量結果を入力して一括保存できます</div>
-    <div style="overflow-x:auto">
-      <table class="bulk-table" id="bulk-tbl">
-        <thead><tr>
-          <th style="min-width:90px">日付</th>
-          <th style="min-width:80px">通貨ペア</th>
-          <th style="min-width:65px">時間</th>
-          <th style="min-width:60px">H/L</th>
-          <th style="min-width:65px">脳死</th>
-          <th style="min-width:65px">裁量</th>
-          <th style="min-width:80px">メモ</th>
-          <th style="min-width:30px"></th>
-        </tr></thead>
-        <tbody id="bulk-tbody"></tbody>
-      </table>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-      <button onclick="bulkAdd()" style="padding:7px 14px;font-size:12px;border-radius:8px;border:1px solid #1a1a2e;background:#fff;color:#1a1a2e;cursor:pointer;font-family:inherit">＋ 行を追加</button>
-      <button onclick="bulkSave()" style="padding:7px 14px;font-size:12px;border-radius:8px;border:none;background:#1aaa6a;color:#fff;cursor:pointer;font-family:inherit">💾 一括保存</button>
-      <button onclick="bulkClear()" style="padding:7px 14px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#aaa;cursor:pointer;font-family:inherit">クリア</button>
-    </div>
-    <div id="bulk-msg" style="font-size:12px;margin-top:6px;color:#1aaa6a;min-height:16px"></div>
-  </div>
-  <div class="card">
-    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">📊 CSVインポート（スプレッドシートから）</div>
-    <div style="font-size:12px;color:#888;margin-bottom:8px;line-height:1.6">
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:8px">📊 CSVインポート</div>
+    <div style="font-size:12px;color:#888;margin-bottom:10px;line-height:1.6">
       スプレッドシートをCSV保存して読み込めます。<br>
       列の順番：<b>日付 / 時間 / H or L / 脳死結果 / 裁量結果</b><br>
       結果は「〇〇」「✕〇」「✕✕」で入力してください。
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;align-items:flex-end">
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:flex-end">
       <div class="form-group" style="min-width:120px">
         <label>通貨ペア</label>
         <select id="csv-pair" style="width:100%;padding:7px;border:1px solid #e0e0e0;border-radius:8px;font-size:12px;font-family:inherit;background:#fff">
-          <option value="USD/JPY">USD/JPY</option>
-          <option value="GBP/JPY">GBP/JPY</option>
-          <option value="EUR/JPY">EUR/JPY</option>
-          <option value="EUR/USD">EUR/USD</option>
-          <option value="AUD/USD">AUD/USD</option>
-          <option value="AUD/JPY">AUD/JPY</option>
-          <option value="NZD/JPY">NZD/JPY</option>
+          <option>USD/JPY</option><option>GBP/JPY</option><option>EUR/JPY</option>
+          <option>EUR/USD</option><option>AUD/USD</option><option>AUD/JPY</option><option>NZD/JPY</option>
         </select>
       </div>
       <label style="padding:8px 16px;font-size:12px;border-radius:8px;cursor:pointer;border:1px solid #7c6af7;background:#fff;color:#7c6af7;font-family:inherit">
@@ -208,12 +151,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <input type="file" accept=".csv,.txt" onchange="importCSV(event)" style="display:none">
       </label>
     </div>
-    <div id="csv-preview" style="font-size:12px;margin-bottom:8px;display:none">
-      <div style="font-weight:500;color:#1a1a2e;margin-bottom:4px">プレビュー（最初の5件）</div>
-      <div id="csv-preview-content"></div>
+    <div id="csv-preview" style="display:none">
+      <div style="font-size:12px;font-weight:500;color:#1a1a2e;margin-bottom:6px">プレビュー</div>
+      <div id="csv-preview-content" style="font-size:11px"></div>
       <button onclick="csvSave()" style="margin-top:8px;padding:7px 20px;font-size:12px;border-radius:8px;border:none;background:#1aaa6a;color:#fff;cursor:pointer;font-family:inherit">💾 この内容で保存</button>
     </div>
-    <div id="csv-msg" style="font-size:12px;color:#1aaa6a;min-height:16px"></div>
+    <div id="csv-msg" style="font-size:12px;color:#1aaa6a;margin-top:6px;min-height:16px"></div>
   </div>
   <div class="card">
     <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">💾 データ管理</div>
@@ -229,18 +172,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 var PAIRS=['USD/JPY','GBP/JPY','EUR/JPY','EUR/USD','AUD/USD','AUD/JPY','NZD/JPY'];
 var WD=['日','月','火','水','木','金','土'];
 var trades=[];
-var curPeriod='all';
-var curAnaPeriod='all';
-var pendingEntries=[];
-var bulkRowId=0;
+var histPeriod='all';
+var anaPeriod='all';
+var rowId=0;
+var csvData=[];
 
 function ge(id){var el=document.getElementById(id);return el?el.value:'';}
 function pad(n){return('0'+n).slice(-2);}
 function today(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
-function fmtDisp(iso){
-  var p=iso.split('-');var dt=new Date(iso+'T00:00:00');
-  return p[0]+'年'+p[1]+'月'+p[2]+'日（'+WD[dt.getDay()]+'）';
-}
+function fmtDisp(iso){var p=iso.split('-');var dt=new Date(iso+'T00:00:00');return p[0]+'年'+p[1]+'月'+p[2]+'日（'+WD[dt.getDay()]+'）';}
+function showMsg(id,msg,color){var el=document.getElementById(id);if(el){el.textContent=msg;el.style.color=color||'#1aaa6a';}setTimeout(function(){if(el)el.textContent='';},3000);}
 
 function showTab(t){
   document.querySelectorAll('.main-tab').forEach(function(b,i){b.classList.toggle('active',['input','history','analysis','bulk'][i]===t);});
@@ -250,85 +191,59 @@ function showTab(t){
   if(t==='analysis')renderAnalysis();
 }
 
-function setPeriod(p){
-  curPeriod=p;
-  document.querySelectorAll('#hist-ptabs .ptab').forEach(function(b){
-    b.classList.toggle('active',b.textContent==={all:'累計',today:'本日',week:'1週間',month:'月間'}[p]);
-  });
-  renderHistory();
-}
-function setAnaPeriod(p){
-  curAnaPeriod=p;
-  document.querySelectorAll('#ana-ptabs .ptab').forEach(function(b){
-    b.classList.toggle('active',b.textContent==={all:'累計',today:'本日',week:'1週間',month:'月間'}[p]);
-  });
-  renderAnalysis();
+function setPeriod(p,tab){
+  if(tab==='hist'){histPeriod=p;renderHistory();}
+  else{anaPeriod=p;renderAnalysis();}
+  var pid=tab==='hist'?'#tab-history .ptab':'#tab-analysis .ptab';
+  var lbl={all:'累計',week:'1週間',month:'月間'};
+  document.querySelectorAll(pid).forEach(function(b){b.classList.toggle('active',b.textContent===lbl[p]);});
 }
 
 function filterPeriod(list,period){
   var now=new Date();var td=today();
   return list.filter(function(t){
-    var d=t.date;
-    if(period==='today')return d===td;
-    if(period==='week'){var w=new Date(now);w.setDate(w.getDate()-7);return d>=w.toISOString().slice(0,10);}
-    if(period==='month'){var m=new Date(now);m.setDate(m.getDate()-30);return d>=m.toISOString().slice(0,10);}
+    if(period==='today')return t.date===td;
+    if(period==='week'){var w=new Date(now);w.setDate(w.getDate()-7);return t.date>=w.toISOString().slice(0,10);}
+    if(period==='month'){var m=new Date(now);m.setDate(m.getDate()-30);return t.date>=m.toISOString().slice(0,10);}
     return true;
   });
 }
 
-// 日付更新
-document.getElementById('f-date').addEventListener('change',function(){
-  var iso=this.value;
-  document.getElementById('date-disp').textContent=iso?fmtDisp(iso):'';
-});
-document.getElementById('f-date').value=today();
-document.getElementById('date-disp').textContent=fmtDisp(today());
-
-// Excel風入力テーブル
-var inputRowId=0;
-var INIT_ROWS=8;
-function mkRsel(id,val){
-  var opts=['<option value="none">—</option>',
-    '<option value="win">○</option>',
-    '<option value="martin">✕○</option>',
-    '<option value="lose">✕✕</option>',
-    '<option value="skip">－</option>'].join('');
-  return '<select id="'+id+'" style="width:100%;padding:4px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit;background:#fff">'+opts+'</select>';
-}
-function addInputRows(n){for(var i=0;i<n;i++)addInputRow();}
-function addInputRow(){
-  var tbody=document.getElementById('input-tbody');
-  var rid=inputRowId++;
-  var rowNum=tbody.querySelectorAll('tr').length+1;
+// Excel風テーブル
+function addRows(n){for(var i=0;i<n;i++)addRow();}
+function addRow(){
+  var tbody=document.getElementById('inp-tbody');
+  var rid=rowId++;
+  var num=tbody.querySelectorAll('tr').length+1;
+  var rOpts='<option value="none">—</option><option value="win">○</option><option value="martin">✕○</option><option value="lose">✕✕</option><option value="skip">－</option>';
   var tr=document.createElement('tr');
-  tr.id='ir-'+rid;
-  tr.style.borderBottom='1px solid #f0f0f0';
+  tr.id='row-'+rid;
   tr.innerHTML=
-    '<td style="padding:4px 6px;text-align:center;font-size:11px;color:#aaa">'+rowNum+'</td>'+
-    '<td style="padding:4px"><input id="it-'+rid+'" type="time" style="width:100%;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit"></td>'+
-    '<td style="padding:4px"><select id="idir-'+rid+'" style="width:100%;padding:4px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit;background:#fff"><option value="high">↑HIGH</option><option value="low">↓LOW</option></select></td>'+
-    '<td style="padding:4px">'+mkRsel('in-'+rid)+'</td>'+
-    '<td style="padding:4px">'+mkRsel('is-'+rid)+'</td>'+
-    '<td style="padding:4px"><input id="im-'+rid+'" type="text" placeholder="メモ" style="width:100%;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit"></td>';
+    '<td style="text-align:center;font-size:11px;color:#aaa;padding:3px 6px">'+num+'</td>'+
+    '<td style="padding:3px"><input id="rt-'+rid+'" type="time" class="inp-time"></td>'+
+    '<td style="padding:3px"><select id="rd-'+rid+'" class="inp-sel"><option value="high">↑HIGH</option><option value="low">↓LOW</option></select></td>'+
+    '<td style="padding:3px"><select id="rn-'+rid+'" class="inp-sel">'+rOpts+'</select></td>'+
+    '<td style="padding:3px"><select id="rs-'+rid+'" class="inp-sel">'+rOpts+'</select></td>'+
+    '<td style="padding:3px"><input id="rm-'+rid+'" type="text" class="inp-txt" placeholder="メモ"></td>';
   tbody.appendChild(tr);
 }
-function clearInputTable(){
-  document.getElementById('input-tbody').innerHTML='';
-  inputRowId=0;
-  for(var i=0;i<INIT_ROWS;i++)addInputRow();
+function clearTable(){
+  document.getElementById('inp-tbody').innerHTML='';
+  rowId=0;
+  addRows(8);
 }
-function saveInputTable(){
+function saveTable(){
   var iso=ge('f-date');if(!iso){showMsg('save-msg','日付を選択してください','#ee6a50');return;}
-  var pair=ge('f-pair');if(!pair){showMsg('save-msg','通貨ペアを選択してください','#ee6a50');return;}
-  var rows=document.getElementById('input-tbody').querySelectorAll('tr');
+  var pair=ge('f-pair');
+  var rows=document.getElementById('inp-tbody').querySelectorAll('tr');
   var entries=[];
   rows.forEach(function(tr){
-    var rid=tr.id.replace('ir-','');
-    var time=ge('it-'+rid);
-    var dir=ge('idir-'+rid);
-    var noshi=ge('in-'+rid)||'none';
-    var sairyo=ge('is-'+rid)||'none';
-    var memo=ge('im-'+rid);
+    var rid=tr.id.replace('row-','');
+    var time=ge('rt-'+rid);
+    var dir=ge('rd-'+rid);
+    var noshi=ge('rn-'+rid)||'none';
+    var sairyo=ge('rs-'+rid)||'none';
+    var memo=ge('rm-'+rid);
     if(!time&&noshi==='none'&&sairyo==='none')return;
     entries.push({pair:pair,time:time,dir:dir,noshi:noshi,sairyo:sairyo,memo:memo});
   });
@@ -338,40 +253,15 @@ function saveInputTable(){
   else{trades.unshift({id:Date.now(),date:iso,pair:pair,dateDisplay:fmtDisp(iso),entries:entries});}
   saveData();renderTodayList();renderDash();
   showMsg('save-msg',entries.length+'件記録しました！','#1aaa6a');
-  clearInputTable();
+  clearTable();
 }
 
 function badge(r){
-  if(r==='win')return'<span style="color:#1aaa6a">○</span>';
-  if(r==='martin')return'<span style="color:#5a8aee">✕○</span>';
-  if(r==='lose')return'<span style="color:#ee6a50">✕✕</span>';
-  return'<span style="color:#ccc">－</span>';
-}
-
-function clearForm(){
-  noshiResult='none';sairyoResult='none';
-  document.querySelectorAll('#noshi-btns .rbtn,#sairyo-btns .rbtn').forEach(function(b){b.className='rbtn';});
-  document.getElementById('f-memo').value='';
-}
-
-function resetAll(){
-  pendingEntries=[];
-  clearForm();
-  updatePreview();
-}
-
-// 記録する
-function saveTrade(){
-  if(!pendingEntries.length){showMsg('save-msg','エントリーを追加してください','#ee6a50');return;}
-  var iso=ge('f-date');if(!iso){showMsg('save-msg','日付を選択してください','#ee6a50');return;}
-  var rec={id:Date.now(),date:iso,dateDisplay:fmtDisp(iso),entries:pendingEntries.slice()};
-  trades.unshift(rec);
-  saveData();
-  pendingEntries=[];
-  updatePreview();
-  renderTodayList();
-  renderDash();
-  showMsg('save-msg','記録しました！','#1aaa6a');
+  if(r==='win')return'<span class="win-c">○</span>';
+  if(r==='martin')return'<span class="martin-c">✕○</span>';
+  if(r==='lose')return'<span class="lose-c">✕✕</span>';
+  if(r==='skip')return'<span style="color:#ccc">－</span>';
+  return'<span style="color:#eee">—</span>';
 }
 
 function calcWR(entries,type){
@@ -383,21 +273,21 @@ function calcWR(entries,type){
     t++;
     if(r==='win'){ws++;wm++;}
     else if(r==='martin'){l++;wm++;}
-    else if(r==='lose'){l++;}
+    else{l++;}
   });
   return{t:t,ws:ws,wm:wm,l:l,sk:sk,s:t?Math.round(ws/t*100):0,m:t?Math.round(wm/t*100):0};
 }
 
 function renderDash(){
   var td=today();
-  var todayTrades=trades.filter(function(t){return t.date===td;});
-  var allE=[];todayTrades.forEach(function(t){allE=allE.concat(t.entries);});
+  var todayT=trades.filter(function(t){return t.date===td;});
+  var allE=[];todayT.forEach(function(t){allE=allE.concat(t.entries);});
   var sn=calcWR(allE,'noshi'),ss=calcWR(allE,'sairyo');
   document.getElementById('dash').innerHTML=
-    '<div class="dash-card"><div class="dash-num">'+todayTrades.length+'</div><div class="dash-lbl">本日の記録</div></div>'+
-    '<div class="dash-card"><div class="dash-num '+(sn.m>=60?'win-c':sn.m>=50?'martin-c':'lose-c')+'">'+(sn.t?sn.m+'%':'—')+'</div><div class="dash-lbl">脳死1M込み勝率</div></div>'+
-    '<div class="dash-card"><div class="dash-num '+(ss.m>=60?'win-c':ss.m>=50?'martin-c':'lose-c')+'">'+(ss.t?ss.m+'%':'—')+'</div><div class="dash-lbl">裁量1M込み勝率</div></div>'+
-    '<div class="dash-card"><div class="dash-num">'+trades.length+'</div><div class="dash-lbl">累計記録日数</div></div>';
+    '<div class="dash-card"><div class="dash-num">'+todayT.length+'</div><div class="dash-lbl">本日記録</div></div>'+
+    '<div class="dash-card"><div class="dash-num '+(sn.m>=60?'win-c':sn.m>=50?'martin-c':'lose-c')+'">'+(sn.t?sn.m+'%':'—')+'</div><div class="dash-lbl">脳死1M込み</div></div>'+
+    '<div class="dash-card"><div class="dash-num '+(ss.m>=60?'win-c':ss.m>=50?'martin-c':'lose-c')+'">'+(ss.t?ss.m+'%':'—')+'</div><div class="dash-lbl">裁量1M込み</div></div>'+
+    '<div class="dash-card"><div class="dash-num">'+trades.length+'</div><div class="dash-lbl">累計記録数</div></div>';
 }
 
 function renderTodayList(){
@@ -409,17 +299,12 @@ function renderTodayList(){
   var allE=[];list.forEach(function(t){allE=allE.concat(t.entries);});
   var sn=calcWR(allE,'noshi'),ss=calcWR(allE,'sairyo');
   wrEl.style.display='block';
-  wrEl.innerHTML=
-    '脳死: <span class="win-c"><b>'+sn.s+'%</b>('+sn.ws+'勝'+sn.l+'敗 '+sn.t+'件'+(sn.sk?'['+sn.sk+'ス]':'')+')</span> / 1M込<b class="martin-c"> '+sn.m+'%</b>　'+
-    '裁量: <span class="win-c"><b>'+ss.s+'%</b>('+ss.ws+'勝'+ss.l+'敗 '+ss.t+'件'+(ss.sk?'['+ss.sk+'ス]':'')+')</span> / 1M込<b class="martin-c"> '+ss.m+'%</b>';
+  wrEl.innerHTML='脳死: <b class="win-c">'+sn.s+'%</b>('+sn.ws+'勝'+sn.l+'敗 '+sn.t+'件) 1M込<b class="martin-c"> '+sn.m+'%</b>　裁量: <b class="win-c">'+ss.s+'%</b>('+ss.ws+'勝'+ss.l+'敗 '+ss.t+'件) 1M込<b class="martin-c"> '+ss.m+'%</b>';
   el.innerHTML=list.map(function(t,idx){
     var lines=t.entries.map(function(e){
-      return e.pair+' '+e.time+' '+(e.dir==='high'?'↑HIGH':'↓LOW')+
-        ' 脳死:'+badge(e.noshi)+' 裁量:'+badge(e.sairyo)+(e.memo?' <span style="color:#888;font-size:11px">'+e.memo+'</span>':'');
+      return e.pair+' '+(e.time||'—')+' '+(e.dir==='high'?'↑HIGH':'↓LOW')+' 脳死:'+badge(e.noshi)+' 裁量:'+badge(e.sairyo)+(e.memo?' <span style="color:#888;font-size:11px">'+e.memo+'</span>':'');
     });
-    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div>'+
-      '<div class="today-body"><div style="font-size:11px;color:#888;margin-bottom:3px">'+t.dateDisplay+'</div>'+lines.join('<br>')+'</div>'+
-      '<button class="today-del" onclick="delTrade('+t.id+')">削除</button></div>';
+    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body"><div style="font-size:11px;color:#888;margin-bottom:3px">'+t.dateDisplay+' '+t.pair+'</div>'+lines.join('<br>')+'</div><button class="today-del" onclick="delTrade('+t.id+')">削除</button></div>';
   }).join('');
 }
 
@@ -430,42 +315,32 @@ function delTrade(id){
 }
 
 function renderHistory(){
-  var list=filterPeriod(trades,curPeriod);
+  var list=filterPeriod(trades,histPeriod);
   var el=document.getElementById('hist-content');
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#ccc">データがありません</div>';return;}
   var allE=[];list.forEach(function(t){allE=allE.concat(t.entries);});
   var sn=calcWR(allE,'noshi'),ss=calcWR(allE,'sairyo');
-  var WD2=['月','火','水','木','金','土','日'];
-  var fN={pair:'',dir:'',result:'',weekday:'',dateStr:''};
+  var hF={pair:'',dir:'',weekday:'',dateStr:''};
   var rows=[];
-  list.forEach(function(t){
-    t.entries.forEach(function(e){
-      rows.push({date:t.dateDisplay,pair:e.pair,time:e.time,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo,memo:e.memo});
-    });
-  });
-  var pOpts='<option value="">全通貨</option>'+PAIRS.map(function(p){return '<option value="'+p+'">'+p+'</option>';}).join('');
+  list.forEach(function(t){t.entries.forEach(function(e){rows.push({date:t.dateDisplay,pair:e.pair,time:e.time,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo,memo:e.memo});});});
+  var pOpts='<option value="">全通貨</option>'+PAIRS.map(function(p){return'<option value="'+p+'">'+p+'</option>';}).join('');
   var dOpts='<option value="">全H/L</option><option value="high">↑HIGH</option><option value="low">↓LOW</option>';
-  var rOpts='<option value="">全結果</option><option value="win">○</option><option value="martin">✕○</option><option value="lose">✕✕</option><option value="skip">－</option>';
-  var wdOpts='<option value="">（曜日）</option>'+WD2.map(function(d){return '<option value="'+d+'">'+d+'曜</option>';}).join('');
+  var wdOpts='<option value="">（曜日）</option>'+['月','火','水','木','金','土','日'].map(function(d){return'<option value="'+d+'">'+d+'曜</option>';}).join('');
   el.innerHTML=
     '<div class="stat-grid">'+
-      '<div class="stat-item"><div style="font-size:11px;color:#888;margin-bottom:4px">🧠 脳死</div><div class="stat-pct '+(sn.m>=60?'win-c':sn.m>=50?'martin-c':'lose-c')+'">'+sn.m+'%</div><div class="stat-det">単発'+sn.s+'% / '+sn.ws+'勝'+sn.l+'敗 '+sn.t+'件'+(sn.sk?'['+sn.sk+'ス]':'')+'</div></div>'+
-      '<div class="stat-item"><div style="font-size:11px;color:#888;margin-bottom:4px">🎯 裁量</div><div class="stat-pct '+(ss.m>=60?'win-c':ss.m>=50?'martin-c':'lose-c')+'">'+ss.m+'%</div><div class="stat-det">単発'+ss.s+'% / '+ss.ws+'勝'+ss.l+'敗 '+ss.t+'件'+(ss.sk?'['+ss.sk+'ス]':'')+'</div></div>'+
+      '<div class="stat-item"><div style="font-size:11px;color:#888;margin-bottom:4px">🧠 脳死</div><div class="stat-pct '+(sn.m>=60?'win-c':sn.m>=50?'martin-c':'lose-c')+'">'+sn.m+'%</div><div class="stat-det">単発'+sn.s+'% / '+sn.ws+'勝'+sn.l+'敗 '+sn.t+'件</div></div>'+
+      '<div class="stat-item"><div style="font-size:11px;color:#888;margin-bottom:4px">🎯 裁量</div><div class="stat-pct '+(ss.m>=60?'win-c':ss.m>=50?'martin-c':'lose-c')+'">'+ss.m+'%</div><div class="stat-det">単発'+ss.s+'% / '+ss.ws+'勝'+ss.l+'敗 '+ss.t+'件</div></div>'+
     '</div>'+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
-    '<th style="min-width:110px"><div>日付</div><input type="text" placeholder="例:04/28" onchange="histF.dateStr=this.value;renderHistory()"><select onchange="histF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
+    '<th style="min-width:110px"><div>日付</div><input type="text" placeholder="04/28" onchange="histF.dateStr=this.value;renderHistory()"><select onchange="histF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     '<th><div>通貨</div><select onchange="histF.pair=this.value;renderHistory()">'+pOpts+'</select></th>'+
     '<th>時間</th>'+
     '<th><div>H/L</div><select onchange="histF.dir=this.value;renderHistory()">'+dOpts+'</select></th>'+
-    '<th><div>脳死</div><select onchange="histF.noshi=this.value;renderHistory()">'+rOpts+'</select></th>'+
-    '<th><div>裁量</div><select onchange="histF.sairyo=this.value;renderHistory()">'+rOpts+'</select></th>'+
-    '<th>メモ</th>'+
+    '<th>脳死</th><th>裁量</th><th>メモ</th>'+
     '</tr></thead><tbody>'+
     rows.filter(function(r){
       if(histF.pair&&r.pair!==histF.pair)return false;
       if(histF.dir&&r.dir!==histF.dir)return false;
-      if(histF.noshi&&r.noshi!==histF.noshi)return false;
-      if(histF.sairyo&&r.sairyo!==histF.sairyo)return false;
       if(histF.weekday&&!r.date.includes('\uff08'+histF.weekday+'\uff09'))return false;
       if(histF.dateStr&&!r.date.includes(histF.dateStr))return false;
       return true;
@@ -474,233 +349,145 @@ function renderHistory(){
     }).join('')||'<tr><td colspan="7" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>'+
     '</tbody></table></div>';
 }
-var histF={pair:'',dir:'',noshi:'',sairyo:'',weekday:'',dateStr:''};
+var histF={pair:'',dir:'',weekday:'',dateStr:''};
 
 function renderAnalysis(){
-  var list=filterPeriod(trades,curAnaPeriod);
+  var list=filterPeriod(trades,anaPeriod);
   var el=document.getElementById('ana-content');
   var allE=[];list.forEach(function(t){allE=allE.concat(t.entries);});
   if(!allE.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#ccc">データがありません</div>';return;}
   var sn=calcWR(allE,'noshi'),ss=calcWR(allE,'sairyo');
-  // 時間帯別
-  var tMap={};
+  var tMap={},dMap={high:[],low:[]},pMap={};
   allE.forEach(function(e){
-    if(!e.time)return;
-    var h=e.time.slice(0,5);if(!tMap[h])tMap[h]={ne:[],se:[]};
-    tMap[h].ne.push(e);tMap[h].se.push(e);
+    if(e.time){var h=e.time.slice(0,5);if(!tMap[h])tMap[h]=[];tMap[h].push(e);}
+    if(e.dir)dMap[e.dir].push(e);
+    if(!pMap[e.pair])pMap[e.pair]=[];pMap[e.pair].push(e);
   });
+  function mkBar(pct){var cls=pct>=60?'#1aaa6a':pct>=50?'#f0a020':'#ee6a50';return'<div class="bar-wrap"><span class="bar-fill" style="width:'+pct+'%;background:'+cls+'"></span></div>';}
+  function fmtWR2(ents,type){var s=calcWR(ents,type);if(!s.t)return'—';var cls=s.m>=60?'win-c':s.m>=50?'martin-c':'lose-c';return'<span class="'+cls+'"><b>'+s.m+'%</b></span><span style="font-size:10px;color:#aaa;margin-left:4px">単発'+s.s+'% '+s.t+'件</span>';}
   var tKeys=Object.keys(tMap).sort();
-  // 方向別
-  var dMap={high:[],low:[]};
-  allE.forEach(function(e){if(e.dir)dMap[e.dir].push(e);});
-  // 通貨別
-  var pMap={};
-  allE.forEach(function(e){if(!pMap[e.pair])pMap[e.pair]=[];pMap[e.pair].push(e);});
-
-  function mkBar(pct){
-    var cls=pct>=60?'#1aaa6a':pct>=50?'#f0a020':'#ee6a50';
-    return '<div class="bar-wrap"><span class="bar-fill" style="width:'+pct+'%;background:'+cls+'"></span></div>';
-  }
-  function fmtWR(entries,type){
-    var s=calcWR(entries,type);
-    if(!s.t)return'—';
-    var cls=s.m>=60?'win-c':s.m>=50?'martin-c':'lose-c';
-    return'<span class="'+cls+'"><b>'+s.m+'%</b></span> <span style="font-size:10px;color:#aaa">(単発'+s.s+'% '+s.t+'件)</span>';
-  }
-
   el.innerHTML=
-    '<div class="card">'+
-      '<div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">📊 全体</div>'+
+    '<div class="card"><div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">📊 全体</div>'+
       '<div class="stat-grid">'+
         '<div class="stat-item"><div style="font-size:11px;color:#888;margin-bottom:4px">🧠 脳死</div><div class="stat-pct '+(sn.m>=60?'win-c':sn.m>=50?'martin-c':'lose-c')+'">'+sn.m+'%</div><div class="stat-det">単発'+sn.s+'% '+sn.t+'件</div></div>'+
         '<div class="stat-item"><div style="font-size:11px;color:#888;margin-bottom:4px">🎯 裁量</div><div class="stat-pct '+(ss.m>=60?'win-c':ss.m>=50?'martin-c':'lose-c')+'">'+ss.m+'%</div><div class="stat-det">単発'+ss.s+'% '+ss.t+'件</div></div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="card">'+
-      '<div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">⏰ 時間帯別</div>'+
-      '<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:center;font-size:12px">'+
-        '<div style="font-weight:500;font-size:11px;color:#888">時間</div>'+
-        '<div style="font-weight:500;font-size:11px;color:#888">🧠 脳死(1M込み)</div>'+
-        '<div style="font-weight:500;font-size:11px;color:#888">🎯 裁量(1M込み)</div>'+
-        tKeys.map(function(h){var en=tMap[h].ne;var sn2=calcWR(en,'noshi'),ss2=calcWR(en,'sairyo');return'<div style="color:#888;font-size:11px">'+h+'</div><div>'+fmtWR(en,'noshi')+mkBar(sn2.m)+'</div><div>'+fmtWR(en,'sairyo')+mkBar(ss2.m)+'</div>';}).join('')+
-      '</div>'+
-    '</div>'+
-    '<div class="card">'+
-      '<div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">🔀 H/L別</div>'+
-      '<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:center;font-size:12px">'+
-        '<div style="font-weight:500;font-size:11px;color:#888">方向</div>'+
-        '<div style="font-weight:500;font-size:11px;color:#888">🧠 脳死</div>'+
-        '<div style="font-weight:500;font-size:11px;color:#888">🎯 裁量</div>'+
-        '<div style="color:#888;font-size:11px">↑HIGH</div><div>'+fmtWR(dMap.high,'noshi')+'</div><div>'+fmtWR(dMap.high,'sairyo')+'</div>'+
-        '<div style="color:#888;font-size:11px">↓LOW</div><div>'+fmtWR(dMap.low,'noshi')+'</div><div>'+fmtWR(dMap.low,'sairyo')+'</div>'+
-      '</div>'+
-    '</div>'+
-    '<div class="card">'+
-      '<div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">💱 通貨ペア別</div>'+
-      '<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;align-items:center;font-size:12px">'+
-        '<div style="font-weight:500;font-size:11px;color:#888">通貨</div>'+
-        '<div style="font-weight:500;font-size:11px;color:#888">🧠 脳死</div>'+
-        '<div style="font-weight:500;font-size:11px;color:#888">🎯 裁量</div>'+
-        PAIRS.filter(function(p){return pMap[p]&&pMap[p].length;}).map(function(p){var en=pMap[p];return'<div style="color:#888;font-size:11px">'+p+'</div><div>'+fmtWR(en,'noshi')+'</div><div>'+fmtWR(en,'sairyo')+'</div>';}).join('')+
-      '</div>'+
-    '</div>';
+      '</div></div>'+
+    '<div class="card"><div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">⏰ 時間帯別</div>'+
+      '<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:4px 8px;align-items:center;font-size:12px">'+
+        '<div style="font-size:11px;color:#888;font-weight:500">時間</div><div style="font-size:11px;color:#888;font-weight:500">🧠 脳死</div><div style="font-size:11px;color:#888;font-weight:500">🎯 裁量</div>'+
+        tKeys.map(function(h){var sn2=calcWR(tMap[h],'noshi'),ss2=calcWR(tMap[h],'sairyo');return'<div style="color:#888;font-size:11px">'+h+'</div><div>'+fmtWR2(tMap[h],'noshi')+mkBar(sn2.m)+'</div><div>'+fmtWR2(tMap[h],'sairyo')+mkBar(ss2.m)+'</div>';}).join('')+
+      '</div></div>'+
+    '<div class="card"><div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">🔀 H/L別</div>'+
+      '<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:4px 8px;align-items:center;font-size:12px">'+
+        '<div style="font-size:11px;color:#888;font-weight:500">方向</div><div style="font-size:11px;color:#888;font-weight:500">🧠 脳死</div><div style="font-size:11px;color:#888;font-weight:500">🎯 裁量</div>'+
+        '<div style="color:#888;font-size:11px">↑HIGH</div><div>'+fmtWR2(dMap.high,'noshi')+'</div><div>'+fmtWR2(dMap.high,'sairyo')+'</div>'+
+        '<div style="color:#888;font-size:11px">↓LOW</div><div>'+fmtWR2(dMap.low,'noshi')+'</div><div>'+fmtWR2(dMap.low,'sairyo')+'</div>'+
+      '</div></div>'+
+    '<div class="card"><div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">💱 通貨ペア別</div>'+
+      '<div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:4px 8px;align-items:center;font-size:12px">'+
+        '<div style="font-size:11px;color:#888;font-weight:500">通貨</div><div style="font-size:11px;color:#888;font-weight:500">🧠 脳死</div><div style="font-size:11px;color:#888;font-weight:500">🎯 裁量</div>'+
+        PAIRS.filter(function(p){return pMap[p]&&pMap[p].length;}).map(function(p){return'<div style="color:#888;font-size:11px">'+p+'</div><div>'+fmtWR2(pMap[p],'noshi')+'</div><div>'+fmtWR2(pMap[p],'sairyo')+'</div>';}).join('')+
+      '</div></div>';
 }
 
-// 一括入力
-function bulkAdd(){
-  var tbody=document.getElementById('bulk-tbody');
-  var rid=bulkRowId++;
-  var pOpts=PAIRS.map(function(p){return'<option value="'+p+'">'+p+'</option>';}).join('');
-  var rOpts='<option value="none">—</option><option value="win">○</option><option value="martin">✕○</option><option value="lose">✕✕</option><option value="skip">－</option>';
-  var tr=document.createElement('tr');
-  tr.id='br-'+rid;
-  tr.innerHTML=
-    '<td><input class="bulk-inp" placeholder="2025/02/10" id="bd-'+rid+'"></td>'+
-    '<td><select class="bulk-sel" id="bp-'+rid+'">'+pOpts+'</select></td>'+
-    '<td><input class="bulk-inp" type="time" id="bt-'+rid+'"></td>'+
-    '<td><select class="bulk-sel" id="bdir-'+rid+'"><option value="high">↑HIGH</option><option value="low">↓LOW</option></select></td>'+
-    '<td><select class="bulk-sel" id="bn-'+rid+'">'+rOpts+'</select></td>'+
-    '<td><select class="bulk-sel" id="bs-'+rid+'">'+rOpts+'</select></td>'+
-    '<td><input class="bulk-inp" placeholder="メモ" id="bm-'+rid+'"></td>'+
-    '<td><button onclick="bulkDel('+rid+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px">✕</button></td>';
-  tbody.appendChild(tr);
-}
-function bulkDel(rid){var tr=document.getElementById('br-'+rid);if(tr)tr.remove();}
-function bulkClear(){document.getElementById('bulk-tbody').innerHTML='';bulkRowId=0;}
-function bulkSave(){
-  var rows=document.getElementById('bulk-tbody').querySelectorAll('tr');
-  if(!rows.length){showMsg('bulk-msg','行がありません','#aaa');return;}
-  var saved=0,skipped=0;
-  rows.forEach(function(tr){
-    var rid=tr.id.replace('br-','');
-    var dateRaw=ge('bd-'+rid);
-    var pair=ge('bp-'+rid);
-    var time=ge('bt-'+rid);
-    var dir=ge('bdir-'+rid);
-    var noshi=ge('bn-'+rid)||'none';
-    var sairyo=ge('bs-'+rid)||'none';
-    var memo=ge('bm-'+rid);
-    if(!dateRaw||!pair){skipped++;return;}
-    // 日付変換
-    var iso=dateRaw.replace(/\//g,'-').replace(/\(.*\)/,'').trim();
-    if(iso.length===10&&iso[4]==='-'){
-      var dt=new Date(iso+'T00:00:00');if(isNaN(dt)){skipped++;return;}
-      var existing=trades.find(function(t){return t.date===iso;});
-      var entry={pair:pair,time:time,dir:dir,noshi:noshi,sairyo:sairyo,memo:memo};
-      if(existing){existing.entries.push(entry);}
-      else{trades.unshift({id:Date.now()+Math.random()*1000|0,date:iso,dateDisplay:fmtDisp(iso),entries:[entry]});}
-      saved++;
-    }else{skipped++;}
-  });
-  saveData();renderTodayList();renderDash();
-  showMsg('bulk-msg',saved+'件保存！'+(skipped?skipped+'件スキップ':''),'#1aaa6a');
-}
-
-function showMsg(id,msg,color){
-  var el=document.getElementById(id);
-  if(el){el.textContent=msg;el.style.color=color||'#1aaa6a';}
-  setTimeout(function(){if(el)el.textContent='';},3000);
-}
-
-var csvData=[];
-function convResult(s){
+// CSV
+function convR(s){
   if(!s)return'none';
   var t=s.trim();
-  if(t==='〇〇'||t==='○○'||t==='OO')return'win';
-  if(t==='✕〇'||t==='✕○'||t==='XO')return'martin';
-  if(t==='✕✕'||t==='XX')return'lose';
-  if(t==='－'||t==='-'||t==='')return'skip';
+  if(t==='OO'||t==='\u25cb\u25cb')return'win';
+  if(t==='\u00d7\u25cb'||t==='\u2715\u25cb')return'martin';
+  if(t==='\u00d7\u00d7'||t==='\u2715\u2715')return'lose';
+  if(t==='\u2212'||t==='-')return'skip';
+  if(t.indexOf('\u25cb\u25cb')>=0)return'win';
+  if(t.indexOf('\u2715\u25cb')>=0||t.indexOf('\u00d7\u25cb')>=0)return'martin';
+  if(t.indexOf('\u2715\u2715')>=0||t.indexOf('\u00d7\u00d7')>=0)return'lose';
   return'none';
 }
-function parseDate(s){
+function parseDt(s){
   if(!s)return null;
   var t=s.trim().replace(/\(.*\)/,'').trim();
   var m=t.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-  if(m)return m[1]+'-'+('0'+m[2]).slice(-2)+'-'+('0'+m[3]).slice(-2);
+  if(m)return m[1]+'-'+pad(parseInt(m[2]))+'-'+pad(parseInt(m[3]));
   return null;
 }
-function parseTime(s){
+function parseTm(s){
   if(!s)return'';
-  var t=s.trim().replace('：',':');
-  var m=t.match(/(\d{1,2}):(\d{2})/);
-  if(m)return('0'+m[1]).slice(-2)+':'+m[2];
-  return t;
+  var t=s.trim().replace('\u30fc',':').replace('\uff1a',':');
+  var m=t.match(/(\d{1,2})[:\uff1a](\d{2})/);
+  if(m)return pad(parseInt(m[1]))+':'+m[2];
+  return'';
 }
 function importCSV(ev){
   var file=ev.target.files[0];if(!file)return;
   var reader=new FileReader();
   reader.onload=function(e){
     var text=e.target.result;
-    var lines=text.split(/
-?
-/).filter(function(l){return l.trim();});
+    var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
     csvData=[];
     lines.forEach(function(line){
       var cols=line.split(',');
       if(cols.length<4)return;
-      var date=parseDate(cols[0]||cols[1]);
+      var date=parseDt(cols[0])||parseDt(cols[1]);
       if(!date)return;
-      var time=parseTime(cols[2]||cols[3]);
-      var hl=(cols[3]||cols[4]||'').trim().toUpperCase();
-      var dir=hl==='HIGH'||hl==='H'?'high':'low';
-      var noshi=convResult(cols[4]||cols[5]);
-      var sairyo=convResult(cols[5]||cols[6]);
+      var timeCol=cols[2]||cols[3]||'';
+      var hlCol=(cols[3]||cols[4]||'').trim().toUpperCase();
+      var noshiCol=cols[4]||cols[5]||'';
+      var sairyoCol=cols[5]||cols[6]||'';
+      var time=parseTm(timeCol);
+      var dir=hlCol==='HIGH'||hlCol==='H'?'high':'low';
+      var noshi=convR(noshiCol);
+      var sairyo=convR(sairy oCol);
+      if(noshi==='none'&&sairyo==='none')return;
       csvData.push({date:date,time:time,dir:dir,noshi:noshi,sairyo:sairyo});
     });
     if(!csvData.length){showMsg('csv-msg','データが読み込めませんでした','#ee6a50');return;}
     var prev=document.getElementById('csv-preview');
     var prevc=document.getElementById('csv-preview-content');
     prev.style.display='block';
-    prevc.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:11px">'+
+    prevc.innerHTML='<table style="width:100%;border-collapse:collapse;font-size:11px;margin-bottom:4px">'+
       '<tr style="background:#f5f5f5"><th style="padding:4px">日付</th><th style="padding:4px">時間</th><th style="padding:4px">H/L</th><th style="padding:4px">脳死</th><th style="padding:4px">裁量</th></tr>'+
-      csvData.slice(0,5).map(function(r){
-        return '<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:4px">'+r.date+'</td><td style="padding:4px">'+r.time+'</td><td style="padding:4px">'+(r.dir==='high'?'↑HIGH':'↓LOW')+'</td><td style="padding:4px">'+badge(r.noshi)+'</td><td style="padding:4px">'+badge(r.sairyo)+'</td></tr>';
-      }).join('')+
-    '</table><div style="color:#888;margin-top:4px">計'+csvData.length+'件</div>';
-    showMsg('csv-msg',csvData.length+'件のデータを読み込みました。内容を確認して保存してください。','#5a8aee');
+      csvData.slice(0,5).map(function(r){return'<tr style="border-bottom:1px solid #f0f0f0"><td style="padding:4px">'+r.date+'</td><td style="padding:4px">'+r.time+'</td><td style="padding:4px">'+(r.dir==='high'?'↑HIGH':'↓LOW')+'</td><td style="padding:4px">'+badge(r.noshi)+'</td><td style="padding:4px">'+badge(r.sairyo)+'</td></tr>';}).join('')+
+    '</table><div style="color:#888;font-size:11px">計'+csvData.length+'件</div>';
+    showMsg('csv-msg',csvData.length+'件読み込みました。確認して保存してください。','#5a8aee');
   };
   reader.readAsText(file,'UTF-8');
 }
 function csvSave(){
   if(!csvData.length)return;
   var pair=ge('csv-pair');
-  var saved=0;
   csvData.forEach(function(r){
     var existing=trades.find(function(t){return t.date===r.date&&t.pair===pair;});
     var entry={pair:pair,time:r.time,dir:r.dir,noshi:r.noshi,sairyo:r.sairyo,memo:''};
     if(existing){existing.entries.push(entry);}
     else{trades.unshift({id:Date.now()+Math.random()*1000|0,date:r.date,pair:pair,dateDisplay:fmtDisp(r.date),entries:[entry]});}
-    saved++;
   });
   saveData();renderTodayList();renderDash();
+  showMsg('csv-msg',csvData.length+'件保存しました！','#1aaa6a');
   csvData=[];
   document.getElementById('csv-preview').style.display='none';
-  showMsg('csv-msg',saved+'件保存しました！','#1aaa6a');
 }
-function saveData(){try{localStorage.setItem('2nd_trades_v1',JSON.stringify(trades));}catch(e){}}
-function loadData(){try{var d=localStorage.getItem('2nd_trades_v1');if(d)trades=JSON.parse(d);}catch(e){}}
 
+function saveData(){try{localStorage.setItem('2nd_v1',JSON.stringify(trades));}catch(e){}}
+function loadData(){try{var d=localStorage.getItem('2nd_v1');if(d)trades=JSON.parse(d);}catch(e){}}
 function exportData(){
-  var data=JSON.stringify({trades:trades,exportedAt:new Date().toISOString()},null,2);
   var a=document.createElement('a');
-  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(data);
-  a.download='2nd_backup_'+new Date().toISOString().slice(0,10)+'.json';
-  a.click();
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({trades:trades,exportedAt:new Date().toISOString()}));
+  a.download='2nd_backup_'+today()+'.json';a.click();
 }
 function importData(ev){
   var file=ev.target.files[0];if(!file)return;
   var reader=new FileReader();
   reader.onload=function(e){
-    try{
-      var d=JSON.parse(e.target.result);
-      if(d.trades){trades=d.trades;saveData();renderTodayList();renderDash();showMsg('backup-msg','読み込みました！','#1aaa6a');}
-    }catch(ex){showMsg('backup-msg','エラー: 正しいファイルか確認してください','#ee6a50');}
+    try{var d=JSON.parse(e.target.result);if(d.trades){trades=d.trades;saveData();renderTodayList();renderDash();showMsg('backup-msg','読み込みました！','#1aaa6a');}}
+    catch(ex){showMsg('backup-msg','エラー','#ee6a50');}
   };
   reader.readAsText(file);
 }
 
+// 初期化
+document.getElementById('f-date').value=today();
 loadData();renderDash();renderTodayList();
-for(var i=0;i<INIT_ROWS;i++)addInputRow();
+addRows(8);
 </script>
 </body>
 </html>
