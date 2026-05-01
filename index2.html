@@ -39,7 +39,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-G</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-H</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -348,7 +348,53 @@ function renderAna(){
     mkTbl2('⏰ 時間帯別',tMap,Object.keys(tMap).sort())+
     mkTbl2('📅 曜日別',wdMap,WDKEYS.filter(function(k){return wdMap[k];}))+
     mkTbl2('🔀 H/L別',dMap,Object.keys(dMap))+
-    mkTbl2('💱 通貨ペア別',pMap,PAIRS.filter(function(p){return pMap[p];}));
+    mkTbl2('💱 通貨ペア別',pMap,PAIRS.filter(function(p){return pMap[p];}))+
+    '<div class="card" style="margin-bottom:10px"><div style="font-size:13px;font-weight:500;margin-bottom:10px">🔍 条件組み合わせ分析</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'+
+      '<select id="cond-dir" class="si"><option value="">方向（全て）</option><option value="high">↑HIGH</option><option value="low">↓LOW</option></select>'+
+      '<select id="cond-pair" class="si"><option value="">通貨ペア（全て）</option>'+PAIRS.map(function(p){return'<option value="'+p+'">'+p+'</option>';}).join('')+'</select>'+
+      '<select id="cond-time" class="si"><option value="">時間（全て）</option>'+['09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','12:00'].map(function(t){return'<option value="'+t+'">'+t+'</option>';}).join('')+'</select>'+
+      '<select id="cond-wd" class="si"><option value="">曜日（全て）</option><option value="月曜">月曜</option><option value="火曜">火曜</option><option value="水曜">水曜</option><option value="木曜">木曜</option><option value="金曜">金曜</option></select>'+
+    '</div>'+
+    '<button onclick="runCond()" class="btn btn-dark" style="width:100%;margin-bottom:8px">分析する</button>'+
+    '<div id="cond-result"></div></div>';
+}
+function runCond(){
+  var fd=document.getElementById('cond-dir').value;
+  var fpv=document.getElementById('cond-pair').value;
+  var ft=document.getElementById('cond-time').value;
+  var fw=document.getElementById('cond-wd').value;
+  var WD=['日','月','火','水','木','金','土'];
+  var ae=[];fp(db,ap).forEach(function(t){ae=ae.concat(t.entries);});
+  var matched=ae.filter(function(e){
+    if(fd&&e.dir!==fd)return false;
+    if(fpv&&e.pair!==fpv)return false;
+    if(ft){
+      var hh=parseInt((e.time||'').slice(0,2)),mm=parseInt((e.time||'').slice(3,5));
+      var slot=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);
+      if(slot!==ft)return false;
+    }
+    if(fw){var dt=new Date(e.date);if(WD[dt.getDay()]+'曜'!==fw)return false;}
+    return(e.noshi&&e.noshi!=='none')||(e.sairyo&&e.sairyo!=='none');
+  });
+  var el=document.getElementById('cond-result');
+  if(!matched.length){el.innerHTML='<div style="background:#f8f8f8;border-radius:8px;padding:12px;color:#aaa;font-size:13px;text-align:center">該当データがありません</div>';return;}
+  var sn=calcWR(matched,'noshi'),ss=calcWR(matched,'sairyo');
+  var conds=[fd==='high'?'↑HIGH':fd==='low'?'↓LOW':'',fpv,ft,fw].filter(Boolean).join(' × ')||'全条件';
+  var cls=sn.m>=60?'#1aaa6a':sn.m>=50?'#5a8aee':'#ee6a50';
+  var comment=sn.m>=60?'✅ 優秀な組み合わせです！積極的に狙いましょう':sn.m>=50?'📊 標準的な勝率です':'⚠️ この条件は勝率が低めです';
+  el.innerHTML='<div style="border-left:4px solid '+cls+';background:#f8f8f8;border-radius:0 8px 8px 0;padding:12px">'+
+    '<div style="font-size:11px;color:#888;margin-bottom:8px">📋 条件: <b>'+conds+'</b></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">'+
+      '<div><div style="font-size:11px;color:#888;margin-bottom:2px">🧠 脳死 1M込み</div>'+
+        '<div style="font-size:24px;font-weight:600;color:'+cls+'">'+sn.m+'%</div>'+
+        '<div style="font-size:11px;color:#aaa">単発'+sn.s+'% / '+sn.t+'件</div></div>'+
+      '<div><div style="font-size:11px;color:#888;margin-bottom:2px">🎯 裁量 1M込み</div>'+
+        '<div style="font-size:24px;font-weight:600;color:'+(ss.m>=60?'#1aaa6a':ss.m>=50?'#5a8aee':'#ee6a50')+'">'+ss.m+'%</div>'+
+        '<div style="font-size:11px;color:#aaa">単発'+ss.s+'% / '+ss.t+'件</div></div>'+
+    '</div>'+
+    '<div style="font-size:12px;font-weight:500;color:'+cls+'">'+comment+'</div>'+
+  '</div>';
 }
 
 function loadCSV(ev){
