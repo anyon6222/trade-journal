@@ -1439,7 +1439,7 @@ function runCond(){
     if(i.result==='win'){lMap2[i.line].ws++;lMap2[i.line].wm++;}
     else if(i.result==='martin')lMap2[i.line].wm++;
   });
-  var lRanked=Object.keys(lMap2).sort(function(a,b){return lMap2[b].wm/lMap2[b].t-lMap2[a].wm/lMap2[a].t;});
+  var lRanked=Object.keys(lMap2).filter(function(l){return lMap2[l].t>=1;}).sort(function(a,b){return lMap2[b].wm/lMap2[b].t-lMap2[a].wm/lMap2[a].t;});
   // 通貨別集計
   var pMap2={};
   matched.forEach(function(i){
@@ -1449,7 +1449,7 @@ function runCond(){
     if(i.result==='win'){pMap2[i.pair].ws++;pMap2[i.pair].wm++;}
     else if(i.result==='martin')pMap2[i.pair].wm++;
   });
-  var pRanked=Object.keys(pMap2).filter(function(p){return pMap2[p].t>=2;}).sort(function(a,b){return pMap2[b].wm/pMap2[b].t-pMap2[a].wm/pMap2[a].t;});
+  var pRanked=Object.keys(pMap2).filter(function(p){return pMap2[p].t>=1;}).sort(function(a,b){return pMap2[b].wm/pMap2[b].t-pMap2[a].wm/pMap2[a].t;});
   // AI分析テキスト生成
   var aiItems=[];
   if(tBest&&tMap2[tBest].t>=2)aiItems.push({icon:'⏰',text:'ゴールデンタイム: <span class="ai-good">'+tBest+'</span> — 1M込み勝率 <b>'+Math.round(tMap2[tBest].wm/tMap2[tBest].t*100)+'%</b>（'+tMap2[tBest].t+'件）。この時間帯を優先しましょう。'});
@@ -1460,6 +1460,8 @@ function runCond(){
   if(wm>=70)aiItems.push({icon:'✅',text:'優秀な組み合わせです！<span class="ai-good">積極的にエントリー</span>しましょう。'});
   else if(wm>=55)aiItems.push({icon:'📊',text:'標準的な勝率です。<span class="ai-note">条件をさらに絞る</span>と精度が上がるかもしれません。'});
   else aiItems.push({icon:'⚠️',text:'この条件は勝率が低めです。<span class="ai-warn">エントリーは慎重に</span>、またはスルーも検討してください。'});
+  // 必ず表示
+  if(!aiItems.length)aiItems.push({icon:'📊',text:'単発<b>'+ws+'%</b> / 1M込み<b>'+wm+'%</b> ('+t+'件) の結果です。'});
   var aiHtml=aiItems.length?'<div class="ai-card" style="margin-top:8px"><h4>🤖 条件別AI分析</h4>'+aiItems.map(function(i){return '<div class="ai-item"><span style="font-size:14px;flex-shrink:0;margin-top:1px">'+i.icon+'</span><span>'+i.text+'</span></div>';}).join('')+'</div>':'';
   el.innerHTML='<div class="cond-card '+cls+'"><div style="font-size:11px;color:#888;margin-bottom:6px">📋 条件: <b>'+conds+'</b></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:26px;font-weight:600" class="win-c">'+ws+'%</div><div style="font-size:11px;color:#888">単発勝率 '+w+'勝'+l+'敗 '+t+'件</div></div><div><div style="font-size:26px;font-weight:600" class="martin-c">'+wm+'%</div><div style="font-size:11px;color:#888">1M込み勝率 '+(w+m)+'勝'+l+'敗 '+t+'件</div></div></div>'+comment+'</div>'+aiHtml;
 }
