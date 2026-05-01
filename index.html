@@ -1418,7 +1418,50 @@ function runCond(){
   var cls=wm>=70?'good':wm>=55?'mid':'warn';
   var conds=[fi,fd==='up'?'↑HIGH':fd==='down'?'↓LOW':'',fl,ft,fp].filter(Boolean).join(' × ')||'全条件';
   var comment=wm>=70?'<div style="margin-top:8px;font-size:12px;color:#1aaa6a;font-weight:500">✅ 優秀な組み合わせです！積極的に狙いましょう</div>':wm>=55?'<div style="margin-top:8px;font-size:12px;color:#5a8aee">📊 標準的な勝率です</div>':'<div style="margin-top:8px;font-size:12px;color:#ee6a50">⚠️ この条件は勝率が低めです</div>';
-  el.innerHTML='<div class="cond-card '+cls+'"><div style="font-size:11px;color:#888;margin-bottom:6px">📋 条件: <b>'+conds+'</b></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:26px;font-weight:600" class="win-c">'+ws+'%</div><div style="font-size:11px;color:#888">単発勝率 '+w+'勝'+l+'敗 '+t+'件</div></div><div><div style="font-size:26px;font-weight:600" class="martin-c">'+wm+'%</div><div style="font-size:11px;color:#888">1M込み勝率 '+(w+m)+'勝'+l+'敗 '+t+'件</div></div></div>'+comment+'</div>';
+  // 時間帯別集計
+  var tMap2={};
+  matched.forEach(function(i){
+    if(!i.time)return;
+    var h=i.time.slice(0,5);
+    if(!tMap2[h])tMap2[h]={ws:0,wm:0,t:0};
+    tMap2[h].t++;
+    if(i.result==='win'){tMap2[h].ws++;tMap2[h].wm++;}
+    else if(i.result==='martin')tMap2[h].wm++;
+  });
+  var tRanked=Object.keys(tMap2).filter(function(h){return tMap2[h].t>=2;}).sort(function(a,b){return tMap2[b].wm/tMap2[b].t-tMap2[a].wm/tMap2[a].t;});
+  var tBest=tRanked[0],tWorst=tRanked[tRanked.length-1];
+  // ライン別集計
+  var lMap2={};
+  matched.forEach(function(i){
+    if(!i.line||i.line==='—')return;
+    if(!lMap2[i.line])lMap2[i.line]={ws:0,wm:0,t:0};
+    lMap2[i.line].t++;
+    if(i.result==='win'){lMap2[i.line].ws++;lMap2[i.line].wm++;}
+    else if(i.result==='martin')lMap2[i.line].wm++;
+  });
+  var lRanked=Object.keys(lMap2).sort(function(a,b){return lMap2[b].wm/lMap2[b].t-lMap2[a].wm/lMap2[a].t;});
+  // 通貨別集計
+  var pMap2={};
+  matched.forEach(function(i){
+    if(!i.pair)return;
+    if(!pMap2[i.pair])pMap2[i.pair]={ws:0,wm:0,t:0};
+    pMap2[i.pair].t++;
+    if(i.result==='win'){pMap2[i.pair].ws++;pMap2[i.pair].wm++;}
+    else if(i.result==='martin')pMap2[i.pair].wm++;
+  });
+  var pRanked=Object.keys(pMap2).filter(function(p){return pMap2[p].t>=2;}).sort(function(a,b){return pMap2[b].wm/pMap2[b].t-pMap2[a].wm/pMap2[a].t;});
+  // AI分析テキスト生成
+  var aiItems=[];
+  if(tBest&&tMap2[tBest].t>=2)aiItems.push({icon:'⏰',text:'ゴールデンタイム: <span class="ai-good">'+tBest+'</span> — 1M込み勝率 <b>'+Math.round(tMap2[tBest].wm/tMap2[tBest].t*100)+'%</b>（'+tMap2[tBest].t+'件）。この時間帯を優先しましょう。'});
+  if(tWorst&&tWorst!==tBest&&tMap2[tWorst].t>=2)aiItems.push({icon:'⚠️',text:'注意時間帯: <span class="ai-warn">'+tWorst+'</span> — 1M込み勝率 <b>'+Math.round(tMap2[tWorst].wm/tMap2[tWorst].t*100)+'%</b>（'+tMap2[tWorst].t+'件）。慎重に。'});
+  if(lRanked.length)aiItems.push({icon:'🏆',text:'最強ライン: <span class="ai-good">'+lRanked[0]+'</span> — 1M込み勝率 <b>'+Math.round(lMap2[lRanked[0]].wm/lMap2[lRanked[0]].t*100)+'%</b>（'+lMap2[lRanked[0]].t+'件）'});
+  if(lRanked.length>1)aiItems.push({icon:'📍',text:'注意ライン: <span class="ai-warn">'+lRanked[lRanked.length-1]+'</span> — 1M込み勝率 <b>'+Math.round(lMap2[lRanked[lRanked.length-1]].wm/lMap2[lRanked[lRanked.length-1]].t*100)+'%</b>（'+lMap2[lRanked[lRanked.length-1]].t+'件）'});
+  if(pRanked.length)aiItems.push({icon:'💱',text:'得意通貨: <span class="ai-good">'+pRanked[0]+'</span> — 1M込み勝率 <b>'+Math.round(pMap2[pRanked[0]].wm/pMap2[pRanked[0]].t*100)+'%</b>（'+pMap2[pRanked[0]].t+'件）'});
+  if(wm>=70)aiItems.push({icon:'✅',text:'優秀な組み合わせです！<span class="ai-good">積極的にエントリー</span>しましょう。'});
+  else if(wm>=55)aiItems.push({icon:'📊',text:'標準的な勝率です。<span class="ai-note">条件をさらに絞る</span>と精度が上がるかもしれません。'});
+  else aiItems.push({icon:'⚠️',text:'この条件は勝率が低めです。<span class="ai-warn">エントリーは慎重に</span>、またはスルーも検討してください。'});
+  var aiHtml=aiItems.length?'<div class="ai-card" style="margin-top:8px"><h4>🤖 条件別AI分析</h4>'+aiItems.map(function(i){return '<div class="ai-item"><span style="font-size:14px;flex-shrink:0;margin-top:1px">'+i.icon+'</span><span>'+i.text+'</span></div>';}).join('')+'</div>':'';
+  el.innerHTML='<div class="cond-card '+cls+'"><div style="font-size:11px;color:#888;margin-bottom:6px">📋 条件: <b>'+conds+'</b></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:26px;font-weight:600" class="win-c">'+ws+'%</div><div style="font-size:11px;color:#888">単発勝率 '+w+'勝'+l+'敗 '+t+'件</div></div><div><div style="font-size:26px;font-weight:600" class="martin-c">'+wm+'%</div><div style="font-size:11px;color:#888">1M込み勝率 '+(w+m)+'勝'+l+'敗 '+t+'件</div></div></div>'+comment+'</div>'+aiHtml;
 }
 
 // ===== AIランキング =====
