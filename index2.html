@@ -36,7 +36,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-D</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-E</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -380,13 +380,12 @@ function loadCSV(ev){
 function convRes(s){
   var t=s.trim();
   if(!t||t==='-')return'none';
-  if(t.indexOf('\u25cb\u25cb')>=0)return'win';
-  if(t.indexOf('OO')>=0)return'win';
-  var hasCircle=t.indexOf('\u25cb')>=0||t.indexOf('O')>=0;
+  // \u3007=〇(漢数字ゼロ) \u25cb=○(白丸) 両対応
+  var hasCircle=t.indexOf('\u3007')>=0||t.indexOf('\u25cb')>=0||t.indexOf('O')>=0;
   var hasCross=t.indexOf('\u2715')>=0||t.indexOf('\u00d7')>=0||t.indexOf('X')>=0;
+  if(hasCircle&&!hasCross)return'win';
   if(hasCross&&hasCircle)return'martin';
   if(hasCross)return'lose';
-  if(hasCircle)return'win';
   if(t==='\u2212')return'skip';
   return'none';
 }
