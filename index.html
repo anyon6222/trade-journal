@@ -190,6 +190,16 @@ textarea{min-height:36px;resize:vertical}
 .ai-good{color:#1aaa6a;font-weight:500}
 .ai-warn{color:#ee6a50;font-weight:500}
 .ai-note{color:#5a8aee;font-weight:500}
+.bulk-wrap{overflow-x:auto}
+.bulk-table{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
+.bulk-table th{background:#1a1a2e;color:#fff;padding:7px 8px;text-align:left;font-size:11px;white-space:nowrap}
+.bulk-table td{padding:4px 4px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.bulk-table tr:hover td{background:#f8fff8}
+.bulk-inp{width:100%;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px;font-family:inherit;box-sizing:border-box}
+.bulk-sel{width:100%;padding:4px 4px;border:1px solid #e0e0e0;border-radius:6px;font-size:11px;font-family:inherit;background:#fff}
+.bulk-tabs{display:flex;gap:0;margin-bottom:10px;border-radius:8px;overflow:hidden;border:1px solid #e0e0e0}
+.bulk-tab{flex:1;padding:8px;font-size:12px;cursor:pointer;border:none;background:#fff;color:#888;font-family:inherit}
+.bulk-tab.active{background:#1a1a2e;color:#fff;font-weight:500}
 .sub-tabs{display:flex;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;overflow-x:auto}
 .sub-tab{padding:9px 14px;font-size:12px;cursor:pointer;border:none;background:#fff;color:#888;white-space:nowrap;border-right:1px solid #f0f0f0;flex-shrink:0}
 .sub-tab:last-child{border-right:none}
@@ -299,6 +309,35 @@ textarea{min-height:36px;resize:vertical}
       <button onclick="saveDailyMemo()" style="padding:7px 18px;font-size:13px;border-radius:8px;cursor:pointer;border:none;background:#1a1a2e;color:#fff;font-family:inherit">メモを保存</button>
       <div id="memo-save-msg" style="font-size:12px;color:#1aaa6a"></div>
     </div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">📋 インジ過去データ一括入力</div>
+    <div class="bulk-tabs">
+      <button class="bulk-tab active" onclick="bulkSetInj('GORILLA',this)">GORILLA</button>
+      <button class="bulk-tab" onclick="bulkSetInj('IRAZU',this)">IRAZU</button>
+      <button class="bulk-tab" onclick="bulkSetInj('HUNO',this)">HUNO</button>
+    </div>
+    <div class="bulk-wrap">
+      <table class="bulk-table" id="bulk-tbl">
+        <thead><tr>
+          <th style="min-width:90px">日付</th>
+          <th style="min-width:80px">通貨ペア</th>
+          <th style="min-width:65px">時間</th>
+          <th style="min-width:60px">H/L</th>
+          <th style="min-width:60px">結果</th>
+          <th style="min-width:65px">ライン</th>
+          <th style="min-width:80px">メモ</th>
+          <th style="min-width:30px"></th>
+        </tr></thead>
+        <tbody id="bulk-tbody"></tbody>
+      </table>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+      <button onclick="bulkAddRow()" style="padding:7px 14px;font-size:12px;border-radius:8px;border:1px solid #1a1a2e;background:#fff;color:#1a1a2e;cursor:pointer;font-family:inherit">＋ 行を追加</button>
+      <button onclick="bulkSave()" style="padding:7px 14px;font-size:12px;border-radius:8px;border:none;background:#1aaa6a;color:#fff;cursor:pointer;font-family:inherit">💾 一括保存</button>
+      <button onclick="bulkClear()" style="padding:7px 14px;font-size:12px;border-radius:8px;border:1px solid #ddd;background:#fff;color:#aaa;cursor:pointer;font-family:inherit">クリア</button>
+    </div>
+    <div id="bulk-msg" style="font-size:12px;margin-top:6px;color:#1aaa6a;min-height:16px"></div>
   </div>
   <div class="btn-row">
     <button class="btn primary" onclick="saveTrade()">記録する</button>
@@ -1121,7 +1160,94 @@ function saveTrade(){
 }
 function resetForm(){
   var t=todayIso();document.getElementById('f-date-pk').value=t;document.getElementById('f-date-tx').value='';updateDateDisp(t);
-  entList=[];buildInj();buildAno();buildOpt();document.getElementById('ent-list').innerHTML='';
+  entList=[];// ===== 一括入力 =====
+var bulkInjName='GORILLA';
+var bulkRowId=0;
+function bulkSetInj(name,btn){
+  bulkInjName=name;
+  document.getElementById('bulk-inj-name').textContent=name;
+  document.querySelectorAll('.bulk-tab').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  // ラインオプションを更新
+  var inj=INJS.find(function(i){return i.name===name;});
+  document.querySelectorAll('.bulk-line-sel').forEach(function(sel){
+    var v=sel.value;
+    sel.innerHTML='<option value="">—</option>'+inj.lines.filter(function(l){return l!=='—';}).map(function(l){return '<option value="'+l+'"'+(l===v?' selected':'')+'>'+l+'</option>';}).join('');
+  });
+}
+function bulkAddRow(){
+  var tbody=document.getElementById('bulk-tbody');
+  var inj=INJS.find(function(i){return i.name===bulkInjName;});
+  var rid=bulkRowId++;
+  var lineOpts='<option value="">—</option>'+inj.lines.filter(function(l){return l!=='—';}).map(function(l){return '<option value="'+l+'">'+l+'</option>';}).join('');
+  var pairOpts=PAIRS.map(function(p){return '<option value="'+p+'">'+p+'</option>';}).join('');
+  var tr=document.createElement('tr');
+  tr.id='bulk-row-'+rid;
+  tr.innerHTML=
+    '<td><input class="bulk-inp" type="text" placeholder="2026/04/25" id="bd-'+rid+'"></td>'+
+    '<td><select class="bulk-sel" id="bp-'+rid+'"><option value="">選択</option>'+pairOpts+'</select></td>'+
+    '<td><input class="bulk-inp" type="text" placeholder="09:00" id="bt-'+rid+'"></td>'+
+    '<td><select class="bulk-sel" id="bdir-'+rid+'"><option value="up">↑HIGH</option><option value="down">↓LOW</option></select></td>'+
+    '<td><select class="bulk-sel" id="br-'+rid+'"><option value="win">○</option><option value="martin">✕○</option><option value="lose">✕✕</option></select></td>'+
+    '<td><select class="bulk-sel bulk-line-sel" id="bl-'+rid+'">'+lineOpts+'</select></td>'+
+    '<td><input class="bulk-inp" type="text" placeholder="メモ" id="bm-'+rid+'"></td>'+
+    '<td><button onclick="bulkDelRow('+rid+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:14px;padding:2px 4px">✕</button></td>';
+  tbody.appendChild(tr);
+}
+function bulkDelRow(rid){
+  var tr=document.getElementById('bulk-row-'+rid);
+  if(tr)tr.remove();
+}
+function bulkClear(){
+  document.getElementById('bulk-tbody').innerHTML='';
+  bulkRowId=0;
+}
+function bulkSave(){
+  var tbody=document.getElementById('bulk-tbody');
+  var rows=tbody.querySelectorAll('tr');
+  if(!rows.length){showBulkMsg('行がありません','#aaa');return;}
+  var saved=0,skipped=0;
+  rows.forEach(function(tr){
+    var rid=tr.id.replace('bulk-row-','');
+    var dateRaw=ge('bd-'+rid);
+    var pair=ge('bp-'+rid);
+    var time=ge('bt-'+rid);
+    var dir=ge('bdir-'+rid);
+    var result=ge('br-'+rid);
+    var line=ge('bl-'+rid)||'—';
+    var memo=ge('bm-'+rid);
+    if(!dateRaw||!pair){skipped++;return;}
+    // 日付を正規化
+    var iso=slashToIso(dateRaw);
+    if(!iso){skipped++;return;}
+    var disp=fmtDisp(iso);
+    // 同じ日の記録を探す
+    var existing=trades.find(function(t){return toIso(t.date)===iso;});
+    var newInj={name:bulkInjName,pair:pair,time:time,dir:dir,line:line||'—',result:result,memo:memo};
+    if(existing){
+      existing.injs.push(newInj);
+    }else{
+      trades.unshift({
+        id:Date.now()+Math.random()*1000|0,
+        date:dateRaw,
+        dateDisplay:disp,
+        injs:[newInj],
+        anos:ANOMALIES.map(function(a){return a.pairs.map(function(p){return{time:a.time,dir:a.dir,pair:p,result:'none',memo:''};});}).flat(),
+        opts:OPTIONS.map(function(o){return{name:o,rounds:[{id:Date.now()+Math.random()*1000|0,result:'none'}],memo:''};})
+        ,entries:[]
+      });
+    }
+    saved++;
+  });
+  saveData();renderTodayList();renderDash();
+  showBulkMsg(saved+'件保存しました！'+(skipped?'（'+skipped+'件スキップ）':''),'#1aaa6a');
+}
+function showBulkMsg(msg,color){
+  var el=document.getElementById('bulk-msg');
+  if(el){el.textContent=msg;el.style.color=color||'#1aaa6a';}
+  setTimeout(function(){if(el)el.textContent='';},3000);
+}
+buildInj();buildAno();buildOpt();document.getElementById('ent-list').innerHTML='';
 }
 
 // ===== 履歴 =====
