@@ -82,7 +82,7 @@ tr:nth-child(even) td{background:#fafafa}
 
 <body>
 
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-Z6</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-Z7</span></div>
 
 <div class="tabs">
 
@@ -1181,7 +1181,7 @@ function runAI(){
     // 時間×H/Lマトリックス（一時無効化）
     var SLOTS=['09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','12:00'];
     var exSlots=SLOTS.filter(function(s){return mxMap[s+'|high']||mxMap[s+'|low'];});
-    if(false&&exSlots.length>0){
+    if(exSlots.length>0){
       var mxH='<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:6px">';
       mxH+='<thead><tr><th style="background:#1a1a2e;color:#fff;padding:5px;text-align:left">時間</th>';
       mxH+='<th style="background:#1a1a2e;color:#fff;padding:5px;text-align:center">↑HIGH</th>';
