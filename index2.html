@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AJ</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AL</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -606,6 +606,40 @@ function runAI(){
       html+='⏰ ゴールデンタイム: <b>'+bt.k+'</b> <span style="color:#1aaa6a;font-weight:600">'+bt.wr+'%</span>（'+bt.t+'件）';
       if(wt.wr<50)html+=' / 避けたい: <b>'+wt.k+'</b> <span style="color:#ee6a50">'+wt.wr+'%</span>';
       html+='</div>';
+    }
+    // ⏰ 時間帯ランキング（脳死・裁量別）
+    var tMapS={};
+    ae.forEach(function(e){
+      var rs=e.sairyo;
+      if(!rs||rs==='none')return;
+      if(e.time){
+        var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));
+        var slot2=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);
+        if(!tMapS[slot2])tMapS[slot2]={w:0,m:0,t:0};
+        tMapS[slot2].t++;if(rs==='win'){tMapS[slot2].w++;tMapS[slot2].m++;}else if(rs==='martin')tMapS[slot2].m++;
+      }
+    });
+    var tRankedN=sort(tMap,3);
+    var tRankedS=sort(tMapS,3);
+    if(tRankedN.length||tRankedS.length){
+      html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
+      html+='<b>⏰ 時間帯ランキング</b>';
+      html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">';
+      html+='<div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🧠 脳死 1M込み</div>';
+      tRankedN.slice(0,8).forEach(function(r,i){
+        html+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5;font-size:12px">'+
+          '<span>'+(['🥇','🥈','🥉'][i]||'')+' '+r.k+'</span>'+
+          '<span style="font-weight:600;color:'+clr(r.wr)+'">'+r.wr+'%<span style="font-size:10px;color:#aaa;margin-left:2px">'+r.t+'件</span></span>'+
+        '</div>';
+      });
+      html+='</div><div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🎯 裁量 1M込み</div>';
+      tRankedS.slice(0,8).forEach(function(r,i){
+        html+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5;font-size:12px">'+
+          '<span>'+(['🥇','🥈','🥉'][i]||'')+' '+r.k+'</span>'+
+          '<span style="font-weight:600;color:'+clr(r.wr)+'">'+r.wr+'%<span style="font-size:10px;color:#aaa;margin-left:2px">'+r.t+'件</span></span>'+
+        '</div>';
+      });
+      html+='</div></div></div>';
     }
     // H/Lマトリックス（divのみ）
     var slots=['09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','12:00'];
