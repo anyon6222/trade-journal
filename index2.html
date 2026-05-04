@@ -34,13 +34,18 @@ tr:nth-child(even) td{background:#fafafa}
 .ptab{padding:5px 12px;font-size:12px;border:1px solid #e0e0e0;border-radius:20px;cursor:pointer;background:#fff;color:#888;font-family:inherit}
 .ptab.on{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
 .bar-wrap{background:#f0f0f0;border-radius:4px;height:6px;width:70px;overflow:hidden;display:inline-block;vertical-align:middle}
+.wr100{color:#cc0000;font-weight:700}
+.wr90{color:#e63300;font-weight:700}
+.wr75{color:#e67700;font-weight:600}
+.wr60{color:#cc9900;font-weight:600}
+.wrlow{color:#999}
 .bar-n{background:#1aaa6a;height:6px;border-radius:4px}
 .bar-s{background:#5a8aee;height:6px;border-radius:4px}
 .ai-out{background:#f8f8ff;border-radius:10px;padding:14px;font-size:13px;line-height:1.9;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AR</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AS</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -312,16 +317,15 @@ function acc2(map,k,rn,rs){
   if(rn==='win'){v.wn++;v.mn++;v.tn++;}else if(rn==='martin'){v.mn++;v.ln++;v.tn++;}else if(rn==='lose'){v.ln++;v.tn++;}
   if(rs==='win'){v.ws++;v.ms++;v.ts++;}else if(rs==='martin'){v.ms++;v.ls++;v.ts++;}else if(rs==='lose'){v.ls++;v.ts++;}
 }
+function wrCls(p){return p===100?'wr100':p>=90?'wr90':p>=75?'wr75':p>=60?'wr60':'wrlow';}
 function mkRow2(lbl,v){
   var sn=v.tn?Math.round(v.mn/v.tn*100):null;
   var ss=v.ts?Math.round(v.ms/v.ts*100):null;
-  var cn=sn>=60?'win':sn>=50?'mar':'lose';
-  var cs=ss>=60?'win':ss>=50?'mar':'lose';
   return'<tr>'+
     '<td style="font-size:11px;color:#555">'+lbl+'</td>'+
-    '<td class="'+(sn!==null?cn:'')+'" style="font-weight:500;white-space:nowrap">'+(sn!==null?sn+'%':'—')+'<span style="font-size:10px;color:#aaa;margin-left:3px">'+(v.tn||'')+'</span></td>'+
+    '<td class="'+(sn!==null?wrCls(sn):'')+'" style="white-space:nowrap">'+(sn!==null?sn+'%':'—')+'<span style="font-size:10px;color:#aaa;margin-left:3px">'+(v.tn||'')+'</span></td>'+
     '<td><div class="bar-wrap"><div class="bar-n" style="width:'+(sn||0)+'%"></div></div></td>'+
-    '<td class="'+(ss!==null?cs:'')+'" style="font-weight:500;white-space:nowrap">'+(ss!==null?ss+'%':'—')+'<span style="font-size:10px;color:#aaa;margin-left:3px">'+(v.ts||'')+'</span></td>'+
+    '<td class="'+(ss!==null?wrCls(ss):'')+'" style="white-space:nowrap">'+(ss!==null?ss+'%':'—')+'<span style="font-size:10px;color:#aaa;margin-left:3px">'+(v.ts||'')+'</span></td>'+
     '<td><div class="bar-wrap"><div class="bar-s" style="width:'+(ss||0)+'%"></div></div></td>'+
   '</tr>';
 }
