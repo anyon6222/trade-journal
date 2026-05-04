@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AL</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AN</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -577,7 +577,7 @@ function runAI(){
     function sort(map,min){
       return Object.keys(map)
         .filter(function(k){return map[k].t>=(min||1);})
-        .map(function(k){return{k:k,wr:wr(map[k]),t:map[k].t};})
+        .map(function(k){var v=map[k];return{k:k,wr:wr(v),ws:v.t?Math.round(v.w/v.t*100):0,t:v.t};})
         .sort(function(a,b){return b.wr-a.wr||b.t-a.t;});
     }
     function clr(p){return p>=70?'#1aaa6a':p>=55?'#5a8aee':p<45?'#ee6a50':'#888';}
@@ -621,25 +621,36 @@ function runAI(){
     });
     var tRankedN=sort(tMap,3);
     var tRankedS=sort(tMapS,3);
+    function mkTbl(title,ranked){
+      if(!ranked.length)return'';
+      var rows=ranked.slice(0,10).map(function(r,i){
+        var bg=i%2?'#fafafa':'#fff';
+        return'<tr style="background:'+bg+'">'+
+          '<td style="padding:5px 8px;color:#888;font-size:11px;width:30px">'+(i+1)+'</td>'+
+          '<td style="padding:5px 8px;font-weight:500">'+r.k+'</td>'+
+          '<td style="padding:5px 8px;text-align:center;font-weight:700;color:'+clr(r.wr)+'">'+r.wr+'%</td>'+
+          '<td style="padding:5px 8px;text-align:center;color:#5a8aee">'+r.ws+'%</td>'+
+          '<td style="padding:5px 8px;text-align:center;color:#aaa;font-size:11px">'+r.t+'件</td>'+
+        '</tr>';
+      }).join('');
+      return'<div style="margin-bottom:16px">'+
+        '<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:4px">'+title+'</div>'+
+        '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
+        '<thead><tr style="background:#1a1a2e;color:#fff">'+
+        '<th style="padding:5px 8px;text-align:left">順</th>'+
+        '<th style="padding:5px 8px;text-align:left">時間</th>'+
+        '<th style="padding:5px 8px;text-align:center">1M込み</th>'+
+        '<th style="padding:5px 8px;text-align:center">単発</th>'+
+        '<th style="padding:5px 8px;text-align:center">件数</th>'+
+        '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+    }
     if(tRankedN.length||tRankedS.length){
       html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
       html+='<b>⏰ 時間帯ランキング</b>';
-      html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">';
-      html+='<div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🧠 脳死 1M込み</div>';
-      tRankedN.slice(0,8).forEach(function(r,i){
-        html+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5;font-size:12px">'+
-          '<span>'+(['🥇','🥈','🥉'][i]||'')+' '+r.k+'</span>'+
-          '<span style="font-weight:600;color:'+clr(r.wr)+'">'+r.wr+'%<span style="font-size:10px;color:#aaa;margin-left:2px">'+r.t+'件</span></span>'+
-        '</div>';
-      });
-      html+='</div><div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🎯 裁量 1M込み</div>';
-      tRankedS.slice(0,8).forEach(function(r,i){
-        html+='<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f5f5f5;font-size:12px">'+
-          '<span>'+(['🥇','🥈','🥉'][i]||'')+' '+r.k+'</span>'+
-          '<span style="font-weight:600;color:'+clr(r.wr)+'">'+r.wr+'%<span style="font-size:10px;color:#aaa;margin-left:2px">'+r.t+'件</span></span>'+
-        '</div>';
-      });
-      html+='</div></div></div>';
+      html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px">';
+      html+=mkTbl('🧠 脳死',tRankedN);
+      html+=mkTbl('🎯 裁量',tRankedS);
+      html+='</div></div>';
     }
     // H/Lマトリックス（divのみ）
     var slots=['09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','12:00'];
@@ -663,16 +674,29 @@ function runAI(){
     var wdtR=sort(wdtMap,3);
     if(wdtR.length){
       html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
-      html+='📅 <b>曜日×時間 ランキング（脳死1M込み・3件以上）</b>';
-      html+='<div style="margin-top:6px">';
-      wdtR.slice(0,8).forEach(function(r,i){html+=row(r,i,true);});
-      var wdtBot=wdtR.filter(function(r){return r.wr<50;}).slice(-3).reverse();
-      if(wdtBot.length){
-        html+='<div style="font-size:11px;color:#888;margin-top:8px;margin-bottom:4px">⚠️ 避けたいパターン</div>';
-        wdtBot.forEach(function(r){html+=row(r,99,false);});
+      html+='<b>📅 曜日×時間 ランキング（脳死1M込み・3件以上）</b>';
+      html+=mkRankTbl('曜日×時間',wdtR.slice(0,10));
+      var wdtBot2=wdtR.filter(function(r){return r.wr<50;}).slice(-3).reverse();
+      if(wdtBot2.length){
+        html+='<div style="font-size:11px;color:#888;margin-top:10px;margin-bottom:4px">⚠️ 避けたいパターン</div>';
+        html+=mkRankTbl('',wdtBot2);
       }
-      html+='</div></div>';
+      html+='</div>';
     }
+    // 最強パターンランキング
+    var ptnR=sort(ptnMap,3);
+    if(ptnR.length){
+      html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
+      html+='<b>🏆 最強パターンランキング（曜日×時間×H/L・3件以上）</b>';
+      html+=mkRankTbl('パターン',ptnR.slice(0,10));
+      var ptnBot2=ptnR.filter(function(r){return r.wr<50;}).slice(-5).reverse();
+      if(ptnBot2.length){
+        html+='<div style="font-size:11px;color:#888;margin-top:10px;margin-bottom:4px">⚠️ 避けたいパターン</div>';
+        html+=mkRankTbl('',ptnBot2);
+      }
+      html+='</div>';
+    }
+
     // 最強パターンランキング
     var ptnR=sort(ptnMap,3);
     if(ptnR.length){
