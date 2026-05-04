@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-O</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-P</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -728,7 +728,7 @@ function runAI(){
             '<span style="color:#ee6a50;font-weight:500">'+r.wr+'%<span style="font-size:10px;color:#aaa;font-weight:normal;margin-left:3px">'+r.t+'件</span></span>'+
           '</div>';
         }).join('');
-        rankBlock+='<div style="margin-top:10px;font-size:11px;color:#888;margin-bottom:4px">⚠️ 避けたいパターン（50%未満）</div><div>'+botHtml+'</div>';
+        rankBlock+='<div style="margin-top:10px;font-size:11px;color:#888;margin-bottom:4px">⚠️ 避けたいパターン（50%未満）</div><div>'+ptnBotHtml+'</div>';
       }
       items.push('🏆 <b>最強パターンランキング（曜日×時間×H/L・脳死1M込み・3件以上）</b>'+rankBlock);
     }
