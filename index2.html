@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AO</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AR</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -105,6 +105,12 @@ tr:nth-child(even) td{background:#fafafa}
   <div id="acont"></div>
   <div class="card" style="margin-top:10px">
     <div style="font-size:13px;font-weight:500;margin-bottom:8px">✨ AI分析</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <select id="fi-pair" class="si"><option value="">通貨ペア（全て）</option><option>USD/JPY</option><option>GBP/JPY</option><option>EUR/JPY</option><option>EUR/USD</option><option>AUD/USD</option><option>AUD/JPY</option><option>NZD/JPY</option></select>
+      <select id="fi-dir" class="si"><option value="">方向（全て）</option><option value="high">↑HIGH</option><option value="low">↓LOW</option></select>
+      <select id="fi-wd" class="si"><option value="">曜日（全て）</option><option value="月">月曜</option><option value="火">火曜</option><option value="水">水曜</option><option value="木">木曜</option><option value="金">金曜</option></select>
+      <select id="fi-time" class="si"><option value="">時間帯（全て）</option><option value="am">午前（〜12:00）</option><option value="pm">午後（12:00〜）</option><option value="09">09時台</option><option value="10">10時台</option><option value="11">11時台</option><option value="12">12時台</option><option value="13">13時台</option><option value="14">14時台</option><option value="15">15時台</option><option value="16">16時台</option><option value="17">17時台</option></select>
+    </div>
     <button onclick="runAI()" id="ai-btn" class="btn" style="width:100%;background:linear-gradient(135deg,#7c6af7,#5a8aee);color:#fff;padding:10px;font-size:13px;margin-bottom:8px">✨ AI分析を実行する</button>
     <div id="ai-result"></div>
   </div>
@@ -542,6 +548,31 @@ function runAI(){
       ae.push({date:t.date,pair:e.pair,time:e.time,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo});
     });
   });
+  // フィルター適用
+  var fiPair=document.getElementById('fi-pair').value;
+  var fiDir=document.getElementById('fi-dir').value;
+  var fiWd=document.getElementById('fi-wd').value;
+  var fiTime=document.getElementById('fi-time').value;
+  var WD2=['日','月','火','水','木','金','土'];
+  if(fiPair||fiDir||fiWd||fiTime){
+    ae=ae.filter(function(e){
+      if(fiPair&&e.pair!==fiPair)return false;
+      if(fiDir&&e.dir!==fiDir)return false;
+      if(fiWd&&e.date){var wd=WD2[new Date(e.date).getDay()];if(wd!==fiWd)return false;}
+      if(fiTime&&e.time){
+        var hh=parseInt(e.time.slice(0,2));
+        if(fiTime==='am'&&hh>=12)return false;
+        if(fiTime==='pm'&&hh<12)return false;
+        if(fiTime>='09'&&fiTime<='17'&&hh!==parseInt(fiTime))return false;
+      }
+      return true;
+    });
+  }
+  var filterLabel='';
+  if(fiPair)filterLabel+=fiPair+' ';
+  if(fiDir)filterLabel+=(fiDir==='high'?'↑HIGH':'↓LOW')+' ';
+  if(fiWd)filterLabel+=fiWd+'曜 ';
+  if(fiTime){var tl={am:'午前',pm:'午後',};filterLabel+=(tl[fiTime]||fiTime+'時台')+' ';}
   if(ae.length<5){el.innerHTML='<div class="ai-out">データが5件以上必要です</div>';return;}
   btn.textContent='分析中...';btn.disabled=true;
   var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
@@ -684,10 +715,8 @@ function runAI(){
     }
 
     // デバッグ情報
-    var dbg='ae件数:'+ae.length+' / wdtMap:'+Object.keys(wdtMap).length+'件 / ptnMap:'+Object.keys(ptnMap).length+'件';
-    var dbg2=ae.length>0?'最初のae: date='+ae[0].date+' dir='+ae[0].dir+' noshi='+ae[0].noshi:'aeが空';
-    var win=window.open('','_blank','width=800,height=600,scrollbars=yes');
-    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI分析結果</title><style>body{font-family:-apple-system,sans-serif;padding:20px;max-width:800px;margin:0 auto;font-size:13px;line-height:1.8;color:#333}.sec{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #eee}.row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px}h2{font-size:15px;margin:0 0 8px}</style></head><body><h1 style="font-size:18px;margin-bottom:20px">✨ AI分析結果</h1><div style="background:#fff3cd;padding:10px;border-radius:6px;margin-bottom:16px;font-size:11px">'+dbg+'<br>'+dbg2+'</div>'+html+'</body></html>');
+var win=window.open('','_blank','width=800,height=600,scrollbars=yes');
+    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI分析結果</title><style>body{font-family:-apple-system,sans-serif;padding:20px;max-width:800px;margin:0 auto;font-size:13px;line-height:1.8;color:#333}h1{font-size:18px;margin-bottom:16px}table{border-collapse:collapse;width:100%}td,th{border:none}</style></head><body><h1>✨ AI分析結果</h1>'+(filterLabel?'<div style="background:#e8f4fd;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:16px;color:#1a6a9a">🔍 絞り込み: <b>'+filterLabel+'</b>（'+ae.length+'件）</div>':'')+html+'</body></html>');
     win.document.close();
     el.innerHTML='<div style="background:#f0fff4;border-radius:8px;padding:10px;font-size:13px;color:#1aaa6a">✅ 分析結果を別タブで開きました</div>';
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
