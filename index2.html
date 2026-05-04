@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AC</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AD</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -103,6 +103,11 @@ tr:nth-child(even) td{background:#fafafa}
     <button class="ptab" onclick="setAP('month',this)">月間</button>
   </div>
   <div id="acont"></div>
+  <div class="card" style="margin-top:10px">
+    <div style="font-size:13px;font-weight:500;margin-bottom:8px">✨ AI分析</div>
+    <button onclick="runAI()" id="ai-btn" class="btn" style="width:100%;background:linear-gradient(135deg,#7c6af7,#5a8aee);color:#fff;padding:10px;font-size:13px;margin-bottom:8px">✨ AI分析を実行する</button>
+    <div id="ai-result"></div>
+  </div>
 </div>
 
 <div id="pnl-csv" class="pnl">
@@ -359,9 +364,7 @@ function renderAna(){
     '</div>'+
     '<button onclick="runCond()" class="btn btn-dark" style="width:100%;margin-bottom:8px">分析する</button>'+
     '<div id="cond-result"></div></div>'+
-    '<div class="card"><div style="font-size:13px;font-weight:500;margin-bottom:8px">✨ AI分析</div>'+
-    '<button onclick="runAI()" id="ai-btn" class="btn" style="width:100%;background:linear-gradient(135deg,#7c6af7,#5a8aee);color:#fff;padding:10px;font-size:13px;margin-bottom:8px">✨ AI分析を実行する</button>'+
-    '<div id="ai-result"></div></div>';
+    '';
 }
 function runCond(){
   var fd=document.getElementById('cond-dir').value;
