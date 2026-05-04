@@ -45,7 +45,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AT</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AV</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -638,6 +638,16 @@ function runAI(){
         '</tr></thead><tbody>'+rows+'</tbody></table>';
     }
     var html='';
+    function tblWrapWS(header,rows){
+      return '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">'+
+        '<thead><tr style="background:#1a1a2e;color:#fff">'+
+        '<th style="padding:5px 8px;text-align:left;width:32px">順</th>'+
+        '<th style="padding:5px 8px;text-align:left">'+header+'</th>'+
+        '<th style="padding:5px 8px;text-align:center">単発</th>'+
+        '<th style="padding:5px 8px;text-align:center">1M込み</th>'+
+        '<th style="padding:5px 8px;text-align:center">件数</th>'+
+        '</tr></thead><tbody>'+rows+'</tbody></table>';
+    }
     // 全体
     html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
     html+='📊 <b>全体勝率（脳死1M込み）: <span style="color:'+clr(sn.m)+'">'+sn.m+'%</span></b>（単発'+sn.s+'% / '+sn.t+'件）';
@@ -734,7 +744,7 @@ var win=window.open('','_blank','width=800,height=600,scrollbars=yes');
       html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
       // 単発高い順
       html+='<div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🧠 脳死（単発高い順）</div>';
-      html+=tblWrap('時間',wsRanked.slice(0,8).map(function(r,i){
+      html+=tblWrapWS('時間',wsRanked.slice(0,8).map(function(r,i){
         var bg=i%2?'#fafafa':'#fff';
         var med=['🥇','🥈','🥉'][i]||(i+1)+'';
         return'<tr style="background:'+bg+'">'+
@@ -749,7 +759,7 @@ var win=window.open('','_blank','width=800,height=600,scrollbars=yes');
       // 裁量単発
       var wsRankedS=sortWS(tMapS,3);
       html+='<div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🎯 裁量（単発高い順）</div>';
-      html+=tblWrap('時間',wsRankedS.slice(0,8).map(function(r,i){
+      html+=tblWrapWS('時間',wsRankedS.slice(0,8).map(function(r,i){
         var bg=i%2?'#fafafa':'#fff';
         var med=['🥇','🥈','🥉'][i]||(i+1)+'';
         return'<tr style="background:'+bg+'">'+
