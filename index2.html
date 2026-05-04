@@ -82,7 +82,7 @@ tr:nth-child(even) td{background:#fafafa}
 
 <body>
 
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-Z9</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AA</span></div>
 
 <div class="tabs">
 
@@ -1178,10 +1178,10 @@ function runAI(){
       var wwP=Math.round(mb.ww/mb.tt*100),xxP=Math.round(mb.xx/mb.tt*100);
       items.push('🎯 脳死×裁量: 両方勝ち '+mb.ww+'件('+wwP+'%) / ✕○ '+mb.wx+'件 / ○✕ '+mb.xw+'件 / 両方負け '+mb.xx+'件('+xxP+'%)');
     }
-    // 時間×H/Lマトリックス（一時無効化）
+    // 時間×H/Lマトリックス（完全無効化）
     var SLOTS=['09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','12:00'];
     var exSlots=SLOTS.filter(function(s){return mxMap[s+'|high']||mxMap[s+'|low'];});
-    if(exSlots.length>0){
+    if(false){
       var mxH='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:6px">';
       mxH+='<thead><tr><th style="background:#1a1a2e;color:#fff;padding:5px;text-align:left">時間</th>';
       mxH+='<th style="background:#1a1a2e;color:#fff;padding:5px;text-align:center">↑HIGH</th>';
@@ -1195,8 +1195,7 @@ function runAI(){
         mxH+='<tr><td style="padding:4px 6px;color:#555;background:'+bg+'">'+s+'</td>'+hCell+lCell+'</tr>';
       });
       mxH+='</tbody></table></div>';
-      items.push('⏰ <b>時間×H/L マトリックス（脳死1M込み）</b><div id="mx-placeholder"></div>');
-      var _mxH=mxH;
+      items.push('⏰ 時間×H/L マトリックス（データあり）');
     }
     // 曜日×時間ランキング
     var wdtR=ranked(wdtMap,3);
@@ -1236,10 +1235,7 @@ function runAI(){
       items.push('🏆 <b>最強パターンランキング（曜日×時間×H/L・脳死1M込み・3件以上）</b>'+pOut);
     }
     el.innerHTML='<div class="ai-out">'+items.map(function(s){return'<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">'+s+'</div>';}).join('')+'</div>';
-    if(typeof _mxH!=='undefined'){
-      var mxPh=document.getElementById('mx-placeholder');
-      if(mxPh)mxPh.innerHTML=_mxH;
-    }
+
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
   },600);
 }
