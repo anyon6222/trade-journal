@@ -82,7 +82,7 @@ tr:nth-child(even) td{background:#fafafa}
 
 <body>
 
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-Z8</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-Z9</span></div>
 
 <div class="tabs">
 
@@ -1195,7 +1195,8 @@ function runAI(){
         mxH+='<tr><td style="padding:4px 6px;color:#555;background:'+bg+'">'+s+'</td>'+hCell+lCell+'</tr>';
       });
       mxH+='</tbody></table></div>';
-      items.push('⏰ <b>時間×H/L マトリックス（脳死1M込み）</b>'+mxH);
+      items.push('⏰ <b>時間×H/L マトリックス（脳死1M込み）</b><div id="mx-placeholder"></div>');
+      var _mxH=mxH;
     }
     // 曜日×時間ランキング
     var wdtR=ranked(wdtMap,3);
@@ -1235,6 +1236,10 @@ function runAI(){
       items.push('🏆 <b>最強パターンランキング（曜日×時間×H/L・脳死1M込み・3件以上）</b>'+pOut);
     }
     el.innerHTML='<div class="ai-out">'+items.map(function(s){return'<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">'+s+'</div>';}).join('')+'</div>';
+    if(typeof _mxH!=='undefined'){
+      var mxPh=document.getElementById('mx-placeholder');
+      if(mxPh)mxPh.innerHTML=_mxH;
+    }
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
   },600);
 }
