@@ -82,7 +82,7 @@ tr:nth-child(even) td{background:#fafafa}
 
 <body>
 
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-Z4</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-Z5</span></div>
 
 <div class="tabs">
 
@@ -1239,17 +1239,7 @@ function runAI(){
       }
       items.push('🏆 <b>最強パターンランキング（曜日×時間×H/L・脳死1M込み・3件以上）</b>'+pOut);
     }
-    var out='';
-    for(var ii=0;ii<items.length;ii++){
-      try{
-        out+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">'+items[ii]+'</div>';
-        el.innerHTML='<div class="ai-out">'+out+'</div>';
-      }catch(e){
-        el.innerHTML='<div class="ai-out">'+out+'<div style="color:red">item['+ii+']でエラー: '+e.message+'</div></div>';
-        btn.textContent='✨ AI分析を実行する';btn.disabled=false;
-        return;
-      }
-    }
+    el.innerHTML='<div class="ai-out">items件数: '+items.length+'件 / 各サイズ: '+items.map(function(s){return s.length;}).join(', ')+'</div>';
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
   },600);
 }
