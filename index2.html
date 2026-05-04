@@ -82,7 +82,7 @@ tr:nth-child(even) td{background:#fafafa}
 
 <body>
 
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-T</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-W</span></div>
 
 <div class="tabs">
 
@@ -1066,7 +1066,7 @@ function runAI(){
   var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
   var WD=['日','月','火','水','木','金','土'];
   var WKD=['月','火','水','木','金'];
-  var MED=['🥇','🥈','🥉'];
+  
   // 集計用マップ
   var tMap={},pMap={},wdMap={},mxMap={},wdtMap={},ptnMap={},dMap2={};
   ae.forEach(function(e){
@@ -1118,6 +1118,7 @@ function runAI(){
       ptnMap[pk].t++;if(rn==='win'){ptnMap[pk].w++;ptnMap[pk].m++;}else if(rn==='martin')ptnMap[pk].m++;
     }
   });
+  setTimeout(function(){
   function wr2(v){return v.t?Math.round(v.m/v.t*100):0;}
   function ranked(map,min){
     return Object.keys(map).filter(function(k){return map[k].t>=(min||1);})
@@ -1130,12 +1131,11 @@ function runAI(){
       var c=r.wr>=70?'#1aaa6a':r.wr>=60?'#5a8aee':r.wr>=50?'#888':'#ee6a50';
       if(bot)c='#ee6a50';
       return'<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0">'+
-        '<span style="font-size:12px">'+((!bot&&i<3)?MED[i]:'')+'<b>'+r.k+'</b></span>'+
+        '<span style="font-size:12px">'+((!bot&&i<3)?MED2[i]:'')+'<b>'+r.k+'</b></span>'+
         '<span style="font-weight:600;color:'+c+'">'+r.wr+'%<span style="font-size:10px;color:#aaa;font-weight:normal;margin-left:4px">'+r.t+'件</span></span>'+
       '</div>';
     }).join('');
   }
-  setTimeout(function(){
     var items=[];
     // 全体
     var ov=sn.m;
@@ -1202,11 +1202,11 @@ function runAI(){
     if(wdtR.length>0){
       var wdtTop=wdtR.slice(0,8);
       var wdtBot=wdtR.filter(function(r){return r.wr<50;}).slice(-3).reverse();
-      var wdtH=rankList(wdtTop,8,false);
+      var wdtH=rankList(wdtTop,false);
       var wdtOut='<div style="margin-top:6px">'+wdtH+'</div>';
       if(wdtBot.length){
         wdtOut+='<div style="margin-top:8px;font-size:11px;color:#888;margin-bottom:4px">⚠️ 避けたいパターン</div>';
-        wdtOut+='<div>'+rankList(wdtBot,3,false)+'</div>';
+        wdtOut+='<div>'+rankList(wdtBot,true)+'</div>';
       }
       items.push('📅 <b>曜日×時間 ランキング（脳死1M込み・3件以上）</b>'+wdtOut);
     }
@@ -1218,7 +1218,7 @@ function runAI(){
       var pH=ptnTop.map(function(r,i){
         var c=r.wr>=75?'#ee8800':r.wr>=65?'#1aaa6a':r.wr>=55?'#5a8aee':'#888';
         return'<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0">'+
-          '<span style="font-size:12px">'+(i<3?MED[i]:'<span style="color:#aaa;font-size:11px">'+(i+1)+'位</span>')+' <b>'+r.k+'</b></span>'+
+          '<span style="font-size:12px">'+(i<3?MED2[i]:'<span style="color:#aaa;font-size:11px">'+(i+1)+'位</span>')+' <b>'+r.k+'</b></span>'+
           '<span style="font-weight:700;font-size:14px;color:'+c+'">'+r.wr+'%<span style="font-size:10px;color:#aaa;font-weight:normal;margin-left:4px">'+r.t+'件</span></span>'+
         '</div>';
       }).join('');
