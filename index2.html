@@ -82,7 +82,7 @@ tr:nth-child(even) td{background:#fafafa}
 
 <body>
 
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-X</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-Y</span></div>
 
 <div class="tabs">
 
@@ -1199,7 +1199,7 @@ function runAI(){
     }
     // 曜日×時間ランキング
     var wdtR=ranked(wdtMap,3);
-    if(wdtR.length>0){
+    if(false&&wdtR.length>0){
       var wdtTop=wdtR.slice(0,8);
       var wdtBot=wdtR.filter(function(r){return r.wr<50;}).slice(-3).reverse();
       var wdtH=rankList(wdtTop,false);
