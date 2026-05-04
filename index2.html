@@ -82,7 +82,7 @@ tr:nth-child(even) td{background:#fafafa}
 
 <body>
 
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-S</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-T</span></div>
 
 <div class="tabs">
 
@@ -1190,12 +1190,9 @@ function runAI(){
         var h=mxMap[s+'|high'],l=mxMap[s+'|low'];
         var hw=h?wr2(h):null,lw=l?wr2(l):null;
         var bg=i%2?'#fafafa':'#fff';
-        function cell(v,cnt){
-          if(v===null)return'<td style="padding:4px 6px;text-align:center;color:#ccc;background:'+bg+'">—</td>';
-          var c=v>=70?'#1aaa6a':v>=55?'#5a8aee':v<45?'#ee6a50':'#888';
-          return'<td style="padding:4px 6px;text-align:center;font-weight:500;color:'+c+';background:'+bg+'">'+v+'%<span style="font-size:10px;color:#aaa;margin-left:2px">'+cnt+'件</span></td>';
-        }
-        mxH+='<tr><td style="padding:4px 6px;color:#555;background:'+bg+'">'+s+'</td>'+cell(hw,h?h.t:0)+cell(lw,l?l.t:0)+'</tr>';
+        var hCell=hw===null?'<td style="padding:4px 6px;text-align:center;color:#ccc;background:'+bg+'">—</td>':'<td style="padding:4px 6px;text-align:center;font-weight:500;color:'+(hw>=70?'#1aaa6a':hw>=55?'#5a8aee':hw<45?'#ee6a50':'#888')+';background:'+bg+'">'+hw+'%<span style="font-size:10px;color:#aaa;margin-left:2px">'+(h?h.t:0)+'件</span></td>';
+        var lCell=lw===null?'<td style="padding:4px 6px;text-align:center;color:#ccc;background:'+bg+'">—</td>':'<td style="padding:4px 6px;text-align:center;font-weight:500;color:'+(lw>=70?'#1aaa6a':lw>=55?'#5a8aee':lw<45?'#ee6a50':'#888')+';background:'+bg+'">'+lw+'%<span style="font-size:10px;color:#aaa;margin-left:2px">'+(l?l.t:0)+'件</span></td>';
+        mxH+='<tr><td style="padding:4px 6px;color:#555;background:'+bg+'">'+s+'</td>'+hCell+lCell+'</tr>';
       });
       mxH+='</tbody></table>';
       items.push('⏰ <b>時間×H/L マトリックス（脳死1M込み）</b>'+mxH);
