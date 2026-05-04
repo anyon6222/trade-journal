@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -46,7 +45,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AV</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AW</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -322,18 +321,34 @@ function wrCls(p){return p===100?'wr100':p>=90?'wr90':p>=75?'wr75':p>=60?'wr60':
 function mkRow2(lbl,v){
   var sn=v.tn?Math.round(v.mn/v.tn*100):null;
   var ss=v.ts?Math.round(v.ms/v.ts*100):null;
+  var swn=v.tn?Math.round(v.wn/v.tn*100):null;
+  var sws=v.ts?Math.round(v.ws/v.ts*100):null;
   return'<tr>'+
-    '<td style="font-size:11px;color:#555">'+lbl+'</td>'+
-    '<td class="'+(sn!==null?wrCls(sn):'')+'" style="white-space:nowrap">'+(sn!==null?sn+'%':'—')+'<span style="font-size:10px;color:#aaa;margin-left:3px">'+(v.tn||'')+'</span></td>'+
-    '<td><div class="bar-wrap"><div class="bar-n" style="width:'+(sn||0)+'%"></div></div></td>'+
-    '<td class="'+(ss!==null?wrCls(ss):'')+'" style="white-space:nowrap">'+(ss!==null?ss+'%':'—')+'<span style="font-size:10px;color:#aaa;margin-left:3px">'+(v.ts||'')+'</span></td>'+
-    '<td><div class="bar-wrap"><div class="bar-s" style="width:'+(ss||0)+'%"></div></div></td>'+
+    '<td style="font-size:11px;color:#555;padding:5px 6px">'+lbl+'</td>'+
+    '<td class="'+(sn!==null?wrCls(sn):'')+'" style="white-space:nowrap;padding:5px 6px;text-align:center">'+(sn!==null?sn+'%':'—')+'</td>'+
+    '<td style="white-space:nowrap;padding:5px 6px;text-align:center;color:#aaa;font-size:11px">'+(swn!==null?swn+'%':'—')+'</td>'+
+    '<td style="padding:5px 6px;text-align:center;color:#aaa;font-size:11px">'+(v.tn||'')+'</td>'+
+    '<td class="'+(ss!==null?wrCls(ss):'')+'" style="white-space:nowrap;padding:5px 6px;text-align:center">'+(ss!==null?ss+'%':'—')+'</td>'+
+    '<td style="white-space:nowrap;padding:5px 6px;text-align:center;color:#aaa;font-size:11px">'+(sws!==null?sws+'%':'—')+'</td>'+
+    '<td style="padding:5px 6px;text-align:center;color:#aaa;font-size:11px">'+(v.ts||'')+'</td>'+
   '</tr>';
 }
 function mkTbl2(title,map,keys){
   if(!keys.length)return'';
   return'<div class="card" style="margin-bottom:10px"><div style="font-size:13px;font-weight:500;margin-bottom:10px">'+title+'</div>'+
-    '<table><thead><tr><th>項目</th><th colspan="2">🧠 脳死</th><th colspan="2">🎯 裁量</th></tr></thead>'+
+    '<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#1a1a2e;color:#fff;font-size:11px">'+
+    '<th style="padding:5px 8px;text-align:left">項目</th>'+
+    '<th style="padding:5px 8px;text-align:center" colspan="3">🧠 脳死</th>'+
+    '<th style="padding:5px 8px;text-align:center" colspan="3">🎯 裁量</th>'+
+    '</tr><tr style="background:#2a2a3e;color:#aaa;font-size:10px">'+
+    '<th style="padding:3px 8px"></th>'+
+    '<th style="padding:3px 8px;text-align:center">1M込み</th>'+
+    '<th style="padding:3px 8px;text-align:center">単発</th>'+
+    '<th style="padding:3px 8px;text-align:center">件数</th>'+
+    '<th style="padding:3px 8px;text-align:center">1M込み</th>'+
+    '<th style="padding:3px 8px;text-align:center">単発</th>'+
+    '<th style="padding:3px 8px;text-align:center">件数</th>'+
+    '</tr></thead>'+
     '<tbody>'+keys.map(function(k){return mkRow2(k,map[k]);}).join('')+'</tbody></table></div>';
 }
 function renderAna(){
