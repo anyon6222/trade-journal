@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AN</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AO</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -582,11 +582,25 @@ function runAI(){
     }
     function clr(p){return p>=70?'#1aaa6a':p>=55?'#5a8aee':p<45?'#ee6a50':'#888';}
     function row(r,i,medal){
-      var m=medal&&i<3?['🥇','🥈','🥉'][i]:'';
-      return '<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px">'+
-        '<span>'+m+' '+r.k+'</span>'+
-        '<span style="font-weight:600;color:'+clr(r.wr)+'">'+r.wr+'%<span style="font-size:10px;color:#aaa;margin-left:3px">'+r.t+'件</span></span>'+
-      '</div>';
+      var m=medal&&i<3?['🥇','🥈','🥉'][i]:(i+1)+'';
+      var bg=i%2?'#fafafa':'#fff';
+      return '<tr style="background:'+bg+'">'+
+        '<td style="padding:5px 8px;color:#888;font-size:11px;width:32px">'+m+'</td>'+
+        '<td style="padding:5px 8px;font-weight:500">'+r.k+'</td>'+
+        '<td style="padding:5px 8px;text-align:center;font-weight:700;color:'+clr(r.wr)+'">'+r.wr+'%</td>'+
+        '<td style="padding:5px 8px;text-align:center;color:#5a8aee;font-size:11px">'+r.ws+'%</td>'+
+        '<td style="padding:5px 8px;text-align:center;color:#aaa;font-size:11px">'+r.t+'件</td>'+
+      '</tr>';
+    }
+    function tblWrap(header,rows){
+      return '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">'+
+        '<thead><tr style="background:#1a1a2e;color:#fff">'+
+        '<th style="padding:5px 8px;text-align:left;width:32px">順</th>'+
+        '<th style="padding:5px 8px;text-align:left">'+header+'</th>'+
+        '<th style="padding:5px 8px;text-align:center">1M込み</th>'+
+        '<th style="padding:5px 8px;text-align:center">単発</th>'+
+        '<th style="padding:5px 8px;text-align:center">件数</th>'+
+        '</tr></thead><tbody>'+rows+'</tbody></table>';
     }
     var html='';
     // 全体
@@ -610,47 +624,19 @@ function runAI(){
     // ⏰ 時間帯ランキング（脳死・裁量別）
     var tMapS={};
     ae.forEach(function(e){
-      var rs=e.sairyo;
-      if(!rs||rs==='none')return;
-      if(e.time){
-        var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));
-        var slot2=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);
-        if(!tMapS[slot2])tMapS[slot2]={w:0,m:0,t:0};
-        tMapS[slot2].t++;if(rs==='win'){tMapS[slot2].w++;tMapS[slot2].m++;}else if(rs==='martin')tMapS[slot2].m++;
-      }
+      var rs=e.sairyo;if(!rs||rs==='none')return;
+      if(e.time){var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));var s2=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);if(!tMapS[s2])tMapS[s2]={w:0,m:0,t:0};tMapS[s2].t++;if(rs==='win'){tMapS[s2].w++;tMapS[s2].m++;}else if(rs==='martin')tMapS[s2].m++;}
     });
-    var tRankedN=sort(tMap,3);
-    var tRankedS=sort(tMapS,3);
-    function mkTbl(title,ranked){
-      if(!ranked.length)return'';
-      var rows=ranked.slice(0,10).map(function(r,i){
-        var bg=i%2?'#fafafa':'#fff';
-        return'<tr style="background:'+bg+'">'+
-          '<td style="padding:5px 8px;color:#888;font-size:11px;width:30px">'+(i+1)+'</td>'+
-          '<td style="padding:5px 8px;font-weight:500">'+r.k+'</td>'+
-          '<td style="padding:5px 8px;text-align:center;font-weight:700;color:'+clr(r.wr)+'">'+r.wr+'%</td>'+
-          '<td style="padding:5px 8px;text-align:center;color:#5a8aee">'+r.ws+'%</td>'+
-          '<td style="padding:5px 8px;text-align:center;color:#aaa;font-size:11px">'+r.t+'件</td>'+
-        '</tr>';
-      }).join('');
-      return'<div style="margin-bottom:16px">'+
-        '<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:4px">'+title+'</div>'+
-        '<table style="width:100%;border-collapse:collapse;font-size:12px">'+
-        '<thead><tr style="background:#1a1a2e;color:#fff">'+
-        '<th style="padding:5px 8px;text-align:left">順</th>'+
-        '<th style="padding:5px 8px;text-align:left">時間</th>'+
-        '<th style="padding:5px 8px;text-align:center">1M込み</th>'+
-        '<th style="padding:5px 8px;text-align:center">単発</th>'+
-        '<th style="padding:5px 8px;text-align:center">件数</th>'+
-        '</tr></thead><tbody>'+rows+'</tbody></table></div>';
-    }
+    var tRankedN=sort(tMap,3),tRankedS=sort(tMapS,3);
     if(tRankedN.length||tRankedS.length){
       html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
       html+='<b>⏰ 時間帯ランキング</b>';
       html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px">';
-      html+=mkTbl('🧠 脳死',tRankedN);
-      html+=mkTbl('🎯 裁量',tRankedS);
-      html+='</div></div>';
+      html+='<div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🧠 脳死</div>';
+      html+=tblWrap('時間',tRankedN.slice(0,8).map(function(r,i){return row(r,i,true);}).join(''));
+      html+='</div><div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🎯 裁量</div>';
+      html+=tblWrap('時間',tRankedS.slice(0,8).map(function(r,i){return row(r,i,true);}).join(''));
+      html+='</div></div></div>';
     }
     // H/Lマトリックス（divのみ）
     var slots=['09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','12:00'];
@@ -675,11 +661,11 @@ function runAI(){
     if(wdtR.length){
       html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
       html+='<b>📅 曜日×時間 ランキング（脳死1M込み・3件以上）</b>';
-      html+=mkRankTbl('曜日×時間',wdtR.slice(0,10));
-      var wdtBot2=wdtR.filter(function(r){return r.wr<50;}).slice(-3).reverse();
-      if(wdtBot2.length){
+      html+=tblWrap('曜日×時間',wdtR.slice(0,10).map(function(r,i){return row(r,i,true);}).join(''));
+      var wdtBot=wdtR.filter(function(r){return r.wr<50;}).slice(-3).reverse();
+      if(wdtBot.length){
         html+='<div style="font-size:11px;color:#888;margin-top:10px;margin-bottom:4px">⚠️ 避けたいパターン</div>';
-        html+=mkRankTbl('',wdtBot2);
+        html+=tblWrap('',wdtBot.map(function(r,i){return row(r,i,false);}).join(''));
       }
       html+='</div>';
     }
@@ -688,31 +674,20 @@ function runAI(){
     if(ptnR.length){
       html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
       html+='<b>🏆 最強パターンランキング（曜日×時間×H/L・3件以上）</b>';
-      html+=mkRankTbl('パターン',ptnR.slice(0,10));
-      var ptnBot2=ptnR.filter(function(r){return r.wr<50;}).slice(-5).reverse();
-      if(ptnBot2.length){
+      html+=tblWrap('パターン',ptnR.slice(0,10).map(function(r,i){return row(r,i,true);}).join(''));
+      var ptnBot=ptnR.filter(function(r){return r.wr<50;}).slice(-5).reverse();
+      if(ptnBot.length){
         html+='<div style="font-size:11px;color:#888;margin-top:10px;margin-bottom:4px">⚠️ 避けたいパターン</div>';
-        html+=mkRankTbl('',ptnBot2);
+        html+=tblWrap('',ptnBot.map(function(r,i){return row(r,i,false);}).join(''));
       }
       html+='</div>';
     }
 
-    // 最強パターンランキング
-    var ptnR=sort(ptnMap,3);
-    if(ptnR.length){
-      html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
-      html+='🏆 <b>最強パターンランキング（曜日×時間×H/L・3件以上）</b>';
-      html+='<div style="margin-top:6px">';
-      ptnR.slice(0,10).forEach(function(r,i){html+=row(r,i,true);});
-      var ptnBot=ptnR.filter(function(r){return r.wr<50;}).slice(-5).reverse();
-      if(ptnBot.length){
-        html+='<div style="font-size:11px;color:#888;margin-top:8px;margin-bottom:4px">⚠️ 避けたいパターン</div>';
-        ptnBot.forEach(function(r){html+=row(r,99,false);});
-      }
-      html+='</div></div>';
-    }
+    // デバッグ情報
+    var dbg='ae件数:'+ae.length+' / wdtMap:'+Object.keys(wdtMap).length+'件 / ptnMap:'+Object.keys(ptnMap).length+'件';
+    var dbg2=ae.length>0?'最初のae: date='+ae[0].date+' dir='+ae[0].dir+' noshi='+ae[0].noshi:'aeが空';
     var win=window.open('','_blank','width=800,height=600,scrollbars=yes');
-    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI分析結果</title><style>body{font-family:-apple-system,sans-serif;padding:20px;max-width:800px;margin:0 auto;font-size:13px;line-height:1.8;color:#333}h1{font-size:18px;margin-bottom:20px}.row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px}</style></head><body><h1>✨ AI分析結果</h1>'+html+'</body></html>');
+    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI分析結果</title><style>body{font-family:-apple-system,sans-serif;padding:20px;max-width:800px;margin:0 auto;font-size:13px;line-height:1.8;color:#333}.sec{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #eee}.row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px}h2{font-size:15px;margin:0 0 8px}</style></head><body><h1 style="font-size:18px;margin-bottom:20px">✨ AI分析結果</h1><div style="background:#fff3cd;padding:10px;border-radius:6px;margin-bottom:16px;font-size:11px">'+dbg+'<br>'+dbg2+'</div>'+html+'</body></html>');
     win.document.close();
     el.innerHTML='<div style="background:#f0fff4;border-radius:8px;padding:10px;font-size:13px;color:#1aaa6a">✅ 分析結果を別タブで開きました</div>';
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
