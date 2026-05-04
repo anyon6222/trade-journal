@@ -82,7 +82,7 @@ tr:nth-child(even) td{background:#fafafa}
 
 <body>
 
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-Y</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-Z</span></div>
 
 <div class="tabs">
 
@@ -1212,7 +1212,7 @@ function runAI(){
     }
     // 最強パターンランキング
     var ptnR=ranked(ptnMap,3);
-    if(ptnR.length>0){
+    if(false&&ptnR.length>0){
       var ptnTop=ptnR.slice(0,10);
       var ptnBot=ptnR.filter(function(r){return r.wr<50;}).slice(-5).reverse();
       var pH=ptnTop.map(function(r,i){
