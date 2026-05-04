@@ -34,22 +34,23 @@ tr:nth-child(even) td{background:#fafafa}
 .ptab{padding:5px 12px;font-size:12px;border:1px solid #e0e0e0;border-radius:20px;cursor:pointer;background:#fff;color:#888;font-family:inherit}
 .ptab.on{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
 .bar-wrap{background:#f0f0f0;border-radius:4px;height:6px;width:70px;overflow:hidden;display:inline-block;vertical-align:middle}
-.wr100{color:#cc0000;font-weight:700}
-.ana-tbl td{border:1px solid #e8e8e8;padding:5px 8px}
-.ana-tbl th{border:1px solid #1a1a2e;padding:5px 8px}
+.bar-n{background:#1aaa6a;height:6px;border-radius:4px}
+.bar-s{background:#5a8aee;height:6px;border-radius:4px}
+.ai-out{background:#f8f8ff;border-radius:10px;padding:14px;font-size:13px;line-height:1.9;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.ana-tbl{width:100%;border-collapse:collapse}
+.ana-tbl th,.ana-tbl td{border:1px solid #e8e8e8;padding:5px 8px}
+.ana-tbl thead th{border-color:#1a1a2e}
 .ana-tbl tr:nth-child(even) td{background:#fafafa}
-.ana-tbl .sep{border-left:2px solid #555!important}
+.ana-tbl .bl{border-left:2px solid #bbb!important}
+.wr100{color:#cc0000;font-weight:700}
 .wr90{color:#e63300;font-weight:700}
 .wr75{color:#e67700;font-weight:600}
 .wr60{color:#cc9900;font-weight:600}
 .wrlow{color:#999}
-.bar-n{background:#1aaa6a;height:6px;border-radius:4px}
-.bar-s{background:#5a8aee;height:6px;border-radius:4px}
-.ai-out{background:#f8f8ff;border-radius:10px;padding:14px;font-size:13px;line-height:1.9;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AZ</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-BA</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -114,12 +115,6 @@ tr:nth-child(even) td{background:#fafafa}
   <div id="acont"></div>
   <div class="card" style="margin-top:10px">
     <div style="font-size:13px;font-weight:500;margin-bottom:8px">✨ AI分析</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-      <select id="fi-pair" class="si"><option value="">通貨ペア（全て）</option><option>USD/JPY</option><option>GBP/JPY</option><option>EUR/JPY</option><option>EUR/USD</option><option>AUD/USD</option><option>AUD/JPY</option><option>NZD/JPY</option></select>
-      <select id="fi-dir" class="si"><option value="">方向（全て）</option><option value="high">↑HIGH</option><option value="low">↓LOW</option></select>
-      <select id="fi-wd" class="si"><option value="">曜日（全て）</option><option value="月">月曜</option><option value="火">火曜</option><option value="水">水曜</option><option value="木">木曜</option><option value="金">金曜</option></select>
-      <select id="fi-time" class="si"><option value="">時間帯（全て）</option><option value="am">午前（〜12:00）</option><option value="pm">午後（12:00〜）</option><option value="09">09時台</option><option value="10">10時台</option><option value="11">11時台</option><option value="12">12時台</option><option value="13">13時台</option><option value="14">14時台</option><option value="15">15時台</option><option value="16">16時台</option><option value="17">17時台</option></select>
-    </div>
     <button onclick="runAI()" id="ai-btn" class="btn" style="width:100%;background:linear-gradient(135deg,#7c6af7,#5a8aee);color:#fff;padding:10px;font-size:13px;margin-bottom:8px">✨ AI分析を実行する</button>
     <div id="ai-result"></div>
   </div>
@@ -329,31 +324,31 @@ function mkRow2(lbl,v){
   var sws=v.ts?Math.round(v.ws/v.ts*100):null;
   return'<tr>'+
     '<td style="font-size:11px;color:#555">'+lbl+'</td>'+
-    '<td class="'+(sn!==null?wrCls(sn):'')+'" style="white-space:nowrap;text-align:center;border-left:3px solid #e05aaa">'+(sn!==null?sn+'%':'—')+'</td>'+
-    '<td class="'+(swn!==null?wrCls(swn):'')+'" style="white-space:nowrap;text-align:center;font-size:11px;border-left:1px solid #e8e8e8">'+(swn!==null?swn+'%':'—')+'</td>'+
-    '<td style="text-align:center;color:#aaa;font-size:11px;border-left:1px solid #e8e8e8">'+(v.tn||'')+'件</td>'+
-    '<td class="'+(ss!==null?wrCls(ss):'')+'" style="white-space:nowrap;text-align:center;border-left:3px solid #e05aaa">'+(ss!==null?ss+'%':'—')+'</td>'+
-    '<td class="'+(sws!==null?wrCls(sws):'')+'" style="white-space:nowrap;text-align:center;font-size:11px;border-left:1px solid #e8e8e8">'+(sws!==null?sws+'%':'—')+'</td>'+
-    '<td style="text-align:center;color:#aaa;font-size:11px;border-left:1px solid #e8e8e8">'+(v.ts||'')+'件</td>'+
+    '<td class="bl '+(sn!==null?wrCls(sn):'')+'" style="text-align:center">'+(sn!==null?sn+'%':'—')+'</td>'+
+    '<td class="'+(swn!==null?wrCls(swn):'')+'" style="text-align:center;font-size:11px">'+(swn!==null?swn+'%':'—')+'</td>'+
+    '<td style="text-align:center;color:#aaa;font-size:11px">'+(v.tn||'')+'件</td>'+
+    '<td class="bl '+(ss!==null?wrCls(ss):'')+'" style="text-align:center">'+(ss!==null?ss+'%':'—')+'</td>'+
+    '<td class="'+(sws!==null?wrCls(sws):'')+'" style="text-align:center;font-size:11px">'+(sws!==null?sws+'%':'—')+'</td>'+
+    '<td style="text-align:center;color:#aaa;font-size:11px">'+(v.ts||'')+'件</td>'+
   '</tr>';
 }
 function mkTbl2(title,map,keys){
   if(!keys.length)return'';
   return'<div class="card" style="margin-bottom:10px"><div style="font-size:13px;font-weight:500;margin-bottom:10px">'+title+'</div>'+
-    '<table class="ana-tbl" style="width:100%;border-collapse:collapse"><thead>'+
+    '<table class="ana-tbl"><thead>'+
     '<tr style="background:#1a1a2e;color:#fff;font-size:11px">'+
     '<th style="text-align:left">項目</th>'+
-    '<th colspan="3" style="text-align:center;border-left:3px solid #e05aaa">🧠 脳死</th>'+
-    '<th colspan="3" style="text-align:center;border-left:3px solid #e05aaa">🎯 裁量</th>'+
+    '<th colspan="3" class="bl" style="text-align:center">🧠 脳死</th>'+
+    '<th colspan="3" class="bl" style="text-align:center">🎯 裁量</th>'+
     '</tr>'+
     '<tr style="background:#2a2a3e;color:#bbb;font-size:10px">'+
     '<th></th>'+
-    '<th style="text-align:center;border-left:3px solid #e05aaa">1M込み</th>'+
-    '<th style="text-align:center;border-left:1px solid #444">単発</th>'+
-    '<th style="text-align:center;border-left:1px solid #444">件数</th>'+
-    '<th style="text-align:center;border-left:3px solid #e05aaa">1M込み</th>'+
-    '<th style="text-align:center;border-left:1px solid #444">単発</th>'+
-    '<th style="text-align:center;border-left:1px solid #444">件数</th>'+
+    '<th class="bl" style="text-align:center">1M込み</th>'+
+    '<th style="text-align:center">単発</th>'+
+    '<th style="text-align:center">件数</th>'+
+    '<th class="bl" style="text-align:center">1M込み</th>'+
+    '<th style="text-align:center">単発</th>'+
+    '<th style="text-align:center">件数</th>'+
     '</tr></thead>'+
     '<tbody>'+keys.map(function(k){return mkRow2(k,map[k]);}).join('')+'</tbody></table></div>';
 }
@@ -574,31 +569,6 @@ function runAI(){
       ae.push({date:t.date,pair:e.pair,time:e.time,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo});
     });
   });
-  // フィルター適用
-  var fiPair=document.getElementById('fi-pair').value;
-  var fiDir=document.getElementById('fi-dir').value;
-  var fiWd=document.getElementById('fi-wd').value;
-  var fiTime=document.getElementById('fi-time').value;
-  var WD2=['日','月','火','水','木','金','土'];
-  if(fiPair||fiDir||fiWd||fiTime){
-    ae=ae.filter(function(e){
-      if(fiPair&&e.pair!==fiPair)return false;
-      if(fiDir&&e.dir!==fiDir)return false;
-      if(fiWd&&e.date){var wd=WD2[new Date(e.date).getDay()];if(wd!==fiWd)return false;}
-      if(fiTime&&e.time){
-        var hh=parseInt(e.time.slice(0,2));
-        if(fiTime==='am'&&hh>=12)return false;
-        if(fiTime==='pm'&&hh<12)return false;
-        if(fiTime>='09'&&fiTime<='17'&&hh!==parseInt(fiTime))return false;
-      }
-      return true;
-    });
-  }
-  var filterLabel='';
-  if(fiPair)filterLabel+=fiPair+' ';
-  if(fiDir)filterLabel+=(fiDir==='high'?'↑HIGH':'↓LOW')+' ';
-  if(fiWd)filterLabel+=fiWd+'曜 ';
-  if(fiTime){var tl={am:'午前',pm:'午後',};filterLabel+=(tl[fiTime]||fiTime+'時台')+' ';}
   if(ae.length<5){el.innerHTML='<div class="ai-out">データが5件以上必要です</div>';return;}
   btn.textContent='分析中...';btn.disabled=true;
   var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
@@ -660,16 +630,6 @@ function runAI(){
         '</tr></thead><tbody>'+rows+'</tbody></table>';
     }
     var html='';
-    function tblWrapWS(header,rows){
-      return '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">'+
-        '<thead><tr style="background:#1a1a2e;color:#fff">'+
-        '<th style="padding:5px 8px;text-align:left;width:32px">順</th>'+
-        '<th style="padding:5px 8px;text-align:left">'+header+'</th>'+
-        '<th style="padding:5px 8px;text-align:center">単発</th>'+
-        '<th style="padding:5px 8px;text-align:center">1M込み</th>'+
-        '<th style="padding:5px 8px;text-align:center">件数</th>'+
-        '</tr></thead><tbody>'+rows+'</tbody></table>';
-    }
     // 全体
     html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
     html+='📊 <b>全体勝率（脳死1M込み）: <span style="color:'+clr(sn.m)+'">'+sn.m+'%</span></b>（単発'+sn.s+'% / '+sn.t+'件）';
@@ -752,49 +712,7 @@ function runAI(){
 
     // デバッグ情報
 var win=window.open('','_blank','width=800,height=600,scrollbars=yes');
-    // 単発勝率ランキング
-    function sortWS(map,min){
-      return Object.keys(map)
-        .filter(function(k){return map[k].t>=(min||3);})
-        .map(function(k){var v=map[k];return{k:k,wr:wr(v),ws:v.t?Math.round(v.w/v.t*100):0,t:v.t};})
-        .sort(function(a,b){return b.ws-a.ws||b.t-a.t;});
-    }
-    var wsRanked=sortWS(tMap,3);
-    if(wsRanked.length){
-      html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
-      html+='<b>⚡ 単発勝率ランキング（時間帯・3件以上）</b><div style="font-size:11px;color:#888;margin-bottom:6px">マーチン除いた純粋な単発勝率</div>';
-      html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
-      // 単発高い順
-      html+='<div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🧠 脳死（単発高い順）</div>';
-      html+=tblWrapWS('時間',wsRanked.slice(0,8).map(function(r,i){
-        var bg=i%2?'#fafafa':'#fff';
-        var med=['🥇','🥈','🥉'][i]||(i+1)+'';
-        return'<tr style="background:'+bg+'">'+
-          '<td style="padding:5px 8px;color:#888;font-size:11px;width:32px">'+med+'</td>'+
-          '<td style="padding:5px 8px;font-weight:500">'+r.k+'</td>'+
-          '<td style="padding:5px 8px;text-align:center;font-weight:700;color:'+clr(r.ws)+'">'+r.ws+'%</td>'+
-          '<td style="padding:5px 8px;text-align:center;color:#5a8aee;font-size:11px">'+r.wr+'%</td>'+
-          '<td style="padding:5px 8px;text-align:center;color:#aaa;font-size:11px">'+r.t+'件</td>'+
-        '</tr>';
-      }).join(''));
-      html+='</div>';
-      // 裁量単発
-      var wsRankedS=sortWS(tMapS,3);
-      html+='<div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🎯 裁量（単発高い順）</div>';
-      html+=tblWrapWS('時間',wsRankedS.slice(0,8).map(function(r,i){
-        var bg=i%2?'#fafafa':'#fff';
-        var med=['🥇','🥈','🥉'][i]||(i+1)+'';
-        return'<tr style="background:'+bg+'">'+
-          '<td style="padding:5px 8px;color:#888;font-size:11px;width:32px">'+med+'</td>'+
-          '<td style="padding:5px 8px;font-weight:500">'+r.k+'</td>'+
-          '<td style="padding:5px 8px;text-align:center;font-weight:700;color:'+clr(r.ws)+'">'+r.ws+'%</td>'+
-          '<td style="padding:5px 8px;text-align:center;color:#5a8aee;font-size:11px">'+r.wr+'%</td>'+
-          '<td style="padding:5px 8px;text-align:center;color:#aaa;font-size:11px">'+r.t+'件</td>'+
-        '</tr>';
-      }).join(''));
-      html+='</div></div></div>';
-    }
-        win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI分析結果</title><style>body{font-family:-apple-system,sans-serif;padding:20px;max-width:800px;margin:0 auto;font-size:13px;line-height:1.8;color:#333}h1{font-size:18px;margin-bottom:16px}table{border-collapse:collapse;width:100%}td,th{border:none}</style></head><body><h1>✨ AI分析結果</h1>'+(filterLabel?'<div style="background:#e8f4fd;border-radius:8px;padding:8px 12px;font-size:12px;margin-bottom:16px;color:#1a6a9a">🔍 絞り込み: <b>'+filterLabel+'</b>（'+ae.length+'件）</div>':'')+html+'</body></html>');
+    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI分析結果</title><style>body{font-family:-apple-system,sans-serif;padding:20px;max-width:800px;margin:0 auto;font-size:13px;line-height:1.8;color:#333}.sec{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #eee}.row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px}h2{font-size:15px;margin:0 0 8px}</style></head><body><h1 style="font-size:18px;margin-bottom:20px">✨ AI分析結果</h1><div style="background:#fff3cd;padding:10px;border-radius:6px;margin-bottom:16px;font-size:11px">'+dbg+'<br>'+dbg2+'</div>'+html+'</body></html>');
     win.document.close();
     el.innerHTML='<div style="background:#f0fff4;border-radius:8px;padding:10px;font-size:13px;color:#1aaa6a">✅ 分析結果を別タブで開きました</div>';
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
