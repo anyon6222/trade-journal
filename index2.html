@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AE</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AF</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -372,7 +372,7 @@ function runCond(){
   var ft=document.getElementById('cond-time').value;
   var fw=document.getElementById('cond-wd').value;
   var WD=['日','月','火','水','木','金','土'];
-  var ae=[];fp(db,ap).forEach(function(t){ae=ae.concat(t.entries);});
+  var ae=[];fp(db,ap).forEach(function(t){(t.entries||[]).forEach(function(e){ae.push(Object.assign({},e,{date:t.date}));});});
   var matched=ae.filter(function(e){
     if(fd&&e.dir!==fd)return false;
     if(fpv&&e.pair!==fpv)return false;
