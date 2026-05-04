@@ -35,6 +35,10 @@ tr:nth-child(even) td{background:#fafafa}
 .ptab.on{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
 .bar-wrap{background:#f0f0f0;border-radius:4px;height:6px;width:70px;overflow:hidden;display:inline-block;vertical-align:middle}
 .wr100{color:#cc0000;font-weight:700}
+.ana-tbl td{border:1px solid #e8e8e8;padding:5px 8px}
+.ana-tbl th{border:1px solid #1a1a2e;padding:5px 8px}
+.ana-tbl tr:nth-child(even) td{background:#fafafa}
+.ana-tbl .sep{border-left:2px solid #555!important}
 .wr90{color:#e63300;font-weight:700}
 .wr75{color:#e67700;font-weight:600}
 .wr60{color:#cc9900;font-weight:600}
@@ -45,7 +49,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AX</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AY</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -324,30 +328,32 @@ function mkRow2(lbl,v){
   var swn=v.tn?Math.round(v.wn/v.tn*100):null;
   var sws=v.ts?Math.round(v.ws/v.ts*100):null;
   return'<tr>'+
-    '<td style="font-size:11px;color:#555;padding:5px 6px">'+lbl+'</td>'+
-    '<td class="'+(sn!==null?wrCls(sn):'')+'" style="white-space:nowrap;padding:5px 6px;text-align:center">'+(sn!==null?sn+'%':'—')+'</td>'+
-    '<td class="'+(swn!==null?wrCls(swn):'')+'" style="white-space:nowrap;padding:5px 6px;text-align:center;font-size:11px">'+(swn!==null?swn+'%':'—')+'</td>'+
-    '<td style="padding:5px 6px;text-align:center;color:#aaa;font-size:11px">'+(v.tn||'')+'</td>'+
-    '<td class="'+(ss!==null?wrCls(ss):'')+'" style="white-space:nowrap;padding:5px 6px;text-align:center">'+(ss!==null?ss+'%':'—')+'</td>'+
-    '<td class="'+(sws!==null?wrCls(sws):'')+'" style="white-space:nowrap;padding:5px 6px;text-align:center;font-size:11px">'+(sws!==null?sws+'%':'—')+'</td>'+
-    '<td style="padding:5px 6px;text-align:center;color:#aaa;font-size:11px">'+(v.ts||'')+'</td>'+
+    '<td style="font-size:11px;color:#555">'+lbl+'</td>'+
+    '<td class="'+(sn!==null?wrCls(sn):'')+'" style="white-space:nowrap;text-align:center;border-left:2px solid #ccc">'+(sn!==null?sn+'%':'—')+'</td>'+
+    '<td class="'+(swn!==null?wrCls(swn):'')+'" style="white-space:nowrap;text-align:center;font-size:11px">'+(swn!==null?swn+'%':'—')+'</td>'+
+    '<td style="text-align:center;color:#aaa;font-size:11px">'+(v.tn||'')+'件</td>'+
+    '<td class="'+(ss!==null?wrCls(ss):'')+'" style="white-space:nowrap;text-align:center;border-left:2px solid #ccc">'+(ss!==null?ss+'%':'—')+'</td>'+
+    '<td class="'+(sws!==null?wrCls(sws):'')+'" style="white-space:nowrap;text-align:center;font-size:11px">'+(sws!==null?sws+'%':'—')+'</td>'+
+    '<td style="text-align:center;color:#aaa;font-size:11px">'+(v.ts||'')+'件</td>'+
   '</tr>';
 }
 function mkTbl2(title,map,keys){
   if(!keys.length)return'';
   return'<div class="card" style="margin-bottom:10px"><div style="font-size:13px;font-weight:500;margin-bottom:10px">'+title+'</div>'+
-    '<table style="width:100%;border-collapse:collapse"><thead><tr style="background:#1a1a2e;color:#fff;font-size:11px">'+
-    '<th style="padding:5px 8px;text-align:left">項目</th>'+
-    '<th style="padding:5px 8px;text-align:center" colspan="3">🧠 脳死</th>'+
-    '<th style="padding:5px 8px;text-align:center" colspan="3">🎯 裁量</th>'+
-    '</tr><tr style="background:#2a2a3e;color:#aaa;font-size:10px">'+
-    '<th style="padding:3px 8px"></th>'+
-    '<th style="padding:3px 8px;text-align:center">1M込み</th>'+
-    '<th style="padding:3px 8px;text-align:center">単発</th>'+
-    '<th style="padding:3px 8px;text-align:center">件数</th>'+
-    '<th style="padding:3px 8px;text-align:center">1M込み</th>'+
-    '<th style="padding:3px 8px;text-align:center">単発</th>'+
-    '<th style="padding:3px 8px;text-align:center">件数</th>'+
+    '<table class="ana-tbl" style="width:100%;border-collapse:collapse"><thead>'+
+    '<tr style="background:#1a1a2e;color:#fff;font-size:11px">'+
+    '<th style="text-align:left">項目</th>'+
+    '<th colspan="3" style="text-align:center;border-left:2px solid #555">🧠 脳死</th>'+
+    '<th colspan="3" style="text-align:center;border-left:2px solid #555">🎯 裁量</th>'+
+    '</tr>'+
+    '<tr style="background:#2a2a3e;color:#bbb;font-size:10px">'+
+    '<th></th>'+
+    '<th style="text-align:center;border-left:2px solid #555">1M込み</th>'+
+    '<th style="text-align:center">単発</th>'+
+    '<th style="text-align:center">件数</th>'+
+    '<th style="text-align:center;border-left:2px solid #555">1M込み</th>'+
+    '<th style="text-align:center">単発</th>'+
+    '<th style="text-align:center">件数</th>'+
     '</tr></thead>'+
     '<tbody>'+keys.map(function(k){return mkRow2(k,map[k]);}).join('')+'</tbody></table></div>';
 }
