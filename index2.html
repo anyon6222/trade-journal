@@ -40,7 +40,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AD</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-AE</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -645,7 +645,10 @@ function runAI(){
       }
       html+='</div></div>';
     }
-    el.innerHTML='<div class="ai-out">'+html+'</div>';
+    var win=window.open('','_blank','width=800,height=600,scrollbars=yes');
+    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI分析結果</title><style>body{font-family:-apple-system,sans-serif;padding:20px;max-width:800px;margin:0 auto;font-size:13px;line-height:1.8;color:#333}.sec{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #eee}.row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px}h2{font-size:15px;margin:0 0 8px}</style></head><body><h1 style="font-size:18px;margin-bottom:20px">✨ AI分析結果</h1>'+html+'</body></html>');
+    win.document.close();
+    el.innerHTML='<div style="background:#f0fff4;border-radius:8px;padding:10px;font-size:13px;color:#1aaa6a">✅ 分析結果を別タブで開きました</div>';
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
   },600);
 }
