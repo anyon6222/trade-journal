@@ -260,7 +260,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.05-G</span>
+  <span class="ver">v2026.05.05-H</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -325,8 +325,8 @@ textarea{min-height:36px;resize:vertical}
 <!-- 一括入力 -->
 <div id="tab-bulk" class="panel">
   <div class="card">
-    <div style="font-size:14px;font-weight:500;color:#1a1a2e;margin-bottom:6px">📅 一括入力 — インジ別・複数日まとめて記録</div>
-    <div style="font-size:11px;color:#888;line-height:1.7">インジを選んで複数日分の結果をまとめて入力できます。<br>日付ごとに行を追加し、すべて入力したら「まとめて記録」ボタンで保存します。</div>
+    <div style="font-size:14px;font-weight:500;color:#1a1a2e;margin-bottom:6px">📅 一括入力 — インジ・日付を指定してまとめて記録</div>
+    <div style="font-size:11px;color:#888;line-height:1.7">① インジを選択 → ② 日付を指定 → ③ 結果・ラインを入力 → 「まとめて記録」</div>
   </div>
   <!-- インジ選択タブ -->
   <div class="sub-tabs" id="bulk-inj-tabs">
@@ -336,9 +336,12 @@ textarea{min-height:36px;resize:vertical}
   </div>
   <!-- 一括入力テーブル -->
   <div class="card" style="padding:10px">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
       <div style="font-size:13px;font-weight:500;color:#1a1a2e" id="bulk-inj-name">GORILLA 一括入力</div>
-      <button onclick="for(var i=0;i<5;i++)addBulkRow()" style="padding:4px 12px;font-size:12px;border-radius:7px;cursor:pointer;border:1px dashed #7c6af7;background:#f0efff;color:#7c6af7;font-family:inherit">＋ 5行追加</button>
+      <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+        <label style="font-size:12px;color:#555;white-space:nowrap">📅 日付</label>
+        <input type="date" id="bulk-date-top" style="font-size:12px;padding:5px 8px;border:1px solid #e0e0e0;border-radius:8px;background:#fff" onchange="onBulkDateChange()">
+      </div>
     </div>
     <div class="xl-wrap">
       <table class="xl-table" id="bulk-table">
@@ -347,6 +350,7 @@ textarea{min-height:36px;resize:vertical}
       </table>
     </div>
     <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button onclick="for(var i=0;i<5;i++)addBulkRow()" style="padding:7px 14px;font-size:12px;border-radius:7px;cursor:pointer;border:1px dashed #7c6af7;background:#f0efff;color:#7c6af7;font-family:inherit">＋ 5行追加</button>
       <button onclick="saveBulk()" style="padding:9px 22px;font-size:13px;font-weight:500;border-radius:9px;cursor:pointer;border:none;background:#1a1a2e;color:#fff;font-family:inherit">💾 まとめて記録</button>
       <button onclick="clearBulk()" style="padding:9px 16px;font-size:13px;border-radius:9px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#888;font-family:inherit">クリア</button>
       <div id="bulk-msg" style="font-size:12px;color:#1aaa6a;min-height:16px"></div>
@@ -1172,26 +1176,31 @@ function resetForm(){
 
 // ===== 一括入力 =====
 var bulkInjIdx=0;
-var bulkRows=[];  // [{id, date, pair, time, dir, line, result}]
+var bulkRows=[];
 
 function initBulk(){
+  // 日付欄を今日で初期化
+  var dtEl=document.getElementById('bulk-date-top');
+  if(dtEl&&!dtEl.value)dtEl.value=todayIso();
   if(bulkRows.length===0){
     for(var i=0;i<10;i++)addBulkRow();
   }
   renderBulkTable();
 }
 
+function onBulkDateChange(){
+  // 日付変更時は何もしない（保存時に上の日付を使う）
+}
+
 function setBulkInj(idx){
   bulkInjIdx=idx;
   document.querySelectorAll('#bulk-inj-tabs .sub-tab').forEach(function(b,i){b.classList.toggle('active',i===idx);});
   document.getElementById('bulk-inj-name').textContent=INJS[idx].name+' 一括入力';
-  // 行のライン選択を現在のインジに合わせて再描画
   renderBulkTable();
 }
 
 function addBulkRow(){
-  var ti=todayIso();
-  bulkRows.push({id:Date.now()+Math.random()*1000|0,date:ti,pair:PAIRS[0],time:'',dir:'up',line:'—',result:'none'});
+  bulkRows.push({id:Date.now()+Math.random()*1000|0,pair:PAIRS[0],time:'',dir:'up',line:'—',result:'none'});
   renderBulkTable();
 }
 
@@ -1201,16 +1210,13 @@ function removeBulkRow(id){
   else renderBulkTable();
 }
 
-
 function saveBulkRowVals(){
   bulkRows.forEach(function(row){
-    var dEl=document.getElementById('bd-'+row.id);
     var pEl=document.getElementById('bp-'+row.id);
     var tEl=document.getElementById('bt-'+row.id);
     var dirEl=document.getElementById('bdir-'+row.id);
     var rEl=document.getElementById('br-'+row.id);
     var lEl=document.getElementById('bl-'+row.id);
-    if(dEl)row.date=dEl.value;
     if(pEl)row.pair=pEl.value;
     if(tEl)row.time=tEl.value;
     if(dirEl)row.dir=dirEl.value;
@@ -1232,25 +1238,25 @@ function renderBulkTable(){
   saveBulkRowVals();
   var inj=INJS[bulkInjIdx];
   var RSEL='<option value="none">—</option><option value="win">○ 勝ち</option><option value="martin">✕○ 1M勝ち</option><option value="lose">✕✕ 負け</option><option value="skip">－ スルー</option>';
-  var lOpts=inj.lines.map(function(l){return'<option>'+l+'</option>';}).join('');
 
-  // thead
+  // thead（日付列なし）
   document.getElementById('bulk-thead').innerHTML='<tr>'+
-    '<th style="background:#111827;color:#fff;font-size:11px;padding:8px;white-space:nowrap">日付</th>'+
-    '<th style="background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">通貨ペア</th>'+
-    '<th style="background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">時間</th>'+
-    '<th style="background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">H/L</th>'+
-    '<th style="background:#1a3a2e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">① 結果</th>'+
-    '<th style="background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">② '+inj.tag+'</th>'+
-    '<th style="background:#111827;color:#fff;font-size:11px;padding:8px 4px"></th>'+
+    '<th style="width:24px;background:#111827;color:#fff;font-size:11px;padding:8px 4px;text-align:center">#</th>'+
+    '<th style="min-width:100px;background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">通貨ペア</th>'+
+    '<th style="min-width:72px;background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">時間</th>'+
+    '<th style="min-width:76px;background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">H/L</th>'+
+    '<th style="min-width:110px;background:#1a3a2e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">① 結果</th>'+
+    '<th style="min-width:100px;background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">② '+inj.tag+'</th>'+
+    '<th style="min-width:70px;background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">メモ</th>'+
+    '<th style="width:28px;background:#111827"></th>'+
   '</tr>';
 
   // tbody
-  document.getElementById('bulk-tbody').innerHTML=bulkRows.map(function(row){
+  document.getElementById('bulk-tbody').innerHTML=bulkRows.map(function(row,idx){
     var resCls=row.result==='win'?'bulk-row-win':row.result==='martin'?'bulk-row-martin':row.result==='lose'?'bulk-row-lose':row.result==='skip'?'bulk-row-skip':'';
     var rSel=RSEL.replace('value="'+row.result+'"','value="'+row.result+'" selected');
     return '<tr class="'+resCls+'" id="brow-'+row.id+'">'+
-      '<td><input type="date" class="bulk-date" id="bd-'+row.id+'" value="'+row.date+'"></td>'+
+      '<td style="text-align:center;color:#ccc;font-size:11px">'+(idx+1)+'</td>'+
       '<td><select class="bulk-sel" id="bp-'+row.id+'">'+PAIRS.map(function(p){return'<option'+(p===row.pair?' selected':'')+'>'+p+'</option>';}).join('')+'</select></td>'+
       '<td><input type="time" class="bulk-date" id="bt-'+row.id+'" value="'+(row.time||'')+'"></td>'+
       '<td><select class="bulk-sel" id="bdir-'+row.id+'">'+
@@ -1259,6 +1265,7 @@ function renderBulkTable(){
       '</select></td>'+
       '<td style="background:#f0fff8"><select class="bulk-sel" id="br-'+row.id+'" onchange="onBulkRes('+row.id+',this)">'+rSel+'</select></td>'+
       '<td style="background:#f0f4ff"><select class="bulk-sel" id="bl-'+row.id+'">'+inj.lines.map(function(l){return'<option'+(l===row.line?' selected':'')+'>'+l+'</option>';}).join('')+'</select></td>'+
+      '<td><input type="text" class="bulk-date" id="bm-'+row.id+'" placeholder="メモ" style="font-size:11px"></td>'+
       '<td><button class="bulk-del" onclick="removeBulkRow('+row.id+')">✕</button></td>'+
     '</tr>';
   }).join('');
@@ -1267,63 +1274,54 @@ function renderBulkTable(){
 function saveBulk(){
   saveBulkRowVals();
   var inj=INJS[bulkInjIdx];
+  // 上部の日付を取得
+  var iso=document.getElementById('bulk-date-top').value;
+  if(!iso){
+    var msg=document.getElementById('bulk-msg');
+    msg.style.color='#ee6a50';msg.textContent='⚠️ 日付を指定してください';
+    setTimeout(function(){msg.textContent='';msg.style.color='#1aaa6a';},3000);return;
+  }
   // 結果が入力されている行だけ対象
-  var validRows=bulkRows.filter(function(r){return r.result!=='none'&&r.date;});
+  var validRows=bulkRows.filter(function(r){return r.result!=='none';});
   if(!validRows.length){
     var msg=document.getElementById('bulk-msg');
     msg.style.color='#ee6a50';msg.textContent='⚠️ 結果を入力してください';
     setTimeout(function(){msg.textContent='';msg.style.color='#1aaa6a';},3000);return;
   }
-
-  // 日付ごとにグループ化して既存tradesにマージ
-  var byDate={};
-  validRows.forEach(function(row){
-    var iso=row.date;
-    if(!byDate[iso])byDate[iso]=[];
-    byDate[iso].push({name:inj.name,pair:row.pair,time:row.time,dir:row.dir||'up',line:row.line||'—',result:row.result,memo:''});
+  // 全行同じ日付でinjsを作成
+  var newInjs=validRows.map(function(row){
+    var memo=document.getElementById('bm-'+row.id);
+    return{name:inj.name,pair:row.pair,time:row.time,dir:row.dir||'up',line:row.line||'—',result:row.result,memo:memo?memo.value:''};
   });
-
-  var addedDates=[];
-  Object.keys(byDate).forEach(function(iso){
-    var newInjs=byDate[iso];
-    // 同日の既存レコードを探す
-    var existing=trades.find(function(t){return toIso(t.date)===iso;});
-    if(existing){
-      // 既存レコードのinjsに追記（同インジ名の件数を維持しつつ追加）
-      newInjs.forEach(function(ni){existing.injs.push(ni);});
-    } else {
-      // 新規レコード作成（アノマリー/オプションは空で作成）
-      var dv=iso;
-      var emptyAnos=ANOMALIES.map(function(a){return a.pairs.map(function(p){return{time:a.time,dir:a.dir,pair:p,result:'none',memo:''};});}).reduce(function(a,b){return a.concat(b);},[]);
-      var emptyOpts=OPTIONS.map(function(o){return{name:o,rounds:['none'],memo:''};});
-      trades.unshift({id:Date.now()+Math.random()*10000|0,date:dv,dateDisplay:fmtDisp(iso),injs:newInjs,anos:emptyAnos,opts:emptyOpts,entries:[]});
-    }
-    addedDates.push(iso);
-  });
-
+  // 同日の既存レコードを探してマージ
+  var existing=trades.find(function(t){return toIso(t.date)===iso;});
+  if(existing){
+    newInjs.forEach(function(ni){existing.injs.push(ni);});
+  } else {
+    var emptyAnos=ANOMALIES.map(function(a){return a.pairs.map(function(p){return{time:a.time,dir:a.dir,pair:p,result:'none',memo:''};});}).reduce(function(a,b){return a.concat(b);},[]);
+    var emptyOpts=OPTIONS.map(function(o){return{name:o,rounds:['none'],memo:''};});
+    trades.unshift({id:Date.now()+Math.random()*10000|0,date:iso,dateDisplay:fmtDisp(iso),injs:newInjs,anos:emptyAnos,opts:emptyOpts,entries:[]});
+  }
   saveData();
   renderDash();renderTodayList();
 
   // プレビュー表示
-  var prev=document.getElementById('bulk-preview');
   var pc=document.getElementById('bulk-preview-card');
+  var prev=document.getElementById('bulk-preview');
   pc.style.display='';
-  var grouped=Object.keys(byDate).sort().map(function(iso){
-    var p=iso.split('-');
-    var dt=new Date(iso+'T00:00:00');
-    var head=p[0]+'年'+p[1]+'月'+p[2]+'日（'+WD[dt.getDay()]+'）';
-    var rows=byDate[iso].map(function(r){
-      var rb=r.result==='win'?'<span class="badge b-win">○</span>':r.result==='martin'?'<span class="badge b-martin">✕○</span>':r.result==='lose'?'<span class="badge b-lose">✕✕</span>':'<span class="badge b-skip">－</span>';
-      return '<div style="font-size:12px;color:#444;padding:2px 0">'+inj.name+' / '+r.pair+' '+(r.time||'')+'　'+(r.dir==='up'?'↑HIGH':'↓LOW')+' ['+(r.line||'—')+']　'+rb+'</div>';
-    }).join('');
-    return '<div style="margin-bottom:8px;padding:8px;background:#f8f8ff;border-radius:8px;border:1px solid #e8e8f8"><div style="font-size:11px;font-weight:500;color:#1a1a2e;margin-bottom:4px">'+head+'</div>'+rows+'</div>';
+  var p=iso.split('-');
+  var dt=new Date(iso+'T00:00:00');
+  var head=p[0]+'年'+p[1]+'月'+p[2]+'日（'+WD[dt.getDay()]+'）　'+inj.name;
+  var rowsHtml=newInjs.map(function(r){
+    var rb=r.result==='win'?'<span class="badge b-win">○</span>':r.result==='martin'?'<span class="badge b-martin">✕○</span>':r.result==='lose'?'<span class="badge b-lose">✕✕</span>':'<span class="badge b-skip">－</span>';
+    return '<div style="font-size:12px;color:#444;padding:2px 0">'+r.pair+' '+(r.time||'—')+'　'+(r.dir==='up'?'↑HIGH':'↓LOW')+' ['+(r.line||'—')+']　'+rb+(r.memo?' <span style="color:#aaa;font-size:11px">'+r.memo+'</span>':'')+'</div>';
   }).join('');
-  prev.innerHTML=grouped;
+  prev.innerHTML='<div style="padding:8px;background:#f8f8ff;border-radius:8px;border:1px solid #e8e8f8"><div style="font-size:11px;font-weight:500;color:#1a1a2e;margin-bottom:4px">'+head+'</div>'+rowsHtml+'</div>';
 
-  var msg=document.getElementById('bulk-msg');
-  msg.style.color='#1aaa6a';
-  msg.textContent='✅ '+validRows.length+'件を'+addedDates.length+'日分に記録しました！';
-  setTimeout(function(){msg.textContent='';},4000);
+  var msgEl=document.getElementById('bulk-msg');
+  msgEl.style.color='#1aaa6a';
+  msgEl.textContent='✅ '+validRows.length+'件を記録しました！';
+  setTimeout(function(){msgEl.textContent='';},4000);
 }
 
 function clearBulk(){
