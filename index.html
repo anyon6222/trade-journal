@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-S</span>
+  <span class="ver">v2026.05.06-T</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -485,7 +485,7 @@ function fmtDisp(iso){
 function isoToSlash(iso){return iso?iso.replace(/-/g,'/'):''}
 function slashToIso(s){var m=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);if(!m)return'';return m[1]+'-'+pad(parseInt(m[2]))+'-'+pad(parseInt(m[3]));}
 function updateDateDisp(iso){curDateIso=iso;document.getElementById('date-disp').textContent=fmtDisp(iso);}
-function onDatePick(v){updateDateDisp(v);renderTodayList();}
+function onDatePick(v){updateDateDisp(v);resetForm();renderTodayList();}
 function onDateText(v){var iso=slashToIso(v);if(iso)updateDateDisp(iso);else document.getElementById('date-disp').textContent=v||'日付を入力';renderTodayList();}
 function toggleDateMode(){
   dateMode=dateMode==='picker'?'text':'picker';
@@ -1019,7 +1019,7 @@ function renderInj(i){
     var lOpts=inj.lines.map(function(l){return '<option>'+l+'</option>';}).join('');
     var lOpts2='<option>—</option>'+inj.lines.filter(function(l){return l!=='—';}).map(function(l){return '<option>'+l+'</option>';}).join('');
     var delBtn=injEntries[i].length>1?'<button class="del-btn" onclick="removeInj('+i+','+e.id+')">✕</button>':'';
-    var refChk=isHuno?'<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#7c6af7;cursor:pointer;white-space:nowrap;margin-left:auto"><input type="checkbox" id="eref-'+e.id+'" style="width:13px;height:13px;cursor:pointer"'+(e.ref?' checked':'')+'>📊 参考</label>':'';
+    var refChk=isHuno?'<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#1a1a2e;cursor:pointer;white-space:nowrap;margin-left:auto"><input type="checkbox" id="eref-'+e.id+'" style="width:13px;height:13px;cursor:pointer"'+(!e.ref?' checked':'')+'>✅ メイン</label>':'';
     return '<div class="entry-card '+dcls(e.result)+'">' +
       '<div class="ef">' +
         '<div class="fg"><label>通貨ペア</label><select id="ep-'+e.id+'">'+pOpts+'</select></div>' +
@@ -1040,7 +1040,7 @@ function renderInj(i){
   saved.forEach(function(s){
     if(!s.id)return;
     sv('ep-'+s.id,s.pair);sv('et-'+s.id,s.time);sv('ed-'+s.id,s.dir);sv('el-'+s.id,s.line);
-    if(isHuno){sv('el2-'+s.id,s.line2);var rc=document.getElementById('eref-'+s.id);if(rc)rc.checked=!!s.ref;}
+    if(isHuno){sv('el2-'+s.id,s.line2);var rc=document.getElementById('eref-'+s.id);if(rc)rc.checked=!s.ref;}
     sv('em-'+s.id,s.memo);
   });
 }
@@ -1203,7 +1203,9 @@ function collectInjs(){
   INJS.forEach(function(inj,i){
     var isHuno=inj.name==='HUNO';
     injEntries[i].forEach(function(e){
-      var ref=isHuno&&document.getElementById('eref-'+e.id)?document.getElementById('eref-'+e.id).checked:false;
+      var refEl=document.getElementById('eref-'+e.id);
+      // チェックあり=メイン(ref:false)、チェックなし=参考(ref:true)
+      var ref=isHuno&&refEl?!refEl.checked:false;
       r.push({name:inj.name,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id)||'up',line:ge('el-'+e.id)||'—',line2:isHuno?(ge('el2-'+e.id)||'—'):'',ref:ref,result:e.result,memo:ge('em-'+e.id)});
     });
   });
@@ -1288,7 +1290,7 @@ function saveBulkRowVals(){
     if(rEl)row.result=rEl.value;
     if(lEl)row.line=lEl.value;
     if(isHuno&&l2El)row.line2=l2El.value;
-    if(isHuno&&refEl)row.ref=refEl.checked;
+    if(isHuno&&refEl)row.ref=!refEl.checked;  // チェックあり=メイン=ref:false
   });
 }
 
@@ -1317,7 +1319,7 @@ function renderBulkTable(){
     '<th style="min-width:110px;background:#1a3a2e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">① 結果</th>'+
     '<th style="min-width:90px;background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">② '+(isHuno?'フィボ①':inj.tag)+'</th>'+
     (isHuno?'<th style="min-width:90px;background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">③ フィボ②</th>':'')+
-    (isHuno?'<th style="min-width:54px;background:#2a1a3e;color:#c4a8ff;font-size:11px;padding:8px 6px;white-space:nowrap">📊参考</th>':'')+
+    (isHuno?'<th style="min-width:54px;background:#1a2a3e;color:#9ad4ff;font-size:11px;padding:8px 6px;white-space:nowrap">✅メイン</th>':'')+
     '<th style="min-width:70px;background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">メモ</th>'+
     '<th style="width:28px;background:#111827"></th>'+
   '</tr>';
@@ -1337,7 +1339,7 @@ function renderBulkTable(){
       '<td style="background:#f0fff8"><select class="bulk-sel" id="br-'+row.id+'" onchange="onBulkRes('+row.id+',this)">'+rSel+'</select></td>'+
       '<td style="background:#f0f4ff"><select class="bulk-sel" id="bl-'+row.id+'">'+inj.lines.map(function(l){return'<option'+(l===row.line?' selected':'')+'>'+l+'</option>';}).join('')+'</select></td>'+
       (isHuno?'<td style="background:#f0f4ff"><select class="bulk-sel" id="bl2-'+row.id+'">'+lOpts2.replace('<option>'+(row.line2||'—')+'</option>','<option selected>'+(row.line2||'—')+'</option>')+'</select></td>':'')+
-      (isHuno?'<td style="text-align:center;background:#faf0ff"><input type="checkbox" id="bref-'+row.id+'"'+(row.ref?' checked':'')+' style="width:14px;height:14px;cursor:pointer"></td>':'')+
+      (isHuno?'<td style="text-align:center;background:#f0f8ff"><input type="checkbox" id="bref-'+row.id+'"'+(!row.ref?' checked':'')+' style="width:14px;height:14px;cursor:pointer"></td>':'')+
       '<td><input type="text" class="bulk-date" id="bm-'+row.id+'" placeholder="メモ" style="font-size:11px"></td>'+
       '<td><button class="bulk-del" onclick="removeBulkRow('+row.id+')">✕</button></td>'+
     '</tr>';
