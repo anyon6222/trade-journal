@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-T</span>
+  <span class="ver">v2026.05.06-U</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -1019,7 +1019,7 @@ function renderInj(i){
     var lOpts=inj.lines.map(function(l){return '<option>'+l+'</option>';}).join('');
     var lOpts2='<option>—</option>'+inj.lines.filter(function(l){return l!=='—';}).map(function(l){return '<option>'+l+'</option>';}).join('');
     var delBtn=injEntries[i].length>1?'<button class="del-btn" onclick="removeInj('+i+','+e.id+')">✕</button>':'';
-    var refChk=isHuno?'<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#1a1a2e;cursor:pointer;white-space:nowrap;margin-left:auto"><input type="checkbox" id="eref-'+e.id+'" style="width:13px;height:13px;cursor:pointer"'+(!e.ref?' checked':'')+'>✅ メイン</label>':'';
+    var refChk=isHuno?'<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#f5a623;cursor:pointer;white-space:nowrap;margin-left:auto"><input type="checkbox" id="eref-'+e.id+'" style="width:13px;height:13px;cursor:pointer"'+(!e.ref?' checked':'')+'> ☆</label>':'';
     return '<div class="entry-card '+dcls(e.result)+'">' +
       '<div class="ef">' +
         '<div class="fg"><label>通貨ペア</label><select id="ep-'+e.id+'">'+pOpts+'</select></div>' +
@@ -1319,7 +1319,7 @@ function renderBulkTable(){
     '<th style="min-width:110px;background:#1a3a2e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">① 結果</th>'+
     '<th style="min-width:90px;background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">② '+(isHuno?'フィボ①':inj.tag)+'</th>'+
     (isHuno?'<th style="min-width:90px;background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">③ フィボ②</th>':'')+
-    (isHuno?'<th style="min-width:54px;background:#1a2a3e;color:#9ad4ff;font-size:11px;padding:8px 6px;white-space:nowrap">✅メイン</th>':'')+
+    (isHuno?'<th style="min-width:40px;background:#1a2a3e;color:#f5c400;font-size:13px;padding:8px 6px;white-space:nowrap">☆</th>':'')+
     '<th style="min-width:70px;background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">メモ</th>'+
     '<th style="width:28px;background:#111827"></th>'+
   '</tr>';
@@ -1517,15 +1517,15 @@ function renderInjTab(list,injName){
   var rows_html=filtered.length?filtered.map(function(r,ri){
     var delBtn='<button onclick="deleteInjRow('+r.tradeId+',\''+injName+'\',\''+r.pair+'\',\''+r.time+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" title="削除" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
     var chk='<input type="checkbox" class="bulk-chk-inj" data-tradeid="'+r.tradeId+'" data-inj="'+injName+'" data-pair="'+r.pair+'" data-time="'+r.time+'" style="cursor:pointer;width:14px;height:14px">';
-    var refBadge=r.ref?'<span style="font-size:10px;background:#f0e8ff;color:#7c6af7;border-radius:4px;padding:1px 5px;margin-left:3px">📊参考</span>':'';
+    var refBadge=r.ref?'':"<span style='font-size:11px;color:#f5a623;margin-left:3px'>☆</span>";
     return '<tr'+(r.ref?' style="opacity:0.8"':'')+'><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+refBadge+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
   }).join(''):'<tr><td colspan="9" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   var bulkDelBtn='<button onclick="bulkDeleteInj(\''+injName+'\')" style="margin-top:6px;padding:5px 14px;font-size:12px;border-radius:7px;cursor:pointer;border:1px solid #ee6a50;background:#fff;color:#ee6a50;font-family:inherit">🗑 チェックした行を削除</button>';
   var modeUI=isHuno?'<span style="display:inline-flex;gap:4px;margin-left:10px;vertical-align:middle">'+
     ['main','ref','all'].map(function(m){
-      var lbl=m==='main'?'メイン':m==='ref'?'📊参考':'全体';
+      var lbl=m==='main'?'☆あり':m==='ref'?'参考':'全体';
       var active=hunoMode===m;
-      return '<button onclick="window._hunoMode=\''+m+'\';renderHistory()" style="padding:3px 10px;font-size:11px;border-radius:6px;cursor:pointer;border:1px solid '+(active?'#7c6af7':'#ddd')+';background:'+(active?'#7c6af7':'#fff')+';color:'+(active?'#fff':'#888')+';font-family:inherit">'+lbl+'</button>';
+      return '<button onclick="window._hunoMode=\''+m+'\';renderHistory()" style="padding:3px 10px;font-size:11px;border-radius:6px;cursor:pointer;border:1px solid '+(active?'#f5a623':'#ddd')+';background:'+(active?'#fff8e0':'#fff')+';color:'+(active?'#c06000':'#888')+';font-family:inherit">'+lbl+'</button>';
     }).join('')+'</span>':'';
   var statHtml='<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">'+injName+'</span>'+modeUI+
     '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件)</span>'+
