@@ -260,7 +260,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.05-L</span>
+  <span class="ver">v2026.05.05-M</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -689,7 +689,14 @@ function renderDash(){
   var s=calcWR(tdList);
   var streak=calcStreak();
   var el=document.getElementById('dash-grid');if(!el)return;
-  var uniqueDates=[];trades.forEach(function(t){var d=toIso(t.date);if(d&&uniqueDates.indexOf(d)<0)uniqueDates.push(d);});
+  var uniqueDates=[];trades.forEach(function(t){
+    var hasData=t.injs.some(function(i){return i.result!=='none';})
+      ||t.anos.some(function(a){return a.result!=='none';})
+      ||(t.opts||[]).some(function(o){return (o.rounds||[]).some(function(r){return r!=='none';});})
+      ||(t.entries||[]).length>0;
+    if(!hasData)return;
+    var d=toIso(t.date);if(d&&uniqueDates.indexOf(d)<0)uniqueDates.push(d);
+  });
   el.innerHTML='<div class="dash-card"><div class="dash-val">'+tdList.length+'</div><div class="dash-lbl">本日の記録</div></div>'+
     '<div class="dash-card"><div class="dash-val '+(s.mt>=60?'win-c':s.mt>=50?'martin-c':'lose-c')+'">'+s.mt+'%</div><div class="dash-lbl">本日1M込み勝率</div><div class="dash-sub">'+s.wm+'勝'+s.l+'敗</div></div>'+
     '<div class="dash-card"><div class="dash-val">'+uniqueDates.length+'</div><div class="dash-lbl">累計記録日数</div></div>'+
