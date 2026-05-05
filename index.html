@@ -260,7 +260,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.05-K</span>
+  <span class="ver">v2026.05.05-L</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -689,9 +689,10 @@ function renderDash(){
   var s=calcWR(tdList);
   var streak=calcStreak();
   var el=document.getElementById('dash-grid');if(!el)return;
+  var uniqueDates=[];trades.forEach(function(t){var d=toIso(t.date);if(d&&uniqueDates.indexOf(d)<0)uniqueDates.push(d);});
   el.innerHTML='<div class="dash-card"><div class="dash-val">'+tdList.length+'</div><div class="dash-lbl">本日の記録</div></div>'+
     '<div class="dash-card"><div class="dash-val '+(s.mt>=60?'win-c':s.mt>=50?'martin-c':'lose-c')+'">'+s.mt+'%</div><div class="dash-lbl">本日1M込み勝率</div><div class="dash-sub">'+s.wm+'勝'+s.l+'敗</div></div>'+
-    '<div class="dash-card"><div class="dash-val">'+trades.length+'</div><div class="dash-lbl">累計記録日数</div></div>'+
+    '<div class="dash-card"><div class="dash-val">'+uniqueDates.length+'</div><div class="dash-lbl">累計記録日数</div></div>'+
     '<div class="dash-card"><div class="dash-val '+(streak>0?'win-c':'')+'">'+streak+'</div><div class="dash-lbl">連勝中</div></div>';
 }
 function calcStreak(){
@@ -1014,11 +1015,14 @@ function sv(id,v){var el=document.getElementById(id);if(el&&v)el.value=v;}
 function buildAno(){
   anoState={};
   var rows=[];
+  var numList=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'];
+  var rowNum=0;
   ANOMALIES.forEach(function(a,i){
     a.pairs.forEach(function(p,pi){
       var key=i+'_'+pi;anoState[key]='none';
+      var num=numList[rowNum]||(rowNum+1)+'.';rowNum++;
       rows.push('<div class="ano-row" id="ar-'+key+'">'+
-        '<div class="ano-info"><span style="font-weight:600">'+a.time+'</span> <span style="color:#7c6af7">'+a.dir+'</span> '+p+'</div>'+
+        '<div class="ano-info"><span style="font-size:12px;color:#7c6af7;font-weight:600;min-width:18px;display:inline-block">'+num+'</span><span style="font-weight:600">'+a.time+'</span> <span style="color:#7c6af7">'+a.dir+'</span> '+p+'</div>'+
         '<div class="ano-btns">'+
           '<button class="rbtn" onclick="setAno(\''+key+'\',\'win\',this)">○</button>'+
           '<button class="rbtn" onclick="setAno(\''+key+'\',\'lose\',this)">✕</button>'+
@@ -1061,7 +1065,9 @@ function setOptR(oi,rid,v,btn){
   wrap.className='opt-round '+(v==='win'?'done-win':v==='lose'?'done-lose':v==='skip'?'done-skip':'');
 }
 function renderOpt(){
+  var numList2=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
   document.getElementById('opt-blocks').innerHTML=optBlocks.map(function(ob,oi){
+    var num=numList2[oi]||(oi+1)+'.';
     var rounds=ob.rounds.map(function(r,ri){
       var delBtn=ob.rounds.length>1?'<button class="opt-rdel" onclick="removeOptR('+oi+','+r.id+')">✕</button>':'';
       return '<div class="opt-round '+(r.result==='win'?'done-win':r.result==='lose'?'done-lose':r.result==='skip'?'done-skip':'')+'">' +
@@ -1072,7 +1078,7 @@ function renderOpt(){
         delBtn +
       '</div>';
     }).join('');
-    return '<div class="opt-block"><div class="opt-name">'+ob.name+'</div>' +
+    return '<div class="opt-block"><div class="opt-name"><span style="color:#7c6af7;font-weight:600;margin-right:4px">'+num+'</span>'+ob.name+'</div>' +
       '<div class="opt-rounds">'+rounds+'<button class="add-btn" style="width:auto;padding:4px 10px;font-size:11px;margin-top:0" onclick="addOptR('+oi+')">＋</button></div>' +
       '<div class="opt-memo"><input type="text" id="om-'+oi+'" placeholder="メモ" value="'+(ob.memo||'')+'"></div>' +
     '</div>';
@@ -1443,15 +1449,18 @@ function renderInjTab(list,injName){
   var tOpts='<option value="">全時間</option>'+ts.map(function(v){return '<option value="'+v+'" '+(injF.time===v?'selected':'')+'>'+v+'</option>';}).join('');
   var wdOpts='<option value="">（曜日を選択）</option>'+WD.map(function(d){return '<option value="'+d+'" '+(injF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
   var mOpts='<option value="">全</option><option value="1" '+(injF.memo==='1'?'selected':'')+'>あり</option>';
-  var rows_html=filtered.length?filtered.map(function(r){
+  var rows_html=filtered.length?filtered.map(function(r,ri){
     var delBtn='<button onclick="deleteInjRow('+r.tradeId+',\''+injName+'\',\''+r.pair+'\',\''+r.time+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" title="削除" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
-    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
-  }).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+    var chk='<input type="checkbox" class="bulk-chk-inj" data-tradeid="'+r.tradeId+'" data-inj="'+injName+'" data-pair="'+r.pair+'" data-time="'+r.time+'" style="cursor:pointer;width:14px;height:14px">';
+    return '<tr><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
+  }).join(''):'<tr><td colspan="9" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+  var bulkDelBtn='<button onclick="bulkDeleteInj(\''+injName+'\')" style="margin-top:6px;padding:5px 14px;font-size:12px;border-radius:7px;cursor:pointer;border:1px solid #ee6a50;background:#fff;color:#ee6a50;font-family:inherit">🗑 チェックした行を削除</button>';
   var statHtml='<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">'+injName+'</span>'+
     '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件)</span>'+
     '<span class="martin-c" style="font-weight:600">1M込'+wrm+'%('+wm+'勝'+(t-wm)+'敗 '+t+'件)</span></div>';
-  return statHtml+
+  return statHtml+bulkDelBtn+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
+    '<th style="width:28px;background:#111827"></th>'+
     '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
       '<div style="display:flex;gap:1px">'+
         '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/25" value="'+(injF.dateFrom||'')+'" onchange="injF.dateFrom=this.value;renderHistory()">'+
@@ -1525,10 +1534,13 @@ function renderAnoTab(list){
   var pOpts='<option value="">全通貨</option>'+pairs.map(function(p){return '<option value="'+p+'" '+(anoF.pair===p?'selected':'')+'>'+p+'</option>';}).join('');
   var tbody=filtered.length?filtered.map(function(r){
     var delBtn='<button onclick="deleteAnoRow('+r.tradeId+',\''+r.time+'\',\''+r.dir+'\',\''+r.pair+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
-    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.time+'</td><td style="color:#7c6af7">'+r.dir+'</td><td>'+r.pair+'</td><td>'+badge2(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
-  }).join(''):'<tr><td colspan="7" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
-  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span>'+fmtWRs(wr,ws,l,t,sk)+'</div>'+
+    var chk='<input type="checkbox" class="bulk-chk-ano" data-tradeid="'+r.tradeId+'" data-time="'+r.time+'" data-dir="'+r.dir+'" data-pair="'+r.pair+'" style="cursor:pointer;width:14px;height:14px">';
+    return '<tr><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.time+'</td><td style="color:#7c6af7">'+r.dir+'</td><td>'+r.pair+'</td><td>'+badge2(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
+  }).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+  var bulkDelBtnA='<button onclick="bulkDeleteAno()" style="margin-top:6px;padding:5px 14px;font-size:12px;border-radius:7px;cursor:pointer;border:1px solid #ee6a50;background:#fff;color:#ee6a50;font-family:inherit">🗑 チェックした行を削除</button>';
+  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span>'+fmtWRs(wr,ws,l,t,sk)+'</div>'+bulkDelBtnA+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
+    '<th style="width:28px;background:#111827"></th>'+
     '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
       '<div style="display:flex;gap:1px">'+
         '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/25" value="'+(anoF.dateFrom||'')+'" onchange="anoF.dateFrom=this.value;renderHistory()">'+
@@ -1567,11 +1579,14 @@ function renderOptTab(list){
   var skStr=sk?'['+sk+'ス '+(t+sk)+'件]':'';
   var rows_html=filtered.length?filtered.map(function(r){
     var delBtn='<button onclick="deleteOptRow('+r.tradeId+',\''+r.name+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
-    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td style="font-size:11px">'+r.name+'</td><td>'+r.rounds.map(function(v){return badge2(v);}).join(' ')+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
-  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+    var chk='<input type="checkbox" class="bulk-chk-opt" data-tradeid="'+r.tradeId+'" data-name="'+r.name+'" style="cursor:pointer;width:14px;height:14px">';
+    return '<tr><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td style="font-size:11px">'+r.name+'</td><td>'+r.rounds.map(function(v){return badge2(v);}).join(' ')+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
+  }).join(''):'<tr><td colspan="6" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+  var bulkDelBtnO='<button onclick="bulkDeleteOpt()" style="margin-top:6px;padding:5px 14px;font-size:12px;border-radius:7px;cursor:pointer;border:1px solid #ee6a50;background:#fff;color:#ee6a50;font-family:inherit">🗑 チェックした行を削除</button>';
   return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">オプション</span>'+
-    '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span></div>'+
+    '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span></div>'+bulkDelBtnO+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
+    '<th style="width:28px;background:#111827"></th>'+
     '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
       '<div style="display:flex;gap:1px">'+
         '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/25" value="'+(optF.dateFrom||'')+'" onchange="optF.dateFrom=this.value;renderHistory()">'+
@@ -1581,7 +1596,48 @@ function renderOptTab(list){
     mkTh('オプション名',mkSel(optF.name,'optF.name=this.value;renderHistory()',nOpts))+
     mkTh('結果',mkSel(optF.result,'optF.result=this.value;renderHistory()',rOpts))+
     mkTh('メモ',mkSel(optF.memo,'optF.memo=this.value;renderHistory()',mOpts))+
+    '<th style="width:32px;background:#2a2a3e"></th>'+
     '</tr></thead><tbody>'+rows_html+'</tbody></table></div>';
+}
+
+function bulkDeleteInj(injName){
+  var chks=document.querySelectorAll('.bulk-chk-inj:checked');
+  if(!chks.length){alert('削除する行にチェックを入れてください');return;}
+  if(!confirm(chks.length+'件のインジ記録を削除しますか？'))return;
+  chks.forEach(function(c){
+    var trade=trades.find(function(t){return t.id===Number(c.dataset.tradeid);});
+    if(!trade)return;
+    var found=false;
+    trade.injs=trade.injs.filter(function(i){
+      if(!found&&i.name===injName&&i.pair===c.dataset.pair&&i.time===c.dataset.time){found=true;return false;}
+      return true;
+    });
+  });
+  saveData();renderDash();renderHistory();
+}
+function bulkDeleteAno(){
+  var chks=document.querySelectorAll('.bulk-chk-ano:checked');
+  if(!chks.length){alert('削除する行にチェックを入れてください');return;}
+  if(!confirm(chks.length+'件のアノマリー記録をリセットしますか？'))return;
+  chks.forEach(function(c){
+    var trade=trades.find(function(t){return t.id===Number(c.dataset.tradeid);});
+    if(!trade)return;
+    var ano=trade.anos.find(function(a){return a.time===c.dataset.time&&a.dir===c.dataset.dir&&a.pair===c.dataset.pair;});
+    if(ano){ano.result='none';ano.memo='';}
+  });
+  saveData();renderDash();renderHistory();
+}
+function bulkDeleteOpt(){
+  var chks=document.querySelectorAll('.bulk-chk-opt:checked');
+  if(!chks.length){alert('削除する行にチェックを入れてください');return;}
+  if(!confirm(chks.length+'件のオプション記録をリセットしますか？'))return;
+  chks.forEach(function(c){
+    var trade=trades.find(function(t){return t.id===Number(c.dataset.tradeid);});
+    if(!trade)return;
+    var opt=trade.opts.find(function(o){return o.name===c.dataset.name;});
+    if(opt){opt.rounds=['none'];opt.memo='';}
+  });
+  saveData();renderDash();renderHistory();
 }
 
 // ===== 分析 =====
