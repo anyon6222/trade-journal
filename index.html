@@ -260,7 +260,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.05-H</span>
+  <span class="ver">v2026.05.05-I</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -977,17 +977,20 @@ function setInjR(i,eid,v,btn){
 }
 function renderInj(i){
   var inj=INJS[i];
-  var saved=injEntries[i].map(function(e){return{id:e.id,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id),line:ge('el-'+e.id),memo:ge('em-'+e.id)};});
+  var isHuno=inj.name==='HUNO';
+  var saved=injEntries[i].map(function(e){return{id:e.id,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id),line:ge('el-'+e.id),line2:ge('el2-'+e.id),memo:ge('em-'+e.id)};});
   document.getElementById('ie-'+i).innerHTML=injEntries[i].map(function(e){
     var pOpts=PAIRS.map(function(p){return '<option>'+p+'</option>';}).join('');
     var lOpts=inj.lines.map(function(l){return '<option>'+l+'</option>';}).join('');
+    var lOpts2='<option>—</option>'+inj.lines.filter(function(l){return l!=='—';}).map(function(l){return '<option>'+l+'</option>';}).join('');
     var delBtn=injEntries[i].length>1?'<button class="del-btn" onclick="removeInj('+i+','+e.id+')">✕</button>':'';
     return '<div class="entry-card '+dcls(e.result)+'">' +
       '<div class="ef">' +
         '<div class="fg"><label>通貨ペア</label><select id="ep-'+e.id+'">'+pOpts+'</select></div>' +
         '<div class="fg"><label>時間</label><input type="time" id="et-'+e.id+'"></div>' +
         '<div class="fg"><label>方向</label><select id="ed-'+e.id+'"><option value="up">↑ HIGH</option><option value="down">↓ LOW</option></select></div>' +
-        '<div class="fg"><label>'+inj.tag+'</label><select id="el-'+e.id+'">'+lOpts+'</select></div>' +
+        '<div class="fg"><label>'+inj.tag+'①</label><select id="el-'+e.id+'">'+lOpts+'</select></div>' +
+        (isHuno?'<div class="fg"><label>フィボ②</label><select id="el2-'+e.id+'">'+lOpts2+'</select></div>':'') +
         delBtn +
       '</div>' +
       '<div class="rbtn-row">' +
@@ -1000,7 +1003,9 @@ function renderInj(i){
   }).join('');
   saved.forEach(function(s){
     if(!s.id)return;
-    sv('ep-'+s.id,s.pair);sv('et-'+s.id,s.time);sv('ed-'+s.id,s.dir);sv('el-'+s.id,s.line);sv('em-'+s.id,s.memo);
+    sv('ep-'+s.id,s.pair);sv('et-'+s.id,s.time);sv('ed-'+s.id,s.dir);sv('el-'+s.id,s.line);
+    if(isHuno)sv('el2-'+s.id,s.line2);
+    sv('em-'+s.id,s.memo);
   });
 }
 function ge(id){var el=document.getElementById(id);return el?el.value:'';}
@@ -1141,8 +1146,9 @@ function renderEnt(){
 function collectInjs(){
   var r=[];
   INJS.forEach(function(inj,i){
+    var isHuno=inj.name==='HUNO';
     injEntries[i].forEach(function(e){
-      r.push({name:inj.name,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id)||'up',line:ge('el-'+e.id)||'—',result:e.result,memo:ge('em-'+e.id)});
+      r.push({name:inj.name,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id)||'up',line:ge('el-'+e.id)||'—',line2:isHuno?(ge('el2-'+e.id)||'—'):'',result:e.result,memo:ge('em-'+e.id)});
     });
   });
   return r;
@@ -1200,7 +1206,7 @@ function setBulkInj(idx){
 }
 
 function addBulkRow(){
-  bulkRows.push({id:Date.now()+Math.random()*1000|0,pair:PAIRS[0],time:'',dir:'up',line:'—',result:'none'});
+  bulkRows.push({id:Date.now()+Math.random()*1000|0,pair:PAIRS[0],time:'',dir:'up',line:'—',line2:'—',result:'none'});
   renderBulkTable();
 }
 
@@ -1211,17 +1217,20 @@ function removeBulkRow(id){
 }
 
 function saveBulkRowVals(){
+  var isHuno=INJS[bulkInjIdx].name==='HUNO';
   bulkRows.forEach(function(row){
     var pEl=document.getElementById('bp-'+row.id);
     var tEl=document.getElementById('bt-'+row.id);
     var dirEl=document.getElementById('bdir-'+row.id);
     var rEl=document.getElementById('br-'+row.id);
     var lEl=document.getElementById('bl-'+row.id);
+    var l2El=document.getElementById('bl2-'+row.id);
     if(pEl)row.pair=pEl.value;
     if(tEl)row.time=tEl.value;
     if(dirEl)row.dir=dirEl.value;
     if(rEl)row.result=rEl.value;
     if(lEl)row.line=lEl.value;
+    if(isHuno&&l2El)row.line2=l2El.value;
   });
 }
 
@@ -1237,16 +1246,19 @@ function onBulkRes(id,sel){
 function renderBulkTable(){
   saveBulkRowVals();
   var inj=INJS[bulkInjIdx];
+  var isHuno=inj.name==='HUNO';
   var RSEL='<option value="none">—</option><option value="win">○ 勝ち</option><option value="martin">✕○ 1M勝ち</option><option value="lose">✕✕ 負け</option><option value="skip">－ スルー</option>';
+  var lOpts2='<option>—</option>'+inj.lines.filter(function(l){return l!=='—';}).map(function(l){return'<option>'+l+'</option>';}).join('');
 
-  // thead（日付列なし）
+  // thead
   document.getElementById('bulk-thead').innerHTML='<tr>'+
     '<th style="width:24px;background:#111827;color:#fff;font-size:11px;padding:8px 4px;text-align:center">#</th>'+
     '<th style="min-width:100px;background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">通貨ペア</th>'+
     '<th style="min-width:72px;background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">時間</th>'+
     '<th style="min-width:76px;background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">H/L</th>'+
     '<th style="min-width:110px;background:#1a3a2e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">① 結果</th>'+
-    '<th style="min-width:100px;background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">② '+inj.tag+'</th>'+
+    '<th style="min-width:90px;background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">② '+(isHuno?'フィボ①':inj.tag)+'</th>'+
+    (isHuno?'<th style="min-width:90px;background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">③ フィボ②</th>':'')+
     '<th style="min-width:70px;background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">メモ</th>'+
     '<th style="width:28px;background:#111827"></th>'+
   '</tr>';
@@ -1265,6 +1277,7 @@ function renderBulkTable(){
       '</select></td>'+
       '<td style="background:#f0fff8"><select class="bulk-sel" id="br-'+row.id+'" onchange="onBulkRes('+row.id+',this)">'+rSel+'</select></td>'+
       '<td style="background:#f0f4ff"><select class="bulk-sel" id="bl-'+row.id+'">'+inj.lines.map(function(l){return'<option'+(l===row.line?' selected':'')+'>'+l+'</option>';}).join('')+'</select></td>'+
+      (isHuno?'<td style="background:#f0f4ff"><select class="bulk-sel" id="bl2-'+row.id+'">'+lOpts2.replace('<option>'+(row.line2||'—')+'</option>','<option selected>'+(row.line2||'—')+'</option>')+'</select></td>':'')+
       '<td><input type="text" class="bulk-date" id="bm-'+row.id+'" placeholder="メモ" style="font-size:11px"></td>'+
       '<td><button class="bulk-del" onclick="removeBulkRow('+row.id+')">✕</button></td>'+
     '</tr>';
@@ -1289,9 +1302,10 @@ function saveBulk(){
     setTimeout(function(){msg.textContent='';msg.style.color='#1aaa6a';},3000);return;
   }
   // 全行同じ日付でinjsを作成
+  var isHuno=inj.name==='HUNO';
   var newInjs=validRows.map(function(row){
     var memo=document.getElementById('bm-'+row.id);
-    return{name:inj.name,pair:row.pair,time:row.time,dir:row.dir||'up',line:row.line||'—',result:row.result,memo:memo?memo.value:''};
+    return{name:inj.name,pair:row.pair,time:row.time,dir:row.dir||'up',line:row.line||'—',line2:isHuno?(row.line2||'—'):'',result:row.result,memo:memo?memo.value:''};
   });
   // 同日の既存レコードを探してマージ
   var existing=trades.find(function(t){return toIso(t.date)===iso;});
