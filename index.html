@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-R</span>
+  <span class="ver">v2026.05.06-S</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -753,12 +753,13 @@ function renderTodayList(){
       var injWs=arr.filter(function(i){return i.result==='win';}).length;
       var injWm=arr.filter(function(i){return i.result==='win'||i.result==='martin';}).length;
       var injL=arr.filter(function(i){return i.result==='lose'||i.result==='martin';}).length;
+      var injLm=arr.filter(function(i){return i.result==='lose';}).length;
       var injWRs=arr.length?Math.round(injWs/arr.length*100):0;
       var injWRm=arr.length?Math.round(injWm/arr.length*100):0;
       var cls=injWRs>=60?'win-c':injWRs>=50?'martin-c':'lose-c';
       var detail=arr.map(function(i){return (i.line&&i.line!=='—'?'['+i.line+']':'')+' '+(i.time||'')+' '+(i.dir==='up'?'↑':'↓')+' '+badge(i.result);}).join('　');
       var injStat='単発<b class="'+cls+'">'+injWRs+'%</b>('+injWs+'勝'+injL+'敗)';
-      if(injWm>injWs)injStat+=' 1M<b class="martin-c">'+injWRm+'%</b>('+injWm+'勝'+injL+'敗)';
+      if(injWm>injWs)injStat+=' 1M<b class="martin-c">'+injWRm+'%</b>('+injWm+'勝'+injLm+'敗)';
       injStat+=' '+arr.length+'件';
       lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span><b>'+name+'</b>: '+detail+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">'+injStat+'</span></span>');
     });
