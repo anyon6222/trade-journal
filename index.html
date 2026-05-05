@@ -260,7 +260,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.05-I</span>
+  <span class="ver">v2026.05.05-J</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -989,8 +989,7 @@ function renderInj(i){
         '<div class="fg"><label>通貨ペア</label><select id="ep-'+e.id+'">'+pOpts+'</select></div>' +
         '<div class="fg"><label>時間</label><input type="time" id="et-'+e.id+'"></div>' +
         '<div class="fg"><label>方向</label><select id="ed-'+e.id+'"><option value="up">↑ HIGH</option><option value="down">↓ LOW</option></select></div>' +
-        '<div class="fg"><label>'+inj.tag+'①</label><select id="el-'+e.id+'">'+lOpts+'</select></div>' +
-        (isHuno?'<div class="fg"><label>フィボ②</label><select id="el2-'+e.id+'">'+lOpts2+'</select></div>':'') +
+        (isHuno?'<div class="fg"><label>フィボ</label><div style="display:flex;gap:4px"><select id="el-'+e.id+'" style="flex:1;min-width:0;font-size:11px">'+lOpts+'</select><select id="el2-'+e.id+'" style="flex:1;min-width:0;font-size:11px">'+lOpts2+'</select></div></div>':'<div class="fg"><label>'+inj.tag+'</label><select id="el-'+e.id+'">'+lOpts+'</select></div>') +
         delBtn +
       '</div>' +
       '<div class="rbtn-row">' +
