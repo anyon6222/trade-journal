@@ -65,13 +65,18 @@ textarea{min-height:36px;resize:vertical}
 .add-btn:hover{background:#f9f9f9}
 
 /* アノマリー */
-.ano-row{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid #f5f5f5;transition:all 0.15s}
+/* アノマリー */
+.ano-row{display:grid;grid-template-columns:auto auto auto 1fr;align-items:center;gap:6px;padding:6px 4px;border-bottom:1px solid #f5f5f5;transition:all 0.15s}
 .ano-row:last-child{border-bottom:none}
 .ano-row.done-win{background:#f0fdf6;border-radius:8px;border-bottom:none;margin-bottom:2px;padding:6px 8px}
 .ano-row.done-lose{background:#fff5f3;border-radius:8px;border-bottom:none;margin-bottom:2px;padding:6px 8px}
 .ano-row.done-skip{background:#f8f8f8;border-radius:8px;border-bottom:none;margin-bottom:2px;padding:6px 8px}
-.ano-info{font-size:12px;color:#333;white-space:nowrap}
+.ano-info{font-size:12px;color:#333;white-space:nowrap;min-width:160px}
 .ano-btns{display:flex;gap:3px;flex-shrink:0}
+.ano-star{display:flex;gap:2px;flex-shrink:0}
+.star-btn{padding:2px 7px;font-size:11px;border:1px solid #e0e0e0;border-radius:6px;cursor:pointer;background:#fff;color:#bbb;transition:all 0.1s;white-space:nowrap}
+.star-btn.s2-on{background:#fff8e0;border-color:#f5c400;color:#c8960a;font-weight:600}
+.star-btn.s3-on{background:#fff0e0;border-color:#f5a623;color:#c06000;font-weight:600}
 .ano-memo{width:100%}
 .ano-memo input{padding:5px 8px;font-size:12px}
 
@@ -260,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.05-O</span>
+  <span class="ver">v2026.05.05-P</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -832,6 +837,7 @@ function editRecord(id){
       var found=tr.anos.find(function(a){return a.time===ano.time&&a.pair===p;});
       if(found&&found.result!=='none'){
         anoState[key]=found.result;
+        if(found.star){anoStarState[key]=found.star;setAnoStar(key,found.star);anoStarState[key]=found.star;}
         var row=document.getElementById('ar-'+key);
         if(row){
           row.querySelectorAll('.rbtn').forEach(function(b){b.className='rbtn';});
@@ -927,6 +933,7 @@ function editToday(id){
     });
     if(key&&a.result!=='none'){
       anoState[key]=a.result;
+      if(a.star){anoStarState[key]=a.star;setAnoStar(key,a.star);anoStarState[key]=a.star;}
       var row=document.getElementById('ar-'+key);
       if(row){
         var btns=row.querySelectorAll('.rbtn');
@@ -1021,14 +1028,15 @@ function ge(id){var el=document.getElementById(id);return el?el.value:'';}
 function sv(id,v){var el=document.getElementById(id);if(el&&v)el.value=v;}
 
 // ===== アノマリー =====
+var anoStarState={};  // key → '' / '2' / '3'
 function buildAno(){
-  anoState={};
+  anoState={};anoStarState={};
   var rows=[];
   var numList=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'];
   var rowNum=0;
   ANOMALIES.forEach(function(a,i){
     a.pairs.forEach(function(p,pi){
-      var key=i+'_'+pi;anoState[key]='none';
+      var key=i+'_'+pi;anoState[key]='none';anoStarState[key]='';
       var num=numList[rowNum]||(rowNum+1)+'.';rowNum++;
       rows.push('<div class="ano-row" id="ar-'+key+'">'+
         '<div class="ano-info"><span style="font-size:12px;color:#7c6af7;font-weight:600;min-width:18px;display:inline-block">'+num+'</span><span style="font-weight:600">'+a.time+'</span> <span style="color:#7c6af7">'+a.dir+'</span> '+p+'</div>'+
@@ -1037,11 +1045,24 @@ function buildAno(){
           '<button class="rbtn" onclick="setAno(\''+key+'\',\'lose\',this)">✕</button>'+
           '<button class="rbtn" onclick="setAno(\''+key+'\',\'skip\',this)">－</button>'+
         '</div>'+
+        '<div class="ano-star">'+
+          '<button class="star-btn" id="as2-'+key+'" onclick="setAnoStar(\''+key+'\',\'2\')">☆2</button>'+
+          '<button class="star-btn" id="as3-'+key+'" onclick="setAnoStar(\''+key+'\',\'3\')">☆3</button>'+
+        '</div>'+
         '<div class="ano-memo"><input type="text" id="am-'+key+'" placeholder="メモ"></div>'+
       '</div>');
     });
   });
   document.getElementById('ano-rows').innerHTML=rows.join('');
+}
+function setAnoStar(key,v){
+  // 同じ☆を再タップでリセット
+  anoStarState[key]=(anoStarState[key]===v)?'':v;
+  var s=anoStarState[key];
+  var b2=document.getElementById('as2-'+key);
+  var b3=document.getElementById('as3-'+key);
+  if(b2){b2.className='star-btn'+(s==='2'?' s2-on':'');}
+  if(b3){b3.className='star-btn'+(s==='3'?' s3-on':'');}
 }
 function setAno(key,v,btn){
   anoState[key]=v;
@@ -1178,7 +1199,7 @@ function saveTrade(){
   var anos=[];
   Object.keys(anoState).forEach(function(k){
     var p=k.split('_').map(Number);var a=ANOMALIES[p[0]];
-    anos.push({time:a.time,dir:a.dir,pair:a.pairs[p[1]],result:anoState[k],memo:ge('am-'+k)});
+    anos.push({time:a.time,dir:a.dir,pair:a.pairs[p[1]],result:anoState[k],star:anoStarState[k]||'',memo:ge('am-'+k)});
   });
   var dv=getDateVal();
   var newRec={id:Date.now(),date:dv,dateDisplay:fmtDisp(toIso(dv)),injs:collectInjs(),anos:anos,opts:collectOpts(),entries:collectEnts()};
@@ -1539,11 +1560,18 @@ function deleteOptRow(tradeId,optName){
 }
 function renderAnoTab(list){
   var rows=[];
-  list.forEach(function(t){t.anos.forEach(function(a){if(a.result==='none')return;rows.push({date:t.dateDisplay||t.date,tradeId:t.id,time:a.time,dir:a.dir,pair:a.pair,result:a.result,memo:a.memo});});});
+  list.forEach(function(t){t.anos.forEach(function(a){if(a.result==='none')return;rows.push({date:t.dateDisplay||t.date,tradeId:t.id,time:a.time,dir:a.dir,pair:a.pair,result:a.result,star:a.star||'',memo:a.memo});});});
+  var starMode=window._anoStarMode||'all';
+  var modeRows=rows.filter(function(r){
+    if(starMode==='none')return !r.star;
+    if(starMode==='2')return r.star==='2';
+    if(starMode==='3')return r.star==='3';
+    return true;
+  });
   var WD=['月','火','水','木','金','土','日'];
-  var times=[];rows.forEach(function(r){if(times.indexOf(r.time)<0)times.push(r.time);});times.sort();
-  var pairs=[];rows.forEach(function(r){if(pairs.indexOf(r.pair)<0)pairs.push(r.pair);});pairs.sort();
-  var filtered=rows.filter(function(r){
+  var times=[];modeRows.forEach(function(r){if(times.indexOf(r.time)<0)times.push(r.time);});times.sort();
+  var pairs=[];modeRows.forEach(function(r){if(pairs.indexOf(r.pair)<0)pairs.push(r.pair);});pairs.sort();
+  var filtered=modeRows.filter(function(r){
     if(anoF.result&&r.result!==anoF.result)return false;
     if(anoF.weekday&&!r.date.includes('（'+anoF.weekday+'）'))return false;
     if(anoF.dateStr&&!r.date.includes(anoF.dateStr))return false;
@@ -1564,10 +1592,16 @@ function renderAnoTab(list){
   var tbody=filtered.length?filtered.map(function(r){
     var delBtn='<button onclick="deleteAnoRow('+r.tradeId+',\''+r.time+'\',\''+r.dir+'\',\''+r.pair+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
     var chk='<input type="checkbox" class="bulk-chk-ano" data-tradeid="'+r.tradeId+'" data-time="'+r.time+'" data-dir="'+r.dir+'" data-pair="'+r.pair+'" style="cursor:pointer;width:14px;height:14px">';
-    return '<tr><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.time+'</td><td style="color:#7c6af7">'+r.dir+'</td><td>'+r.pair+'</td><td>'+badge2(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
+    var starBadge=r.star?'<span style="font-size:10px;background:'+(r.star==='3'?'#fff0e0':'#fff8e0')+';color:'+(r.star==='3'?'#c06000':'#c8960a')+';border-radius:4px;padding:1px 5px;margin-left:3px">☆'+r.star+'</span>':'';
+    return '<tr><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.time+'</td><td style="color:#7c6af7">'+r.dir+'</td><td>'+r.pair+starBadge+'</td><td>'+badge2(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
   }).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   var bulkDelBtnA='<button onclick="bulkDeleteAno()" style="margin-top:6px;padding:5px 14px;font-size:12px;border-radius:7px;cursor:pointer;border:1px solid #ee6a50;background:#fff;color:#ee6a50;font-family:inherit">🗑 チェックした行を削除</button>';
-  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span>'+fmtWRs(wr,ws,l,t,sk)+'</div>'+bulkDelBtnA+
+  var starUI='<span style="display:inline-flex;gap:4px;margin-left:10px;vertical-align:middle">'+
+    [{m:'all',l:'全体'},{m:'none',l:'☆なし'},{m:'2',l:'☆2'},{m:'3',l:'☆3'}].map(function(o){
+      var active=starMode===o.m;
+      return '<button onclick="window._anoStarMode=\''+o.m+'\';renderHistory()" style="padding:3px 10px;font-size:11px;border-radius:6px;cursor:pointer;border:1px solid '+(active?'#f5a623':'#ddd')+';background:'+(active?'#fff8e0':'#fff')+';color:'+(active?'#c06000':'#888')+';font-family:inherit">'+o.l+'</button>';
+    }).join('')+'</span>';
+  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span>'+starUI+fmtWRs(wr,ws,l,t,sk)+'</div>'+bulkDelBtnA+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
     '<th style="width:28px;background:#111827"></th>'+
     '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
