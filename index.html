@@ -2,786 +2,1797 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>2ND トレード記録</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>トレード記録帳</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f5;color:#1a1a2e;font-size:14px}
-.hdr{background:#1a1a2e;color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center}
-.hdr h1{font-size:16px;font-weight:500}
-.tabs{display:flex;background:#fff;border-bottom:1px solid #e0e0e0;padding:0 14px}
-.tab{padding:10px 14px;font-size:13px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;font-family:inherit}
-.tab.on{color:#1a1a2e;border-bottom-color:#1a1a2e;font-weight:500}
-.pnl{display:none;padding:12px;max-width:860px;margin:0 auto}
-.pnl.on{display:block}
-.card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:10px}
-select,input[type=text],input[type=date],input[type=time]{font-family:inherit;font-size:13px;border:1px solid #e0e0e0;border-radius:8px;padding:7px 10px;background:#fff}
-.btn{padding:8px 18px;font-size:13px;border-radius:8px;cursor:pointer;border:none;font-family:inherit;font-weight:500}
-.btn-dark{background:#1a1a2e;color:#fff}
-.btn-out{background:#fff;color:#1a1a2e;border:1px solid #1a1a2e}
-.btn-gray{background:#fff;color:#aaa;border:1px solid #ddd}
-.btn-grn{background:#1aaa6a;color:#fff}
-.win{color:#1aaa6a}
-.lose{color:#ee6a50}
-.mar{color:#5a8aee}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{background:#1a1a2e;color:#fff;padding:8px;text-align:left;font-size:11px;white-space:nowrap}
-td{padding:5px 6px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
-tr:nth-child(even) td{background:#fafafa}
-.si{width:100%;padding:4px 5px;border:1px solid #ddd;border-radius:5px;font-size:12px;font-family:inherit;background:#fff}
-.ti{width:100%;padding:4px 5px;border:1px solid #ddd;border-radius:5px;font-size:12px;font-family:inherit}
-.ptabs{display:flex;gap:5px;margin-bottom:10px}
-.ptab{padding:5px 12px;font-size:12px;border:1px solid #e0e0e0;border-radius:20px;cursor:pointer;background:#fff;color:#888;font-family:inherit}
-.ptab.on{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
-.bar-wrap{background:#f0f0f0;border-radius:4px;height:6px;width:70px;overflow:hidden;display:inline-block;vertical-align:middle}
-.bar-n{background:#1aaa6a;height:6px;border-radius:4px}
-.bar-s{background:#5a8aee;height:6px;border-radius:4px}
-.ai-out{background:#f8f8ff;border-radius:10px;padding:14px;font-size:13px;line-height:1.9;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.ana-tbl2{width:100%;border-collapse:collapse;font-size:12px}
-.ana-tbl2 th,.ana-tbl2 td{padding:5px 8px;border:1px solid #e8e8e8}
-.ana-tbl2 thead th{background:#1a1a2e;color:#fff;border-color:#333}
-.ana-tbl2 thead tr:nth-child(2) th{background:#2a2a3e;color:#ccc;font-size:11px;font-weight:normal;border-top:2px solid #555}
-.ana-tbl2 tr:nth-child(even) td{background:#fafafa}
-.ana-tbl2 .gp{border-left:3px solid #fff!important}
-.ana-tbl2 .gp2{border-left:2px solid #bbb!important}
-.ana-tbl2 .gp-data{border-left:2px solid #bbb!important}
-.ana-tbl2 .sep{border-left:1px solid #aaa!important}
-.wr100{color:#cc0000;font-weight:700}
-.wr90{color:#e63300;font-weight:700}
-.wr75{color:#e67700;font-weight:600}
-.wr60{color:#cc9900;font-weight:600}
-.wrlow{color:#999}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh}
+.header{background:#1a1a2e;color:#fff;padding:12px 18px;display:flex;align-items:center}
+.header h1{font-size:16px;font-weight:500}
+.header .ver{font-size:10px;opacity:0.4;margin-left:auto}
+.main-tabs{display:flex;background:#fff;border-bottom:1px solid #e0e0e0;padding:0 14px;overflow-x:auto}
+.main-tab{padding:10px 14px;font-size:13px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.main-tab.active{color:#1a1a2e;border-bottom:2px solid #1a1a2e;font-weight:500}
+.panel{display:none;padding:12px;max-width:900px;margin:0 auto}
+.panel.active{display:block}
+.card{background:#fff;border-radius:12px;padding:13px 15px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.sec-hdr h3{font-size:14px;font-weight:500;color:#1a1a2e}
+.arrow{font-size:11px;color:#aaa;transition:transform 0.2s;display:inline-block}
+.arrow.open{transform:rotate(180deg)}
+.sec-body{margin-top:11px;border-top:1px solid #f0f0f0;padding-top:11px}
+.fg{display:flex;flex-direction:column;gap:3px}
+.fg label{font-size:11px;color:#888}
+select,input[type=text],input[type=time],input[type=date],textarea{width:100%;padding:7px 9px;font-size:13px;border:1px solid #e0e0e0;border-radius:8px;background:#fff;color:#1a1a1a;outline:none;font-family:inherit}
+select:focus,input:focus,textarea:focus{border-color:#7c6af7}
+textarea{min-height:36px;resize:vertical}
+
+/* ダッシュボード */
+.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.dash-card{background:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);text-align:center}
+.dash-val{font-size:20px;font-weight:600;color:#1a1a2e}
+.dash-lbl{font-size:10px;color:#aaa;margin-top:2px}
+.dash-sub{font-size:10px;color:#bbb;margin-top:1px}
+
+/* 日付 */
+.date-big{font-size:19px;font-weight:500;color:#1a1a2e;padding:3px 0}
+.date-wrap{display:flex;gap:8px;align-items:center;margin-top:7px}
+.date-wrap input{flex:1}
+.date-toggle{font-size:11px;color:#7c6af7;cursor:pointer;white-space:nowrap;background:none;border:none;text-decoration:underline;padding:0}
+
+/* インジ */
+.inj-block{margin-bottom:13px;padding-bottom:13px;border-bottom:1px solid #f0f0f0}
+.inj-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.inj-label{font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.tag{font-size:10px;padding:2px 7px;border-radius:10px;background:#f0efff;color:#7c6af7}
+.entry-card{border:1px solid #e8e8e8;border-radius:10px;margin-bottom:7px;overflow:hidden;position:relative;transition:all 0.15s}
+.entry-card.done-win{background:#f0fdf6;border-color:#1aaa6a}
+.entry-card.done-martin{background:#f0f4ff;border-color:#5a8aee}
+.entry-card.done-lose{background:#fff5f3;border-color:#ee6a50}
+.entry-card.done-win .ef{background:#e8f8f0}
+.entry-card.done-martin .ef{background:#e8f0ff}
+.entry-card.done-lose .ef{background:#fff0ee}
+.ef{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:7px;padding:8px;background:#fafafa}
+.del-btn{position:absolute;top:4px;right:4px;font-size:10px;padding:2px 5px;cursor:pointer;border:1px solid #ddd;border-radius:4px;background:#fff;color:#aaa}
+.rbtn-row{display:flex;gap:5px;flex-wrap:wrap;padding:6px 8px}
+.rbtn{padding:4px 10px;font-size:12px;border:1px solid #e0e0e0;border-radius:8px;cursor:pointer;background:#fff;color:#888;transition:all 0.1s}
+.rbtn.sel-win{background:#e8f8f2;border-color:#1aaa6a;color:#0a6640;font-weight:500}
+.rbtn.sel-martin{background:#e8f0ff;border-color:#5a8aee;color:#1a4aaa;font-weight:500}
+.rbtn.sel-lose{background:#fff0ee;border-color:#ee6a50;color:#aa2a10;font-weight:500}
+.rbtn.sel-skip{background:#f5f5f5;border-color:#ccc;color:#888;font-weight:500}
+.memo-area{padding:0 8px 7px}
+.add-btn{display:flex;align-items:center;justify-content:center;gap:4px;padding:6px;font-size:12px;cursor:pointer;border:1px dashed #ccc;border-radius:8px;background:none;color:#aaa;margin-top:7px;width:100%}
+.add-btn:hover{background:#f9f9f9}
+
+/* アノマリー */
+.ano-row{display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid #f5f5f5;transition:all 0.15s}
+.ano-row:last-child{border-bottom:none}
+.ano-row.done-win{background:#f0fdf6;border-radius:8px;border-bottom:none;margin-bottom:2px;padding:6px 8px}
+.ano-row.done-lose{background:#fff5f3;border-radius:8px;border-bottom:none;margin-bottom:2px;padding:6px 8px}
+.ano-row.done-skip{background:#f8f8f8;border-radius:8px;border-bottom:none;margin-bottom:2px;padding:6px 8px}
+.ano-info{font-size:12px;color:#333;white-space:nowrap}
+.ano-btns{display:flex;gap:3px;flex-shrink:0}
+.ano-memo{width:100%}
+.ano-memo input{padding:5px 8px;font-size:12px}
+
+/* オプション */
+.opt-block{margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f0f0f0}
+.opt-block:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.opt-name{font-size:12px;font-weight:500;color:#333;margin-bottom:6px}
+.opt-rounds{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:5px}
+.opt-round{display:inline-flex;align-items:center;gap:3px;padding:4px 8px;border-radius:8px;border:1px solid #e8e8e8;background:#fafafa;transition:all 0.15s}
+.opt-round.done-win{background:#e8f8f0;border-color:#1aaa6a}
+.opt-round.done-lose{background:#fff0ee;border-color:#ee6a50}
+.opt-round.done-skip{background:#f5f5f5;border-color:#ccc}
+.opt-round.done-skip{background:#f5f5f5;border-color:#ccc}
+.opt-rnum{font-size:10px;color:#aaa;min-width:20px}
+.opt-rdel{font-size:10px;padding:0 3px;cursor:pointer;border:none;background:none;color:#ccc;margin-left:2px}
+.opt-rdel:hover{color:#ee6a50}
+.opt-memo{margin-top:4px}
+
+/* エントリー */
+.ent-item{border:1px solid #e8e8e8;border-radius:10px;margin-bottom:7px;overflow:hidden;position:relative;transition:all 0.15s}
+.ent-f1{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:8px;background:#fafafa}
+.ent-f2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;padding:0 8px 7px;background:#fafafa}
+.ent-rrow{display:flex;gap:5px;flex-wrap:wrap;padding:6px 8px}
+.ent-memo{padding:0 8px 7px}
+.del-ent{position:absolute;top:4px;right:4px;font-size:10px;padding:2px 5px;cursor:pointer;border:1px solid #ddd;border-radius:4px;background:#fff;color:#aaa}
+
+.btn-row{display:flex;gap:10px;margin-top:13px}
+.btn{padding:9px 20px;font-size:14px;border-radius:10px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#333;font-family:inherit}
+.btn.primary{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.btn:active{transform:scale(0.98)}
+.msg{font-size:13px;margin-top:9px;color:#1aaa6a;min-height:17px}
+
+/* 今日の記録 */
+.today-list{margin-top:13px}
+.today-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:4px}
+.today-ttl{font-size:12px;color:#888;font-weight:500}
+.today-wr{font-size:11px;font-weight:500;line-height:1.7}
+.today-item{background:#f8f8ff;border:1px solid #e8e8f8;border-radius:10px;padding:9px 11px;margin-bottom:7px;display:flex;align-items:flex-start;gap:9px}
+.today-num{font-size:15px;font-weight:600;color:#7c6af7;min-width:22px}
+.today-body{flex:1;font-size:11px;color:#444;line-height:2}
+.today-del{font-size:11px;padding:3px 7px;cursor:pointer;border:1px solid #ddd;border-radius:6px;background:#fff;color:#aaa;white-space:nowrap}
+.today-del:hover{border-color:#ee6a50;color:#ee6a50}
+.today-empty{font-size:12px;color:#ccc;text-align:center;padding:14px 0}
+
+/* 共通 */
+.win-c{color:#1aaa6a}.martin-c{color:#5a8aee}.lose-c{color:#ee6a50}
+.badge{display:inline-block;padding:1px 6px;border-radius:20px;font-size:10px;font-weight:500;white-space:nowrap}
+.b-win{background:#e8f8f2;color:#0a6640}
+.b-martin{background:#e8f0ff;color:#1a4aaa}
+.b-lose{background:#fff0ee;color:#aa2a10}
+.b-skip{background:#f5f5f5;color:#888}
+
+/* 履歴 */
+.sub-tabs{display:flex;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;overflow-x:auto}
+.sub-tab{padding:9px 14px;font-size:12px;cursor:pointer;border:none;background:#fff;color:#888;white-space:nowrap;border-right:1px solid #f0f0f0;flex-shrink:0}
+.sub-tab:last-child{border-right:none}
+.sub-tab.active{background:#1a1a2e;color:#fff;font-weight:500}
+.ptabs{display:flex;gap:5px;margin-bottom:11px;flex-wrap:wrap}
+.ptab{padding:5px 11px;font-size:12px;border:1px solid #e0e0e0;border-radius:20px;cursor:pointer;background:#fff;color:#888}
+.ptab.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.filter-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px}
+.filter-row select{width:auto;font-size:12px;padding:5px 8px;border-radius:8px}
+
+/* サマリー */
+.sum-total{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;border-top:3px solid #1a1a2e}
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.sum-card{background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;transition:transform 0.1s}
+.sum-card:hover{transform:scale(1.02)}
+.sum-name{font-size:11px;color:#888;font-weight:500;margin-bottom:4px;display:flex;justify-content:space-between}
+.sum-wr{font-size:22px;font-weight:600}
+.sum-det{font-size:10px;color:#aaa;margin-top:2px}
+.wd-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.wd-card{background:#fff;border-radius:10px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.wd-name{font-size:12px;font-weight:500;color:#1a1a2e;margin-bottom:4px}
+.wd-wr{font-size:18px;font-weight:600}
+.wd-det{font-size:10px;color:#aaa;margin-top:2px}
+
+/* エクセル風テーブル */
+.xl-wrap{overflow-x:auto;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.xl-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;min-width:480px}
+.xl-table th{background:#1a1a2e;color:#fff;padding:8px 10px;text-align:left;font-size:11px;font-weight:500;white-space:nowrap}
+.xl-table td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.xl-table tr:last-child td{border-bottom:none}
+.xl-table tr:hover td{background:#f8fff8}
+.xl-fi{font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%;margin-top:2px;display:block}
+.xl-fr th{background:#f5f5f5;padding:5px 6px}
+.xl-fr select,.xl-fr input{padding:4px 6px;font-size:11px;border:1px solid #ddd;border-radius:5px;width:100%;background:#fff}
+.xl-stat{background:#f0f4ff;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+
+/* 分析 */
+.ana-sec{margin-bottom:11px}
+.ana-ttl{font-size:13px;font-weight:500;color:#1a1a2e;padding:8px 12px;background:#fff;border-radius:10px 10px 0 0;border-bottom:1px solid #f0f0f0;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.ana-tbl{width:100%;border-collapse:collapse;background:#fff;font-size:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-radius:0 0 10px 10px;overflow:hidden}
+.ana-tbl th{font-size:10px;color:#aaa;font-weight:400;padding:6px 9px;border-bottom:1px solid #f0f0f0;text-align:left;background:#fafafa}
+.ana-tbl td{padding:6px 9px;border-bottom:1px solid #f8f8f8;vertical-align:middle}
+.ana-tbl tr:last-child td{border-bottom:none}
+.bar-wrap{width:70px;background:#f0f0f0;border-radius:4px;height:6px;display:inline-block;vertical-align:middle}
+.bar-fill{height:6px;border-radius:4px;display:inline-block;background:#1aaa6a}
+.bar-fill.blue{background:#5a8aee}
+.bar-fill.amber{background:#f0a020}
+.inj-hdr{background:#1a1a2e;color:#fff;border-radius:10px 10px 0 0;padding:9px 13px;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:space-between}
+.inj-sub-ttl{padding:7px 12px 3px;font-size:11px;font-weight:500;color:#888;background:#fff;border-top:1px solid #f0f0f0}
+.cond-card{background:#f8f8ff;border:1px solid #e8e8f8;border-radius:10px;padding:13px 15px;margin-top:6px}
+.cond-card.good{background:#f0fdf6;border-color:#1aaa6a}
+.cond-card.warn{background:#fff5f3;border-color:#ee6a50}
+.cond-card.mid{background:#f0f4ff;border-color:#5a8aee}
+.rank-card{background:#fafafa;border:1px solid #e8e8e8;border-radius:10px;padding:10px 13px;margin-bottom:7px;display:flex;align-items:center;gap:10px}
+.rank-card:last-child{margin-bottom:0}
+.rank-card.gold{background:#fffbf0;border-color:#f0c040}
+.rank-card.silver{background:#f8f8f8;border-color:#bbb}
+.rank-card.bronze{background:#fff8f5;border-color:#cc8866}
+.ai-card{background:#fff;border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.06);border-left:4px solid #7c6af7;margin-bottom:10px}
+.ai-card h4{font-size:13px;font-weight:500;color:#7c6af7;margin-bottom:10px}
+.ai-item{display:flex;gap:8px;margin-bottom:7px;font-size:12px;line-height:1.6}
+.ai-item:last-child{margin-bottom:0}
+.ai-good{color:#1aaa6a;font-weight:500}
+.ai-warn{color:#ee6a50;font-weight:500}
+.ai-note{color:#5a8aee;font-weight:500}
+.sub-tabs{display:flex;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;overflow-x:auto}
+.sub-tab{padding:9px 14px;font-size:12px;cursor:pointer;border:none;background:#fff;color:#888;white-space:nowrap;border-right:1px solid #f0f0f0;flex-shrink:0}
+.sub-tab:last-child{border-right:none}
+.sub-tab.active{background:#1a1a2e;color:#fff;font-weight:500}
+.ptabs{display:flex;gap:5px;margin-bottom:11px;flex-wrap:wrap}
+.ptab{padding:5px 11px;font-size:12px;border:1px solid #e0e0e0;border-radius:20px;cursor:pointer;background:#fff;color:#888}
+.ptab.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.xl-wrap{overflow-x:auto;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+.xl-table{width:100%;border-collapse:collapse;font-size:12px;background:#fff;min-width:480px}
+.xl-table th{background:#1a1a2e;color:#fff;padding:8px 10px;text-align:left;font-size:11px;font-weight:500;white-space:nowrap;vertical-align:top}
+.xl-table th select,.xl-table th input{font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%;margin-top:3px}
+.xl-table td{padding:7px 10px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.xl-table tr:last-child td{border-bottom:none}
+.xl-table tr:hover td{background:#f8fff8}
+.xl-fi{font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;width:100%;margin-top:2px;display:block}
+.cal-wrap{position:relative;display:inline-block;width:100%}
+.cal-btn{font-size:10px;padding:2px 6px;border-radius:4px;border:1px solid #444;background:#2a2a4e;color:#fff;cursor:pointer;width:100%;margin-top:2px;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-popup{position:absolute;top:100%;left:0;z-index:9999;background:#fff;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.15);padding:10px;width:220px;margin-top:2px}
+.cal-popup.hidden{display:none}
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-nav{background:none;border:none;cursor:pointer;font-size:14px;color:#1a1a2e;padding:2px 6px;border-radius:4px}
+.cal-nav:hover{background:#f0f0f0}
+.cal-title{font-size:12px;font-weight:500;color:#1a1a2e}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-wd{font-size:9px;color:#aaa;text-align:center;padding:2px 0}
+.cal-day{font-size:11px;text-align:center;padding:4px 2px;border-radius:4px;cursor:pointer;color:#333}
+.cal-day:hover{background:#f0f0f0}
+.cal-day.sel{background:#1a1a2e;color:#fff;font-weight:500}
+.cal-day.today{border:1px solid #7c6af7;color:#7c6af7}
+.cal-day.other{color:#ccc}
+.cal-day.sel.today{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+.cal-footer{margin-top:8px;display:flex;gap:4px}
+.cal-clear{font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid #ddd;background:#fff;color:#888;cursor:pointer;flex:1}
+.cal-apply{font-size:10px;padding:3px 8px;border-radius:4px;border:none;background:#1a1a2e;color:#fff;cursor:pointer;flex:1}
+.xl-stat{background:#f0f4ff;border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.sum-total{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;border-top:3px solid #1a1a2e}
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.sum-card{background:#fff;border-radius:10px;padding:12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);cursor:pointer;transition:transform 0.1s;border-top:3px solid #e0e0e0}
+.sum-card:hover{transform:scale(1.02)}
+.wd-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.wd-card{background:#fff;border-radius:10px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)}
+
+/* メモ */
+.memo-item{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f8f8f8}
+.memo-item:last-child{border-bottom:none}
+
+/* 一括入力テーブル */
+.bulk-date{width:105px;font-size:11px;padding:4px 5px;border:1px solid #e0e0e0;border-radius:6px;background:#fff}
+.bulk-sel{font-size:11px;padding:4px 4px;border:1px solid #e0e0e0;border-radius:6px;background:#fff;width:100%}
+.bulk-res{display:flex;gap:3px}
+.bulk-rbtn{padding:3px 7px;font-size:11px;border:1px solid #ddd;border-radius:6px;cursor:pointer;background:#fff;color:#888;white-space:nowrap;transition:all 0.1s}
+.bulk-rbtn.bsel-win{background:#e8f8f2;border-color:#1aaa6a;color:#0a6640;font-weight:500}
+.bulk-rbtn.bsel-martin{background:#e8f0ff;border-color:#5a8aee;color:#1a4aaa;font-weight:500}
+.bulk-rbtn.bsel-lose{background:#fff0ee;border-color:#ee6a50;color:#aa2a10;font-weight:500}
+.bulk-rbtn.bsel-skip{background:#f5f5f5;border-color:#ccc;color:#888;font-weight:500}
+.bulk-row-win td{background:#f0fdf6}
+.bulk-row-martin td{background:#f0f4ff}
+.bulk-row-lose td{background:#fff5f3}
+.bulk-row-skip td{background:#fafafa}
+.bulk-del{font-size:10px;padding:2px 5px;cursor:pointer;border:1px solid #eee;border-radius:4px;background:#fff;color:#ccc}
+.bulk-del:hover{border-color:#ee6a50;color:#ee6a50}
+
+@media(max-width:600px){
+  .main-tab{padding:9px 8px;font-size:11px}
+}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.05-D</span></div>
-<div class="tabs">
-  <button class="tab on" onclick="showTab('inp')">入力</button>
-  <button class="tab" onclick="showTab('hist')">履歴</button>
-  <button class="tab" onclick="showTab('ana')">分析</button>
-  <button class="tab" onclick="showTab('csv')">CSV取込</button>
+<div class="header">
+  <h1>トレード記録帳</h1>
+  <span class="ver">v2026.05.05-G</span>
+</div>
+<div class="main-tabs">
+  <button class="main-tab active" onclick="showMain('input')">入力</button>
+  <button class="main-tab" onclick="showMain('bulk')">一括入力</button>
+  <button class="main-tab" onclick="showMain('history')">履歴</button>
+  <button class="main-tab" onclick="showMain('analysis')">分析</button>
+  <button class="main-tab" onclick="showMain('memo')">メモ</button>
 </div>
 
-<div id="pnl-inp" class="pnl on">
-  <!-- インジ選択タブ -->
-  <div style="display:flex;gap:0;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:10px">
-    <button id="injtab-0" onclick="setInj(0)" style="flex:1;padding:11px 6px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#1a1a2e;color:#fff;font-family:inherit;border-right:1px solid #2a2a4e">GORILLA</button>
-    <button id="injtab-1" onclick="setInj(1)" style="flex:1;padding:11px 6px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#f5f5f5;color:#888;font-family:inherit;border-right:1px solid #e0e0e0">IRAZU</button>
-    <button id="injtab-2" onclick="setInj(2)" style="flex:1;padding:11px 6px;font-size:13px;font-weight:600;border:none;cursor:pointer;background:#f5f5f5;color:#888;font-family:inherit">HUNO</button>
+<!-- 入力 -->
+<div id="tab-input" class="panel active">
+  <div class="dash-grid" id="dash-grid"></div>
+  <div class="card">
+    <div class="date-big" id="date-disp">日付を選択</div>
+    <div class="date-wrap">
+      <input type="date" id="f-date-pk" onchange="onDatePick(this.value)">
+      <input type="text" id="f-date-tx" placeholder="例: 2026/04/26" oninput="onDateText(this.value)" style="display:none">
+      <button class="date-toggle" id="date-mode-btn" onclick="toggleDateMode()">手入力</button>
+    </div>
   </div>
   <div class="card">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-      <div style="font-size:13px;font-weight:500;color:#1a1a2e">📊 Excel風一括入力</div>
-      <div id="inj-badge" style="font-size:11px;padding:2px 10px;border-radius:20px;background:#1a1a2e;color:#fff;font-weight:600">GORILLA</div>
+    <div class="sec-hdr" onclick="toggle('inj')"><h3>インジ結果</h3><span class="arrow" id="arr-inj">▼</span></div>
+    <div class="sec-body" id="body-inj" style="display:none"><div id="inj-blocks"></div></div>
+  </div>
+  <div class="card">
+    <div class="sec-hdr" onclick="toggle('ano')"><h3>アノマリー結果</h3><span class="arrow" id="arr-ano">▼</span></div>
+    <div class="sec-body" id="body-ano" style="display:none"><div id="ano-rows"></div></div>
+  </div>
+  <div class="card">
+    <div class="sec-hdr" onclick="toggle('opt')"><h3>オプション結果</h3><span class="arrow" id="arr-opt">▼</span></div>
+    <div class="sec-body" id="body-opt" style="display:none"><div id="opt-blocks"></div></div>
+  </div>
+  <div class="card">
+    <div class="sec-hdr" onclick="toggle('ent')"><h3>エントリー結果</h3><span class="arrow" id="arr-ent">▼</span></div>
+    <div class="sec-body" id="body-ent" style="display:none">
+      <div id="ent-list"></div>
+      <button class="add-btn" onclick="addEnt()">＋ エントリーを追加</button>
     </div>
-    <div style="font-size:11px;color:#888;margin-bottom:10px;line-height:1.7">日付・通貨ペア・時間・H/L・結果・ラインをまとめて入力 → 「記録する」で一括保存</div>
-    <div style="overflow-x:auto;margin-bottom:10px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.08)">
-      <table id="itbl" style="min-width:600px">
-        <thead>
-          <tr>
-            <th style="width:24px;text-align:center;background:#111827">#</th>
-            <th style="min-width:108px;background:#111827">📅 日付</th>
-            <th style="min-width:100px;background:#111827">💱 通貨ペア</th>
-            <th style="min-width:72px;background:#111827">⏰ 時間</th>
-            <th style="min-width:76px;background:#111827">↑↓ H/L</th>
-            <th style="min-width:105px;background:#1a3a2e">① 結果</th>
-            <th id="line-th" style="min-width:100px;background:#1a2a3e">② ライン</th>
-            <th style="min-width:70px;background:#111827">📝 メモ</th>
-            <th style="width:28px;background:#111827"></th>
-          </tr>
-        </thead>
-        <tbody id="itbody"></tbody>
+  </div>
+  <div class="card">
+    <div style="font-size:14px;font-weight:500;color:#1a1a2e;margin-bottom:8px">📝 今日のメモ・気づき</div>
+    <textarea id="daily-memo-input" placeholder="気づき・反省・明日への課題・相場環境など" style="min-height:80px;width:100%"></textarea>
+    <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+      <button onclick="saveDailyMemo()" style="padding:7px 18px;font-size:13px;border-radius:8px;cursor:pointer;border:none;background:#1a1a2e;color:#fff;font-family:inherit">メモを保存</button>
+      <div id="memo-save-msg" style="font-size:12px;color:#1aaa6a"></div>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn primary" onclick="saveTrade()">記録する</button>
+    <button class="btn" onclick="resetForm()">クリア</button>
+  </div>
+  <div class="msg" id="msg"></div>
+  <div class="today-list">
+    <div class="today-hdr">
+      <div class="today-ttl" id="today-ttl">今日の記録（0件）</div>
+      <div class="today-wr" id="today-wr"></div>
+    </div>
+    <div id="today-items"></div>
+  </div>
+</div>
+
+<!-- 一括入力 -->
+<div id="tab-bulk" class="panel">
+  <div class="card">
+    <div style="font-size:14px;font-weight:500;color:#1a1a2e;margin-bottom:6px">📅 一括入力 — インジ別・複数日まとめて記録</div>
+    <div style="font-size:11px;color:#888;line-height:1.7">インジを選んで複数日分の結果をまとめて入力できます。<br>日付ごとに行を追加し、すべて入力したら「まとめて記録」ボタンで保存します。</div>
+  </div>
+  <!-- インジ選択タブ -->
+  <div class="sub-tabs" id="bulk-inj-tabs">
+    <button class="sub-tab active" onclick="setBulkInj(0)">GORILLA</button>
+    <button class="sub-tab" onclick="setBulkInj(1)">IRAZU</button>
+    <button class="sub-tab" onclick="setBulkInj(2)">HUNO</button>
+  </div>
+  <!-- 一括入力テーブル -->
+  <div class="card" style="padding:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:13px;font-weight:500;color:#1a1a2e" id="bulk-inj-name">GORILLA 一括入力</div>
+      <button onclick="for(var i=0;i<5;i++)addBulkRow()" style="padding:4px 12px;font-size:12px;border-radius:7px;cursor:pointer;border:1px dashed #7c6af7;background:#f0efff;color:#7c6af7;font-family:inherit">＋ 5行追加</button>
+    </div>
+    <div class="xl-wrap">
+      <table class="xl-table" id="bulk-table">
+        <thead id="bulk-thead"></thead>
+        <tbody id="bulk-tbody"></tbody>
       </table>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <button class="btn btn-out" onclick="addRows(5)">＋ 5行追加</button>
-      <button class="btn btn-dark" onclick="saveRec()">💾 記録する</button>
-      <button class="btn btn-gray" onclick="clearTbl()">クリア</button>
-      <div id="smsg" style="font-size:12px;min-height:16px;color:#1aaa6a"></div>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button onclick="saveBulk()" style="padding:9px 22px;font-size:13px;font-weight:500;border-radius:9px;cursor:pointer;border:none;background:#1a1a2e;color:#fff;font-family:inherit">💾 まとめて記録</button>
+      <button onclick="clearBulk()" style="padding:9px 16px;font-size:13px;border-radius:9px;cursor:pointer;border:1px solid #ddd;background:#fff;color:#888;font-family:inherit">クリア</button>
+      <div id="bulk-msg" style="font-size:12px;color:#1aaa6a;min-height:16px"></div>
     </div>
   </div>
-  <div id="twrp" style="display:none;background:linear-gradient(135deg,#f5f0ff,#ffe8f0);border-radius:10px;padding:10px 14px;margin-bottom:8px;font-size:13px"></div>
-  <div id="tlist"></div>
+  <!-- 一括入力プレビュー -->
+  <div class="card" id="bulk-preview-card" style="display:none">
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:8px">📋 保存内容プレビュー</div>
+    <div id="bulk-preview"></div>
+  </div>
 </div>
 
-<div id="pnl-hist" class="pnl">
-  <div class="ptabs">
-    <button class="ptab on" onclick="setHP('all',this)">累計</button>
-    <button class="ptab" onclick="setHP('week',this)">1週間</button>
-    <button class="ptab" onclick="setHP('month',this)">月間</button>
+<!-- 履歴 -->
+<div id="tab-history" class="panel">
+  <div class="sub-tabs" id="hist-stabs">
+    <button class="sub-tab active" onclick="showSub('summary')">📊 サマリー</button>
+    <button class="sub-tab" onclick="showSub('gorilla')">GORILLA</button>
+    <button class="sub-tab" onclick="showSub('irazu')">IRAZU</button>
+    <button class="sub-tab" onclick="showSub('huno')">HUNO</button>
+    <button class="sub-tab" onclick="showSub('ano')">アノマリー</button>
+    <button class="sub-tab" onclick="showSub('opt')">オプション</button>
   </div>
-  <div id="hcont"></div>
-</div>
-
-<div id="pnl-ana" class="pnl">
-  <div class="ptabs">
-    <button class="ptab on" onclick="setAP('all',this)">累計</button>
-    <button class="ptab" onclick="setAP('week',this)">1週間</button>
-    <button class="ptab" onclick="setAP('month',this)">月間</button>
+  <div class="ptabs" id="hist-ptabs">
+    <button class="ptab active" onclick="setPeriod('all','hist')">累計</button>
+    <button class="ptab" onclick="setPeriod('today','hist')">本日</button>
+    <button class="ptab" onclick="setPeriod('week','hist')">1週間</button>
+    <button class="ptab" onclick="setPeriod('month','hist')">月間</button>
+    <button class="ptab" onclick="setPeriod('year','hist')">年間</button>
   </div>
-  <div id="acont"></div>
+  <div id="hist-content"></div>
   <div class="card" style="margin-top:10px">
-    <div style="font-size:13px;font-weight:500;margin-bottom:8px">✨ AI分析</div>
-    <button onclick="runAI()" id="ai-btn" class="btn" style="width:100%;background:linear-gradient(135deg,#7c6af7,#5a8aee);color:#fff;padding:10px;font-size:13px;margin-bottom:8px">✨ AI分析を実行する</button>
-    <div id="ai-result"></div>
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">💾 データ管理</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="exportData()" style="padding:8px 16px;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid #1a1a2e;background:#1a1a2e;color:#fff;font-family:inherit">📥 バックアップ</button>
+      <label style="padding:8px 16px;font-size:13px;border-radius:8px;cursor:pointer;border:1px solid #5a8aee;background:#fff;color:#5a8aee;font-family:inherit">📤 データを読み込む<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
+    </div>
+    <div id="backup-msg" style="font-size:12px;margin-top:8px;color:#1aaa6a;min-height:16px"></div>
   </div>
 </div>
 
-<div id="pnl-csv" class="pnl">
-  <div class="card">
-    <div style="font-size:13px;font-weight:500;margin-bottom:8px">CSV取込</div>
-    <div style="font-size:12px;color:#888;margin-bottom:10px;line-height:1.6">
-      列順：日付 / 時間 / H or L / 脳死 / 裁量<br>
-      結果：○○=勝ち　✕○=マーチン　✕✕=負け
-    </div>
-    <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin-bottom:10px">
-      <div>
-        <div style="font-size:11px;color:#888;margin-bottom:3px">通貨ペア</div>
-        <select id="cpair" style="padding:7px 10px;border-radius:8px;border:1px solid #e0e0e0;font-family:inherit;font-size:12px">
-          <option>USD/JPY</option><option>GBP/JPY</option><option>EUR/JPY</option>
-          <option>EUR/USD</option><option>AUD/USD</option><option>AUD/JPY</option><option>NZD/JPY</option>
-        </select>
-      </div>
-      <label style="padding:8px 16px;font-size:12px;border-radius:8px;border:1px solid #7c6af7;color:#7c6af7;cursor:pointer;background:#fff">
-        📂 CSVを選択
-        <input type="file" accept=".csv" onchange="loadCSV(event)" style="display:none">
-      </label>
-    </div>
-    <div id="cprev" style="display:none;margin-bottom:8px">
-      <div id="cprevtbl" style="font-size:11px;overflow-x:auto"></div>
-      <button class="btn btn-grn" onclick="saveCSV()" style="margin-top:8px">💾 保存する</button>
-    </div>
-    <div id="cmsg" style="font-size:12px;color:#1aaa6a;min-height:16px"></div>
+<!-- 分析 -->
+<div id="tab-analysis" class="panel">
+  <div class="ptabs" id="ana-ptabs">
+    <button class="ptab active" onclick="setPeriod('all','ana')">累計</button>
+    <button class="ptab" onclick="setPeriod('today','ana')">本日</button>
+    <button class="ptab" onclick="setPeriod('week','ana')">1週間</button>
+    <button class="ptab" onclick="setPeriod('month','ana')">月間</button>
+    <button class="ptab" onclick="setPeriod('year','ana')">年間</button>
   </div>
-  <div class="card">
-    <div style="font-size:13px;font-weight:500;margin-bottom:10px">データ管理</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-dark" onclick="doExport()">📥 バックアップ</button>
-      <label class="btn btn-out" style="cursor:pointer">📤 読込<input type="file" accept=".json" onchange="doImport(event)" style="display:none"></label>
+  <div id="ana-wr" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px"></div>
+  <div id="ana-cats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:11px"></div>
+  <button onclick="runAI()" id="ai-btn" style="width:100%;padding:10px;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;border:none;background:linear-gradient(135deg,#7c6af7,#5a8aee);color:#fff;margin-bottom:10px;font-family:inherit">✨ AI分析を実行する</button>
+  <div id="ai-result" style="margin-bottom:10px"></div>
+  <div class="card" style="margin-bottom:10px">
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:10px">🔍 条件組み合わせ分析</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div class="fg"><label>インジ</label><select id="cond-inj"><option value="">全インジ</option><option>GORILLA</option><option>IRAZU</option><option>HUNO</option></select></div>
+      <div class="fg"><label>H/L</label><select id="cond-dir"><option value="">↑H↓L両方</option><option value="up">↑ HIGH</option><option value="down">↓ LOW</option></select></div>
+      <div class="fg"><label>ライン</label><select id="cond-line"><option value="">全ライン</option><option>P</option><option>S1</option><option>S2</option><option>S3</option><option>R1</option><option>R2</option><option>R3</option><option>1000S</option><option>1000E</option><option>2160S</option><option>2160E</option><option>1450S</option><option>1843S</option><option>0.0</option><option>18.2</option><option>23.6</option><option>38.2</option><option>50.0</option><option>61.8</option><option>76.4</option><option>81.8</option><option>100.0</option></select></div>
+      <div class="fg"><label>時間帯</label><select id="cond-time"><option value="">全時間帯</option><option>07:00〜</option><option>07:15〜</option><option>07:30〜</option><option>07:45〜</option><option>08:00〜</option><option>08:15〜</option><option>08:30〜</option><option>08:45〜</option><option>09:00〜</option><option>09:15〜</option><option>09:30〜</option><option>09:45〜</option><option>10:00〜</option><option>10:15〜</option><option>10:30〜</option><option>10:45〜</option><option>11:00〜</option><option>11:15〜</option><option>11:30〜</option><option>11:45〜</option><option>14:45〜</option><option>15:00〜</option><option>15:45〜</option><option>16:00〜</option><option>16:45〜</option><option>17:00〜</option><option>17:45〜</option></select></div>
+      <div class="fg"><label>通貨ペア</label><select id="cond-pair"><option value="">全通貨</option><option>USD/JPY</option><option>EUR/USD</option><option>EUR/AUD</option><option>AUD/USD</option><option>EUR/JPY</option><option>GBP/JPY</option><option>AUD/JPY</option><option>NZD/JPY</option></select></div>
+      <div style="display:flex;align-items:flex-end"><button onclick="runCond()" style="width:100%;padding:8px;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;border:none;background:#1a1a2e;color:#fff;font-family:inherit">分析する</button></div>
     </div>
-    <div id="bmsg" style="font-size:12px;margin-top:6px;color:#1aaa6a;min-height:16px"></div>
+    <div id="cond-result"></div>
   </div>
+  <div class="card" style="margin-bottom:10px">
+    <div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:8px">🏆 AI最強パターン自動ランキング</div>
+    <button onclick="runRanking()" id="rank-btn" style="width:100%;padding:10px;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;border:none;background:linear-gradient(135deg,#7c6af7,#5a8aee);color:#fff;margin-bottom:8px;font-family:inherit">🏆 最強パターンを探す</button>
+    <div id="rank-result"></div>
+  </div>
+  <div id="ana-content"></div>
+</div>
+
+<!-- メモ -->
+<div id="tab-memo" class="panel">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div style="font-size:15px;font-weight:500;color:#1a1a2e">振り返りメモ一覧</div>
+    <div style="font-size:12px;color:#aaa" id="memo-count"></div>
+  </div>
+  <div id="memo-list"></div>
 </div>
 
 <script>
-var PAIRS=['USD/JPY','GBP/JPY','EUR/JPY','EUR/USD','AUD/USD','AUD/JPY','NZD/JPY'];
+// ===== 定数 =====
+var INJS=[
+  {name:'GORILLA',tag:'ライン',lines:['—','P','S1','S2','S3','R1','R2','R3']},
+  {name:'IRAZU',tag:'レベル',lines:['—','1000S','1000E','2160S','2160E','1450S','1843S']},
+  {name:'HUNO',tag:'フィボ',lines:['—','0.0','18.2','23.6','38.2','50.0','61.8','76.4','81.8','100.0']}
+];
+var PAIRS=['USD/JPY','EUR/USD','EUR/AUD','AUD/USD','EUR/JPY','GBP/JPY','AUD/JPY','NZD/JPY','その他'];
+var ANOMALIES=[
+  {time:'8:00〜',dir:'↑↓',pairs:['クロス円']},
+  {time:'8:27',dir:'↑',pairs:['GBP/JPY']},
+  {time:'8:55',dir:'↑',pairs:['USD/JPY']},
+  {time:'9:25',dir:'↑',pairs:['AUD/USD']},
+  {time:'9:47',dir:'↑',pairs:['EUR/JPY']},
+  {time:'9:55',dir:'↓',pairs:['AUD/JPY','AUD/USD']},
+  {time:'10:30',dir:'↑↓',pairs:['EUR/AUD']},
+  {time:'10:55',dir:'↓',pairs:['EUR/USD']},
+  {time:'11:55',dir:'↑',pairs:['USD/JPY']},
+  {time:'14:55',dir:'↑',pairs:['EUR/JPY']},
+  {time:'15:55',dir:'↑',pairs:['USD/JPY']},
+  {time:'16:55',dir:'↑',pairs:['USD/JPY']},
+  {time:'17:55',dir:'↑',pairs:['GBP/JPY']}
+];
+var OPTIONS=['GBP/JPY 前日終値(YC)','AUD/JPY 当日始値(O)','AUD/JPY 6〜8(1分)','AUD/JPY 6〜8(5分)','AUD/JPY 6〜8(更新)','GBP/JPY 前日高安値(YHL)','USD/JPY 200EMA','NZD/JPY 前日FB','GBP/JPY 前日FB'];
+var OPT_ABBR={'GBP/JPY 前日終値(YC)':'G/J YC','AUD/JPY 当日始値(O)':'A/J O','AUD/JPY 6〜8(1分)':'A/J M1','AUD/JPY 6〜8(5分)':'A/J M5','AUD/JPY 6〜8(更新)':'A/J 更新','GBP/JPY 前日高安値(YHL)':'G/J YHL','USD/JPY 200EMA':'U/J 200','NZD/JPY 前日FB':'N/J FB','GBP/JPY 前日FB':'G/J FB'};
 var WD=['日','月','火','水','木','金','土'];
-var db=[];
-var hp='all';
-var ap='all';
-var rid=0;
-var csvRows=[];
+var ANO_LABELS=[];
+ANOMALIES.forEach(function(a){a.pairs.forEach(function(p){ANO_LABELS.push(a.time+' '+a.dir+' '+p);});});
 
-function pad2(n){return('0'+n).slice(-2);}
-function today(){var d=new Date();return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());}
-function disp(iso){var p=iso.split('-'),dt=new Date(iso+'T00:00:00');return p[0]+'年'+p[1]+'月'+p[2]+'日（'+WD[dt.getDay()]+'）';}
-function sv(id){var e=document.getElementById(id);return e?e.value:'';}
-function msg(id,t,c){var e=document.getElementById(id);if(!e)return;e.textContent=t;e.style.color=c||'#1aaa6a';setTimeout(function(){e.textContent='';},3000);}
-function save(){try{localStorage.setItem('2nd_db',JSON.stringify(db));}catch(e){}}
-function load(){try{var d=localStorage.getItem('2nd_db');if(d)db=JSON.parse(d);}catch(e){}}
+// ===== 状態 =====
+var trades=[],dailyMemos={},anoState={},optBlocks=[],injEntries={0:[],1:[],2:[]},entList=[];
+var curDateIso='',dateMode='picker',histPeriod='all',anaPeriod='all',curSub='summary';
+var injF={pair:'',line:'',dir:'',result:''},anoF={result:''},optF={name:''};
 
-function showTab(t){
-  document.querySelectorAll('.tab').forEach(function(b,i){b.classList.toggle('on',['inp','hist','ana','csv'][i]===t);});
-  document.querySelectorAll('.pnl').forEach(function(p){p.classList.remove('on');});
-  document.getElementById('pnl-'+t).classList.add('on');
-  if(t==='hist')renderHist();
-  if(t==='ana')renderAna();
+// ===== 日付ユーティリティ =====
+function todayIso(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function pad(n){return String(n).padStart(2,'0');}
+function toIso(s){return s?s.replace(/\//g,'-'):'';}
+function fmtDisp(iso){
+  if(!iso)return'日付を選択';
+  var p=iso.split('-');
+  var dt=new Date(iso+'T00:00:00');
+  return p[0]+'年'+p[1]+'月'+p[2]+'日（'+WD[dt.getDay()]+'）';
 }
-
-function setHP(p,btn){hp=p;document.querySelectorAll('#pnl-hist .ptab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');renderHist();}
-function setAP(p,btn){ap=p;document.querySelectorAll('#pnl-ana .ptab').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');renderAna();}
-
-function fp(list,p){
-  var now=new Date();
+function isoToSlash(iso){return iso?iso.replace(/-/g,'/'):''}
+function slashToIso(s){var m=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);if(!m)return'';return m[1]+'-'+pad(parseInt(m[2]))+'-'+pad(parseInt(m[3]));}
+function updateDateDisp(iso){curDateIso=iso;document.getElementById('date-disp').textContent=fmtDisp(iso);}
+function onDatePick(v){updateDateDisp(v);}
+function onDateText(v){var iso=slashToIso(v);if(iso)updateDateDisp(iso);else document.getElementById('date-disp').textContent=v||'日付を入力';}
+function toggleDateMode(){
+  dateMode=dateMode==='picker'?'text':'picker';
+  var pk=document.getElementById('f-date-pk'),tx=document.getElementById('f-date-tx'),bt=document.getElementById('date-mode-btn');
+  if(dateMode==='text'){pk.style.display='none';tx.style.display='';bt.textContent='カレンダー';tx.value=isoToSlash(curDateIso);}
+  else{tx.style.display='none';pk.style.display='';bt.textContent='手入力';pk.value=curDateIso;}
+}
+function getDateVal(){return dateMode==='picker'?document.getElementById('f-date-pk').value:slashToIso(document.getElementById('f-date-tx').value)||document.getElementById('f-date-tx').value;}
+function dateToIso(d){return toIso(d);}
+function isSameDay(d,iso){var di=toIso(d);return di===iso||di===iso.replace(/-/g,'/');}
+function filterPeriod(list,p){
+  var now=new Date(),td=todayIso();
   return list.filter(function(t){
-    if(p==='week'){var w=new Date(now);w.setDate(w.getDate()-7);return t.date>=w.toISOString().slice(0,10);}
-    if(p==='month'){var m=new Date(now);m.setDate(m.getDate()-30);return t.date>=m.toISOString().slice(0,10);}
+    if(p==='all')return true;
+    if(p==='today')return isSameDay(t.date,td);
+    var iso=toIso(t.date);
+    var d=new Date(iso+'T00:00:00');
+    if(p==='week'){var w=new Date(now);w.setDate(w.getDate()-7);return d>=w;}
+    if(p==='month')return d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth();
+    if(p==='year')return d.getFullYear()===now.getFullYear();
     return true;
   });
 }
+function timeSlot(t){if(!t)return'時間不明';var p=t.split(':').map(Number);var s=Math.floor(p[1]/15)*15;return pad(p[0])+':'+pad(s)+'〜';}
 
-// ===== インジ定数 =====
-var INJS2=[
-  {name:'GORILLA',tag:'ライン',lines:['—','P','S1','S2','S3','R1','R2','R3']},
-  {name:'IRAZU', tag:'レベル',lines:['—','1000S','1000E','2160S','2160E','1450S','1843S']},
-  {name:'HUNO',  tag:'フィボ', lines:['—','0.0','18.2','23.6','38.2','50.0','61.8','76.4','81.8','100.0']}
-];
-var curInj=0;  // 現在選択中のインジindex
+// ===== タブ切替 =====
+var curSub='summary';
+var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',dateStr:'',memo:'',dateFrom:'',dateTo:''};
 
-function setInj(idx){
-  curInj=idx;
-  // タブボタンの見た目を切り替え
-  for(var i=0;i<3;i++){
-    var btn=document.getElementById('injtab-'+i);
-    if(!btn)continue;
-    btn.style.background=i===idx?'#1a1a2e':'#f5f5f5';
-    btn.style.color=i===idx?'#fff':'#888';
+var anoF={result:'',weekday:'',dateStr:'',time:'',dir:'',pair:'',memo:'',dateFrom:'',dateTo:''};
+var optF={name:'',result:'',weekday:'',dateStr:'',memo:'',dateFrom:'',dateTo:''};
+// ===== カレンダーフィルター =====  // {id: {year,month,selected:Set}}
+function matchDateRange(dateDisp,from,to){
+  if(!from&&!to)return true;
+  var yr=dateDisp.match(/(\d{4})/);
+  var mndy=dateDisp.match(/(\d{2})月(\d{2})/);
+  if(!yr||!mndy)return true;
+  var d=yr[1]+'/'+mndy[1]+'/'+mndy[2];
+  if(from){
+    var fp=from.split('/');
+    if(fp.length===2){
+      var fd=yr[1]+'/'+('0'+fp[0]).slice(-2)+'/'+('0'+fp[1]).slice(-2);
+      // 終了日なし=その日だけ
+      if(!to)return d===fd;
+      if(d<fd)return false;
+    }
   }
-  // バッジ更新
-  var badge=document.getElementById('inj-badge');
-  if(badge)badge.textContent=INJS2[idx].name;
-  // ヘッダーのライン列タイトル更新
-  var th=document.getElementById('line-th');
-  if(th)th.textContent='② '+INJS2[idx].tag;
-  // 既存行のライン選択肢を更新
-  var lines=INJS2[idx].lines;
-  var lOpts=lines.map(function(l){return'<option>'+l+'</option>';}).join('');
-  document.getElementById('itbody').querySelectorAll('tr').forEach(function(tr){
-    var r=tr.id.slice(1);
-    var sel=document.getElementById('li'+r);
-    if(sel){var cur=sel.value;sel.innerHTML=lOpts;sel.value=cur;}
-  });
-}
-
-var ROPTS='<option value="none">—</option><option value="win">○ 勝ち</option><option value="martin">✕○ 1M勝ち</option><option value="lose">✕✕ 負け</option><option value="skip">－ スルー</option>';
-var PAIRSOPTS=PAIRS.map(function(p){return'<option>'+p+'</option>';}).join('');
-
-function addRows(n){for(var i=0;i<n;i++)addRow();}
-function addRow(){
-  var tbody=document.getElementById('itbody');
-  var r=rid++;
-  var num=tbody.querySelectorAll('tr').length+1;
-  // 直前行の日付・通貨ペアを引き継ぐ
-  var prevRows=tbody.querySelectorAll('tr');
-  var prevDate=today();
-  var prevPair='USD/JPY';
-  if(prevRows.length>0){
-    var lastR=prevRows[prevRows.length-1].id.slice(1);
-    var pd=document.getElementById('d'+lastR);
-    var pp=document.getElementById('p'+lastR);
-    if(pd&&pd.value)prevDate=pd.value;
-    if(pp&&pp.value)prevPair=pp.value;
+  if(to){
+    var tp=to.split('/');
+    if(tp.length===2){
+      var td=yr[1]+'/'+('0'+tp[0]).slice(-2)+'/'+('0'+tp[1]).slice(-2);
+      if(d>td)return false;
+    }
   }
-  var lines=INJS2[curInj].lines;
-  var lOpts=lines.map(function(l){return'<option>'+l+'</option>';}).join('');
-  var tr=document.createElement('tr');
-  tr.id='r'+r;
-  tr.innerHTML=
-    '<td style="text-align:center;color:#ccc;font-size:11px;white-space:nowrap">'+num+'</td>'+
-    '<td><input id="d'+r+'" type="date" class="ti" value="'+prevDate+'"></td>'+
-    '<td><select id="p'+r+'" class="si">'+PAIRS.map(function(p){return'<option'+(p===prevPair?' selected':'')+'>'+p+'</option>';}).join('')+'</select></td>'+
-    '<td><input id="t'+r+'" type="time" class="ti"></td>'+
-    '<td><select id="hl'+r+'" class="si"><option value="high">↑HIGH</option><option value="low">↓LOW</option></select></td>'+
-    '<td style="background:#f0fff8"><select id="n'+r+'" class="si" onchange="rowHL(\'r'+r+'\')">'+ROPTS+'</select></td>'+
-    '<td style="background:#f0f4ff"><select id="li'+r+'" class="si">'+lOpts+'</select></td>'+
-    '<td><input id="m'+r+'" type="text" class="ti" placeholder="メモ"></td>'+
-    '<td><button onclick="delRow(\'r'+r+'\')" style="font-size:10px;padding:2px 5px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ccc;cursor:pointer" title="削除">✕</button></td>';
-  tbody.appendChild(tr);
+  return true;
 }
-
-function rowHL(rowId){
-  var tr=document.getElementById(rowId);if(!tr)return;
-  var nv=tr.querySelector('[id^="n"]').value;
-  var bg=nv==='win'?'#f0fdf6':nv==='martin'?'#f0f4ff':nv==='lose'?'#fff5f3':'';
-  tr.style.background=bg;
-}
-
-function delRow(rowId){
-  var tr=document.getElementById(rowId);if(tr)tr.parentNode.removeChild(tr);
-  var rows=document.getElementById('itbody').querySelectorAll('tr');
-  rows.forEach(function(r,i){var td=r.querySelector('td:first-child');if(td)td.textContent=i+1;});
-}
-
-function clearTbl(){
-  document.getElementById('itbody').innerHTML='';
-  rid=0;
-  addRows(8);
-}
-
-function saveRec(){
-  var injName=INJS2[curInj].name;
-  var rows=document.getElementById('itbody').querySelectorAll('tr');
-  var saved=0;
-  var groups={};
-  rows.forEach(function(tr){
-    var r=tr.id.slice(1);
-    var iso=document.getElementById('d'+r)?document.getElementById('d'+r).value:'';
-    var pair=document.getElementById('p'+r)?document.getElementById('p'+r).value:'';
-    var time=document.getElementById('t'+r)?document.getElementById('t'+r).value:'';
-    var dir=document.getElementById('hl'+r)?document.getElementById('hl'+r).value:'high';
-    var noshi=document.getElementById('n'+r)?document.getElementById('n'+r).value:'none';
-    var line=document.getElementById('li'+r)?document.getElementById('li'+r).value:'—';
-    var memo=document.getElementById('m'+r)?document.getElementById('m'+r).value:'';
-    if(!iso||(!time&&noshi==='none'))return;
-    var key=iso+'__'+pair;
-    if(!groups[key])groups[key]={iso:iso,pair:pair,entries:[]};
-    groups[key].entries.push({pair:pair,time:time,dir:dir,noshi:noshi,sairyo:'none',line:line,inj:injName,memo:memo});
-    saved++;
+function showSub(s){
+  curSub=s;
+  document.querySelectorAll('#hist-stabs .sub-tab').forEach(function(b){
+    b.classList.toggle('active',b.getAttribute('onclick')==="showSub('"+s+"')");
   });
-  if(!saved){msg('smsg','入力データがありません','#ee6a50');return;}
-  Object.keys(groups).forEach(function(key){
-    var g=groups[key];
-    var ex=db.find(function(t){return t.date===g.iso&&t.pair===g.pair;});
-    if(ex){ex.entries=ex.entries.concat(g.entries);}
-    else{db.unshift({id:Date.now()+Math.random()*1000|0,date:g.iso,pair:g.pair,disp:disp(g.iso),entries:g.entries});}
+  renderHistory();
+}
+function showMain(t){
+  document.querySelectorAll('.main-tab').forEach(function(b,i){b.classList.toggle('active',['input','bulk','history','analysis','memo'][i]===t);});
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+  document.getElementById('tab-'+t).classList.add('active');
+  if(t==='history')renderHistory();
+  if(t==='analysis')renderAnalysis();
+  if(t==='memo')renderMemos();
+  if(t==='bulk')initBulk();
+}
+// ===== カレンダーフィルター =====  // {id: {year,month,selected:Set}}
+function matchDateRange(dateDisp,from,to){
+  if(!from&&!to)return true;
+  var yr=dateDisp.match(/(\d{4})/);
+  var mndy=dateDisp.match(/(\d{2})月(\d{2})/);
+  if(!yr||!mndy)return true;
+  var d=yr[1]+'/'+mndy[1]+'/'+mndy[2];
+  if(from){
+    var fp=from.split('/');
+    if(fp.length===2){
+      var fd=yr[1]+'/'+('0'+fp[0]).slice(-2)+'/'+('0'+fp[1]).slice(-2);
+      // 終了日なし=その日だけ
+      if(!to)return d===fd;
+      if(d<fd)return false;
+    }
+  }
+  if(to){
+    var tp=to.split('/');
+    if(tp.length===2){
+      var td=yr[1]+'/'+('0'+tp[0]).slice(-2)+'/'+('0'+tp[1]).slice(-2);
+      if(d>td)return false;
+    }
+  }
+  return true;
+}
+function showSub(s){
+  curSub=s;
+  document.querySelectorAll('#hist-stabs .sub-tab').forEach(function(b){
+    b.classList.toggle('active',b.getAttribute('onclick')==="showSub('"+s+"')");
   });
-  save();renderToday();
-  msg('smsg','['+injName+'] '+saved+'件を'+Object.keys(groups).length+'日分に記録しました！','#1aaa6a');
-  clearTbl();
+  renderHistory();
+}
+function setPeriod(p,tab){
+  var lbl={all:'累計',today:'本日',week:'1週間',month:'月間',year:'年間'};
+  if(tab==='hist'){histPeriod=p;document.querySelectorAll('#hist-ptabs .ptab').forEach(function(b){b.classList.toggle('active',b.textContent===lbl[p]);});renderHistory();}
+  else{anaPeriod=p;document.querySelectorAll('#ana-ptabs .ptab').forEach(function(b){b.classList.toggle('active',b.textContent===lbl[p]);});renderAnalysis();}
+}
+function toggle(id){
+  var b=document.getElementById('body-'+id),a=document.getElementById('arr-'+id);
+  var open=b.style.display!=='none';b.style.display=open?'none':'block';a.classList.toggle('open',!open);
 }
 
-function calcWR(entries,type){
-  var ws=0,wm=0,l=0,sk=0,t=0;
-  entries.forEach(function(e){
-    var r=type==='noshi'?e.noshi:e.sairyo;
-    if(!r||r==='none')return;
-    if(r==='skip'){sk++;return;}
-    t++;
-    if(r==='win'){ws++;wm++;}
-    else if(r==='martin'){l++;wm++;}
-    else l++;
+// ===== バッジ・勝率 =====
+function badge(v){
+  if(v==='win')return'<span class="badge b-win">○</span>';
+  if(v==='martin')return'<span class="badge b-martin">✕○</span>';
+  if(v==='lose')return'<span class="badge b-lose">✕✕</span>';
+  if(v==='skip')return'<span class="badge b-skip">－</span>';
+  return'';
+}
+function badge2(v){
+  if(v==='win')return'<span class="badge b-win">○</span>';
+  if(v==='lose')return'<span class="badge b-lose">✕</span>';
+  if(v==='skip')return'<span class="badge b-skip">－</span>';
+  return'';
+}
+function wrl(pct,w,l,t){return'<span style="font-weight:600">'+pct+'%</span><span style="color:#aaa;font-size:10px;margin-left:3px">('+w+'勝'+l+'敗) '+t+'件</span>';}
+function calcWR(list){
+  // 全カテゴリ合算
+  // インジ/エントリー: ○=単発+1M勝 / ✕○=単発負+1M勝 / ✕✕=両負
+  // アノマリー/オプション: ○=勝 / ✕=負 / スルー=件数外
+  var t=0,ws=0,wm=0,l=0,sk=0;
+  list.forEach(function(tr){
+    // インジ
+    tr.injs.forEach(function(e){
+      if(!e.result||e.result==='none')return;
+      t++;
+      if(e.result==='win'){ws++;wm++;}
+      else if(e.result==='martin'){l++;wm++;}  // 単発は負け、1M込みは勝ち
+      else if(e.result==='lose'){l++;}
+    });
+    // アノマリー（スルーはsk、勝敗のみt）
+    tr.anos.forEach(function(a){
+      if(!a.result||a.result==='none')return;
+      if(a.result==='skip'){sk++;}
+      else{t++;if(a.result==='win'){ws++;wm++;}else l++;}
+    });
+    // オプション（スルーはsk、勝敗のみt）
+    tr.opts.forEach(function(o){
+      (o.rounds||[o.result]).forEach(function(r){
+        if(!r||r==='none')return;
+        if(r==='skip'){sk++;}
+        else{t++;if(r==='win'){ws++;wm++;}else l++;}
+      });
+    });
+    // エントリー
+    (tr.entries||[]).forEach(function(e){
+      if(!e.result||e.result==='none')return;
+      t++;
+      if(e.result==='win'){ws++;wm++;}
+      else if(e.result==='martin'){l++;wm++;}  // 単発は負け、1M込みは勝ち
+      else if(e.result==='lose'){l++;}
+    });
   });
-  return{t:t,ws:ws,wm:wm,l:l,sk:sk,s:t?Math.round(ws/t*100):0,m:t?Math.round(wm/t*100):0};
+  return{t:t,w:ws,wm:wm,l:l,sk:sk,s:t?Math.round(ws/t*100):0,mt:t?Math.round(wm/t*100):0};
+}
+function calcCat(list,cat){
+  var t=0,ws=0,wm=0,l=0,sk=0;
+  list.forEach(function(tr){
+    if(cat==='inj')tr.injs.forEach(function(i){
+      if(!i.result||i.result==='none')return;t++;
+      if(i.result==='win'){ws++;wm++;}else if(i.result==='martin'){l++;wm++;}else if(i.result==='lose'){l++;}
+    });
+    if(cat==='ano')tr.anos.forEach(function(a){
+      if(!a.result||a.result==='none')return;
+      if(a.result==='skip'){sk++;}else{t++;if(a.result==='win'){ws++;wm++;}else l++;}
+    });
+    if(cat==='opt')tr.opts.forEach(function(o){
+      (o.rounds||[o.result]).forEach(function(r){
+        if(!r||r==='none')return;
+        if(r==='skip'){sk++;}else{t++;if(r==='win'){ws++;wm++;}else l++;}
+      });
+    });
+    if(cat==='entry')(tr.entries||[]).forEach(function(e){
+      if(!e.result||e.result==='none')return;t++;
+      if(e.result==='win'){ws++;wm++;}else if(e.result==='martin'){l++;wm++;}else if(e.result==='lose'){l++;}
+    });
+  });
+  return{t:t,w:ws,wm:wm,l:l,sk:sk,wr:t?Math.round(ws/t*100):0,wrm:t?Math.round(wm/t*100):0};
+}
+function calcInj(list,name){
+  var t=0,ws=0,wm=0,l=0;
+  list.forEach(function(tr){
+    tr.injs.filter(function(i){return i.name===name&&i.result!=='none';}).forEach(function(i){
+      t++;if(i.result==='win'){ws++;wm++;}else if(i.result==='martin'){l++;wm++;}else if(i.result==='lose'){l++;}
+    });
+  });
+  return{t:t,w:ws,wm:wm,l:l,s:t?Math.round(ws/t*100):0,mt:t?Math.round(wm/t*100):0};
 }
 
-function bdg(r){
-  if(r==='win')return'<span class="win">○</span>';
-  if(r==='martin')return'<span class="mar">✕○</span>';
-  if(r==='lose')return'<span class="lose">✕✕</span>';
-  if(r==='skip')return'<span style="color:#ccc">－</span>';
-  return'<span style="color:#eee">—</span>';
+// ===== ダッシュボード =====
+function renderDash(){
+  var td=todayIso(),tdList=filterPeriod(trades,'today');
+  var s=calcWR(tdList);
+  var streak=calcStreak();
+  var el=document.getElementById('dash-grid');if(!el)return;
+  el.innerHTML='<div class="dash-card"><div class="dash-val">'+tdList.length+'</div><div class="dash-lbl">本日の記録</div></div>'+
+    '<div class="dash-card"><div class="dash-val '+(s.mt>=60?'win-c':s.mt>=50?'martin-c':'lose-c')+'">'+s.mt+'%</div><div class="dash-lbl">本日1M込み勝率</div><div class="dash-sub">'+s.wm+'勝'+s.l+'敗</div></div>'+
+    '<div class="dash-card"><div class="dash-val">'+trades.length+'</div><div class="dash-lbl">累計記録日数</div></div>'+
+    '<div class="dash-card"><div class="dash-val '+(streak>0?'win-c':'')+'">'+streak+'</div><div class="dash-lbl">連勝中</div></div>';
+}
+function calcStreak(){
+  var all=[];
+  trades.slice().sort(function(a,b){return toIso(a.date).localeCompare(toIso(b.date));}).forEach(function(t){t.injs.forEach(function(i){if(i.result!=='none')all.push(i.result);});});
+  var s=0;for(var i=all.length-1;i>=0;i--){if(all[i]==='win'||all[i]==='martin')s++;else break;}return s;
 }
 
-function renderToday(){
-  var td=today();
-  var list=db.filter(function(t){return t.date===td;});
-  var wr=document.getElementById('twrp');
-  var tl=document.getElementById('tlist');
-  if(!list.length){wr.style.display='none';tl.innerHTML='';return;}
-  var ae=[];list.forEach(function(t){ae=ae.concat(t.entries);});
-  var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
-  wr.style.display='block';
-  wr.innerHTML='脳死: <b class="win">'+sn.s+'%</b>('+sn.ws+'勝'+sn.l+'敗 '+sn.t+'件) 1M込<b class="mar"> '+sn.m+'%</b>　裁量: <b class="win">'+ss.s+'%</b>('+ss.ws+'勝'+ss.l+'敗 '+ss.t+'件) 1M込<b class="mar"> '+ss.m+'%</b>';
-  tl.innerHTML=list.map(function(t,i){
-    var lines2=t.entries.map(function(e){return e.pair+' '+(e.time||'—')+' '+(e.dir==='high'?'↑H':'↓L')+' '+(e.inj?'['+e.inj+']':'')+' '+(e.line&&e.line!=='—'?'('+e.line+')':'')+' '+bdg(e.noshi)+(e.memo?' <span style="color:#888;font-size:11px">'+e.memo+'</span>':'');});
-    return '<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;gap:8px">'+
-      '<div style="background:#1a1a2e;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">'+(i+1)+'</div>'+
-      '<div style="flex:1;font-size:12px;line-height:1.7"><div style="font-size:11px;color:#888;margin-bottom:3px">'+t.disp+' '+t.pair+'</div>'+lines2.join('<br>')+'</div>'+
-      '<button onclick="delRec('+t.id+')" style="font-size:11px;padding:3px 7px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#aaa;cursor:pointer;flex-shrink:0">削除</button>'+
+// ===== 今日の記録 =====
+function renderTodayList(){
+  var tdList=filterPeriod(trades,'today');
+  var s=calcWR(tdList);
+  var injS=calcCat(tdList,'inj'),anoS=calcCat(tdList,'ano'),optS=calcCat(tdList,'opt');
+  document.getElementById('today-ttl').textContent='今日の記録（'+tdList.length+'件）';
+  var wrEl=document.getElementById('today-wr');
+  if(tdList.length){
+    var sk=s.sk?'['+s.sk+'ス '+(s.t+s.sk)+'件]':'';
+    wrEl.innerHTML='<span class="win-c">単発 <b>'+s.s+'%</b>('+s.w+'勝'+s.l+'敗 '+s.t+'件'+sk+')</span> / <span class="martin-c">1M込 <b>'+s.mt+'%</b>('+s.wm+'勝'+s.l+'敗 '+s.t+'件)</span>';
+  }else{wrEl.innerHTML='';}
+  var el=document.getElementById('today-items');
+  if(!tdList.length){el.innerHTML='<div class="today-empty">まだ今日の記録はありません</div>';return;}
+  el.innerHTML=tdList.map(function(tr,idx){
+    var lines=[];
+    ['GORILLA','IRAZU','HUNO'].forEach(function(name){
+      var arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none';});
+      if(!arr.length)return;
+      var injWs=arr.filter(function(i){return i.result==='win';}).length;
+      var injWm=arr.filter(function(i){return i.result==='win'||i.result==='martin';}).length;
+      var injL=arr.filter(function(i){return i.result==='lose'||i.result==='martin';}).length;
+      var injWRs=arr.length?Math.round(injWs/arr.length*100):0;
+      var injWRm=arr.length?Math.round(injWm/arr.length*100):0;
+      var cls=injWRs>=60?'win-c':injWRs>=50?'martin-c':'lose-c';
+      var detail=arr.map(function(i){return (i.line&&i.line!=='—'?'['+i.line+']':'')+' '+(i.time||'')+' '+(i.dir==='up'?'↑':'↓')+' '+badge(i.result);}).join('　');
+      var injStat='単発<b class="'+cls+'">'+injWRs+'%</b>('+injWs+'勝'+injL+'敗)';
+      if(injWm>injWs)injStat+=' 1M<b class="martin-c">'+injWRm+'%</b>('+injWm+'勝'+injL+'敗)';
+      injStat+=' '+arr.length+'件';
+      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span><b>'+name+'</b>: '+detail+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">'+injStat+'</span></span>');
+    });
+    var anoA=tr.anos.filter(function(a){return a.result!=='none';});
+    if(anoA.length){
+      var anoSk=anoA.filter(function(a){return a.result==='skip';}).length;
+      var anoT=anoA.length-anoSk;
+      var aw=anoA.filter(function(a){return a.result==='win';}).length;
+      var awr=anoT?Math.round(aw/anoT*100):0;
+      var acls=awr>=60?'win-c':awr>=50?'martin-c':'lose-c';
+      var adet=anoA.map(function(a){return a.time+' '+badge2(a.result);}).join(' ');
+      var anoSkStr=anoSk?'['+anoSk+'ス '+anoA.length+'件]':'';
+      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>アノマリー: '+adet+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">単発<b class="'+acls+'">'+awr+'%</b>('+aw+'勝'+(anoT-aw)+'敗 '+anoT+'件'+anoSkStr+')</span></span>');
+    }
+    var allOpts=tr.opts.filter(function(o){return (o.rounds||[o.result]).some(function(r){return r&&r!=='none';});});
+    if(allOpts.length){
+      var ow=0,ot=0,osk=0;
+      allOpts.forEach(function(o){(o.rounds||[o.result]).forEach(function(r){if(!r||r==='none')return;if(r==='skip'){osk++;}else{ot++;if(r==='win')ow++;}});});
+      var owr=ot?Math.round(ow/ot*100):0;
+      var ocls=owr>=60?'win-c':owr>=50?'martin-c':'lose-c';
+      var odet=allOpts.map(function(o,oi){
+        var abbr=OPT_ABBR[o.name]||o.name.slice(0,8);
+        var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});
+        return (oi+1)+'.'+abbr+' '+rs.map(function(r){return badge2(r);}).join('');
+      }).join(' ');
+      var oskStr=osk?'['+osk+'ス '+(ot+osk)+'件]':'';
+      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>オプション: '+odet+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">単発<b class="'+ocls+'">'+owr+'%</b>('+ow+'勝'+(ot-ow)+'敗 '+ot+'件'+oskStr+')</span></span>');
+    }
+    var entA=(tr.entries||[]).filter(function(e){return e.result!=='none';});
+    if(entA.length){
+      var eWs=entA.filter(function(e){return e.result==='win';}).length;
+      var eWm=entA.filter(function(e){return e.result==='win'||e.result==='martin';}).length;
+      var eL=entA.filter(function(e){return e.result==='lose'||e.result==='martin';}).length;
+      var eLose=entA.filter(function(e){return e.result==='lose';}).length;
+      var eWRs=Math.round(eWs/entA.length*100);
+      var eCls=eWRs>=60?'win-c':eWRs>=50?'martin-c':'lose-c';
+      var eTxt=entA.map(function(e){return e.pair+' '+(e.dir==='up'?'↑':'↓')+' '+badge(e.result);}).join(' ');
+      var eStat='単発<b class="'+eCls+'">'+eWRs+'%</b>('+eWs+'勝'+eL+'敗)';
+      if(eWm>eWs)eStat+=' 1M<b class="martin-c">'+Math.round(eWm/entA.length*100)+'%</b>('+eWm+'勝'+eLose+'敗)';
+      eStat+=' '+entA.length+'件';
+      lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span>エントリー: '+eTxt+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">'+eStat+'</span></span>');
+    }
+    return '<div class="today-item"><div class="today-num">'+(idx+1)+'</div><div class="today-body">'+(lines.join('<br>')||'（詳細なし）')+'</div><div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0"><button class="today-del" style="background:#f0f4ff;border-color:#5a8aee;color:#5a8aee" onclick="editRecord('+tr.id+')">編集</button><button class="today-del" onclick="delToday('+tr.id+')">削除</button></div></div>';
+  }).join('');
+}
+function delToday(id){if(!confirm('削除しますか？'))return;trades=trades.filter(function(t){return t.id!==id;});saveData();renderTodayList();renderDash();}
+function editRecord(id){
+  var tr=trades.find(function(t){return t.id===id;});
+  if(!tr)return;
+  // 日付セット
+  var iso=toIso(tr.date);
+  if(dateMode==='picker'){document.getElementById('f-date-pk').value=iso;}
+  else{document.getElementById('f-date-tx').value=isoToSlash(iso);}
+  updateDateDisp(iso);
+  // インジ復元（既存件数分のブロックを作る）
+  injEntries={0:[],1:[],2:[]};
+  INJS.forEach(function(inj,idx){
+    var arr=tr.injs.filter(function(i){return i.name===inj.name;});
+    if(arr.length===0)arr=[{result:'none'}];
+    injEntries[idx]=arr.map(function(i){
+      return{id:Date.now()+Math.floor(Math.random()*10000),result:i.result,
+        _pair:i.pair,_time:i.time,_dir:i.dir,_line:i.line,_memo:i.memo};
+    });
+  });
+  renderInj(0);renderInj(1);renderInj(2);
+  // DOM値を復元
+  INJS.forEach(function(inj,idx){
+    injEntries[idx].forEach(function(e){
+      sv('ep-'+e.id,e._pair);sv('et-'+e.id,e._time);
+      sv('ed-'+e.id,e._dir);sv('el-'+e.id,e._line);sv('em-'+e.id,e._memo);
+      // ボタン状態復元
+      if(e.result!=='none'){
+        var btns=document.querySelectorAll('[onclick*="setInjR('+idx+','+e.id+'"]');
+        if(!btns.length){
+          var card=document.getElementById('ep-'+e.id);
+          if(card){
+            card=card.closest('.entry-card');
+            if(card){
+              card.className='entry-card '+(e.result==='win'?'done-win':e.result==='martin'?'done-martin':'done-lose');
+              var rb=card.querySelectorAll('.rbtn');
+              rb.forEach(function(b){b.className='rbtn';});
+              var ri=e.result==='win'?0:e.result==='martin'?1:2;
+              if(rb[ri])rb[ri].classList.add(e.result==='win'?'sel-win':e.result==='martin'?'sel-martin':'sel-lose');
+            }
+          }
+        }
+      }
+    });
+  });
+  // アノマリー復元
+  buildAno();
+  ANOMALIES.forEach(function(ano,ai){
+    ano.pairs.forEach(function(p,pi){
+      var key=ai+'_'+pi;
+      var found=tr.anos.find(function(a){return a.time===ano.time&&a.pair===p;});
+      if(found&&found.result!=='none'){
+        anoState[key]=found.result;
+        var row=document.getElementById('ar-'+key);
+        if(row){
+          row.querySelectorAll('.rbtn').forEach(function(b){b.className='rbtn';});
+          var ri=found.result==='win'?0:found.result==='lose'?1:2;
+          var btns=row.querySelectorAll('.rbtn');
+          if(btns[ri])btns[ri].classList.add(found.result==='win'?'sel-win':found.result==='lose'?'sel-lose':'sel-skip');
+          row.className='ano-row'+(found.result==='win'?' done-win':found.result==='lose'?' done-lose':found.result==='skip'?' done-skip':'');
+        }
+        var memo=document.getElementById('am-'+key);
+        if(memo&&found.memo)memo.value=found.memo;
+      }
+    });
+  });
+  // オプション復元
+  buildOpt();
+  tr.opts.forEach(function(o,oi){
+    if(oi>=optBlocks.length)return;
+    var rounds=o.rounds||[o.result];
+    optBlocks[oi].rounds=rounds.map(function(r,ri){
+      return{id:Date.now()+oi*100+ri+Math.floor(Math.random()*1000),result:r||'none'};
+    });
+    if(o.memo)optBlocks[oi].memo=o.memo;
+  });
+  renderOpt();
+  // エントリー復元
+  entList=(tr.entries||[]).map(function(e){
+    return{id:Date.now()+Math.floor(Math.random()*10000),result:e.result||'none',
+      _pair:e.pair,_time:e.time,_dir:e.dir,_inj:e.inj,_opt:e.opt,_ano:e.ano,_memo:e.memo};
+  });
+  renderEnt();
+  entList.forEach(function(e){
+    sv('enp-'+e.id,e._pair);sv('ent-'+e.id,e._time);sv('end-'+e.id,e._dir);
+    sv('eni-'+e.id,e._inj);sv('eno-'+e.id,e._opt);sv('ena-'+e.id,e._ano);sv('enm-'+e.id,e._memo);
+  });
+  // 元の記録を削除（再記録で上書き）
+  trades=trades.filter(function(t){return t.id!==id;});
+  saveData();renderTodayList();renderDash();
+  // セクションを開く
+  var bodies=['inj','ano','opt','ent'];
+  bodies.forEach(function(b){
+    var el=document.getElementById('body-'+b);
+    if(el&&el.style.display==='none')toggle(b);
+  });
+  window.scrollTo(0,0);
+  var msg=document.getElementById('msg');
+  msg.style.color='#5a8aee';
+  msg.textContent='編集中です。修正して「記録する」を押してください。';
+}
+function editToday(id){
+  var tr=trades.find(function(t){return t.id===id;});
+  if(!tr)return;
+  if(!confirm('この記録を編集モードで読み込みます。現在の入力内容はクリアされます。よろしいですか？'))return;
+  // 日付セット
+  var iso=toIso(tr.date);
+  document.getElementById('f-date-pk').value=iso;
+  updateDateDisp(iso);
+  // インジ復元
+  injEntries={0:[],1:[],2:[]};
+  var byInj={GORILLA:[],IRAZU:[],HUNO:[]};
+  tr.injs.forEach(function(i){if(byInj[i.name])byInj[i.name].push(i);});
+  INJS.forEach(function(inj,idx){
+    var arr=byInj[inj.name];
+    if(arr.length===0)arr=[{result:'none'}];
+    injEntries[idx]=arr.map(function(i){return{id:Date.now()+Math.random()*1000|0,result:i.result,_pair:i.pair,_time:i.time,_dir:i.dir,_line:i.line,_memo:i.memo};});
+  });
+  buildInj();
+  INJS.forEach(function(inj,idx){
+    injEntries[idx].forEach(function(e){
+      sv('ep-'+e.id,e._pair);sv('et-'+e.id,e._time);sv('ed-'+e.id,e._dir);sv('el-'+e.id,e._line);sv('em-'+e.id,e._memo);
+      if(e.result!=='none'){
+        var card=document.querySelector('[id="ep-'+e.id+'"]');
+        if(card){
+          var parent=card.closest('.entry-card');
+          if(parent){
+            parent.className='entry-card '+(e.result==='win'?'done-win':e.result==='martin'?'done-martin':'done-lose');
+            var btns=parent.querySelectorAll('.rbtn');
+            btns.forEach(function(b){b.className='rbtn';});
+            var targetCls=e.result==='win'?'sel-win':e.result==='martin'?'sel-martin':'sel-lose';
+            if(btns[e.result==='win'?0:e.result==='martin'?1:2])btns[e.result==='win'?0:e.result==='martin'?1:2].classList.add(targetCls);
+          }
+        }
+      }
+    });
+  });
+  // アノマリー復元
+  buildAno();
+  tr.anos.forEach(function(a){
+    var key=null;
+    ANOMALIES.forEach(function(ano,ai){
+      ano.pairs.forEach(function(p,pi){
+        if(ano.time===a.time&&p===a.pair)key=ai+'_'+pi;
+      });
+    });
+    if(key&&a.result!=='none'){
+      anoState[key]=a.result;
+      var row=document.getElementById('ar-'+key);
+      if(row){
+        var btns=row.querySelectorAll('.rbtn');
+        btns.forEach(function(b){b.className='rbtn';});
+        var idx=a.result==='win'?0:a.result==='lose'?1:2;
+        if(btns[idx])btns[idx].classList.add(a.result==='win'?'sel-win':a.result==='lose'?'sel-lose':'sel-skip');
+        row.className='ano-row'+(a.result==='win'?' done-win':a.result==='lose'?' done-lose':a.result==='skip'?' done-skip':'');
+      }
+      var memo=document.getElementById('am-'+key);
+      if(memo&&a.memo)memo.value=a.memo;
+    }
+  });
+  // オプション復元
+  buildOpt();
+  tr.opts.forEach(function(o,oi){
+    if(oi>=optBlocks.length)return;
+    var rounds=o.rounds||[o.result];
+    optBlocks[oi].rounds=rounds.map(function(r,ri){return{id:Date.now()+oi*100+ri,result:r||'none'};});
+    if(o.memo)optBlocks[oi].memo=o.memo;
+  });
+  renderOpt();
+  // エントリー復元
+  entList=(tr.entries||[]).map(function(e){return{id:Date.now()+Math.random()*1000|0,result:e.result||'none',_pair:e.pair,_time:e.time,_dir:e.dir,_inj:e.inj,_opt:e.opt,_ano:e.ano,_memo:e.memo};});
+  renderEnt();
+  entList.forEach(function(e){
+    sv('enp-'+e.id,e._pair);sv('ent-'+e.id,e._time);sv('end-'+e.id,e._dir);
+    sv('eni-'+e.id,e._inj);sv('eno-'+e.id,e._opt);sv('ena-'+e.id,e._ano);
+    sv('enm-'+e.id,e._memo);
+  });
+  // 元の記録を削除（再記録で上書き）
+  trades=trades.filter(function(t){return t.id!==id;});
+  saveData();renderTodayList();renderDash();
+  // 編集中セクションを開く
+  toggle('inj');toggle('ano');toggle('opt');
+  window.scrollTo(0,0);
+}
+
+// ===== インジブロック =====
+function dcls(r){return r==='win'?'done-win':r==='martin'?'done-martin':r==='lose'?'done-lose':'';}
+function buildInj(){
+  injEntries={0:[],1:[],2:[]};
+  INJS.forEach(function(_,i){injEntries[i].push({id:Date.now()+i,result:'none'});});
+  document.getElementById('inj-blocks').innerHTML=INJS.map(function(inj,i){
+    return '<div class="inj-block"><div class="inj-label">'+inj.name+' <span class="tag">'+inj.tag+'</span></div><div id="ie-'+i+'"></div><button class="add-btn" onclick="addInj('+i+')">＋ '+inj.name+'を追加</button></div>';
+  }).join('');
+  INJS.forEach(function(_,i){renderInj(i);});
+}
+function addInj(i){injEntries[i].push({id:Date.now(),result:'none'});renderInj(i);}
+function removeInj(i,eid){injEntries[i]=injEntries[i].filter(function(e){return e.id!==eid;});renderInj(i);}
+function setInjR(i,eid,v,btn){
+  injEntries[i].find(function(e){return e.id===eid;}).result=v;
+  var card=btn.closest('.entry-card');
+  card.querySelectorAll('.rbtn').forEach(function(b){b.className='rbtn';});
+  btn.classList.add(v==='win'?'sel-win':v==='martin'?'sel-martin':'sel-lose');
+  card.className='entry-card '+dcls(v);
+}
+function renderInj(i){
+  var inj=INJS[i];
+  var saved=injEntries[i].map(function(e){return{id:e.id,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id),line:ge('el-'+e.id),memo:ge('em-'+e.id)};});
+  document.getElementById('ie-'+i).innerHTML=injEntries[i].map(function(e){
+    var pOpts=PAIRS.map(function(p){return '<option>'+p+'</option>';}).join('');
+    var lOpts=inj.lines.map(function(l){return '<option>'+l+'</option>';}).join('');
+    var delBtn=injEntries[i].length>1?'<button class="del-btn" onclick="removeInj('+i+','+e.id+')">✕</button>':'';
+    return '<div class="entry-card '+dcls(e.result)+'">' +
+      '<div class="ef">' +
+        '<div class="fg"><label>通貨ペア</label><select id="ep-'+e.id+'">'+pOpts+'</select></div>' +
+        '<div class="fg"><label>時間</label><input type="time" id="et-'+e.id+'"></div>' +
+        '<div class="fg"><label>方向</label><select id="ed-'+e.id+'"><option value="up">↑ HIGH</option><option value="down">↓ LOW</option></select></div>' +
+        '<div class="fg"><label>'+inj.tag+'</label><select id="el-'+e.id+'">'+lOpts+'</select></div>' +
+        delBtn +
+      '</div>' +
+      '<div class="rbtn-row">' +
+        '<button class="rbtn '+(e.result==='win'?'sel-win':'')+'" onclick="setInjR('+i+','+e.id+',\'win\',this)">○ 勝ち</button>' +
+        '<button class="rbtn '+(e.result==='martin'?'sel-martin':'')+'" onclick="setInjR('+i+','+e.id+',\'martin\',this)">✕○ 1マーチン勝ち</button>' +
+        '<button class="rbtn '+(e.result==='lose'?'sel-lose':'')+'" onclick="setInjR('+i+','+e.id+',\'lose\',this)">✕✕ 負け</button>' +
+      '</div>' +
+      '<div class="memo-area"><textarea id="em-'+e.id+'" placeholder="メモ・気づき"></textarea></div>' +
+    '</div>';
+  }).join('');
+  saved.forEach(function(s){
+    if(!s.id)return;
+    sv('ep-'+s.id,s.pair);sv('et-'+s.id,s.time);sv('ed-'+s.id,s.dir);sv('el-'+s.id,s.line);sv('em-'+s.id,s.memo);
+  });
+}
+function ge(id){var el=document.getElementById(id);return el?el.value:'';}
+function sv(id,v){var el=document.getElementById(id);if(el&&v)el.value=v;}
+
+// ===== アノマリー =====
+function buildAno(){
+  anoState={};
+  var rows=[];
+  ANOMALIES.forEach(function(a,i){
+    a.pairs.forEach(function(p,pi){
+      var key=i+'_'+pi;anoState[key]='none';
+      rows.push('<div class="ano-row" id="ar-'+key+'">'+
+        '<div class="ano-info"><span style="font-weight:600">'+a.time+'</span> <span style="color:#7c6af7">'+a.dir+'</span> '+p+'</div>'+
+        '<div class="ano-btns">'+
+          '<button class="rbtn" onclick="setAno(\''+key+'\',\'win\',this)">○</button>'+
+          '<button class="rbtn" onclick="setAno(\''+key+'\',\'lose\',this)">✕</button>'+
+          '<button class="rbtn" onclick="setAno(\''+key+'\',\'skip\',this)">－</button>'+
+        '</div>'+
+        '<div class="ano-memo"><input type="text" id="am-'+key+'" placeholder="メモ"></div>'+
+      '</div>');
+    });
+  });
+  document.getElementById('ano-rows').innerHTML=rows.join('');
+}
+function setAno(key,v,btn){
+  anoState[key]=v;
+  var row=document.getElementById('ar-'+key);
+  row.querySelectorAll('.rbtn').forEach(function(b){b.className='rbtn';});
+  btn.classList.add(v==='win'?'sel-win':v==='lose'?'sel-lose':'sel-skip');
+  row.className='ano-row'+(v==='win'?' done-win':v==='lose'?' done-lose':v==='skip'?' done-skip':'');
+}
+
+// ===== オプション =====
+function buildOpt(){
+  optBlocks=OPTIONS.map(function(name,i){return{name:name,rounds:[{id:Date.now()+i+1000,result:'none'}],memo:''};});
+  renderOpt();
+}
+function addOptR(oi){
+  var memo=ge('om-'+oi);
+  optBlocks[oi].rounds.push({id:Date.now(),result:'none'});
+  optBlocks[oi].memo=memo;renderOpt();
+}
+function removeOptR(oi,rid){
+  var memo=ge('om-'+oi);
+  optBlocks[oi].rounds=optBlocks[oi].rounds.filter(function(r){return r.id!==rid;});
+  optBlocks[oi].memo=memo;renderOpt();
+}
+function setOptR(oi,rid,v,btn){
+  optBlocks[oi].rounds.find(function(r){return r.id===rid;}).result=v;
+  var wrap=btn.closest('.opt-round');
+  wrap.querySelectorAll('.rbtn').forEach(function(b){b.className='rbtn';});
+  btn.classList.add(v==='win'?'sel-win':v==='lose'?'sel-lose':'sel-skip');
+  wrap.className='opt-round '+(v==='win'?'done-win':v==='lose'?'done-lose':v==='skip'?'done-skip':'');
+}
+function renderOpt(){
+  document.getElementById('opt-blocks').innerHTML=optBlocks.map(function(ob,oi){
+    var rounds=ob.rounds.map(function(r,ri){
+      var delBtn=ob.rounds.length>1?'<button class="opt-rdel" onclick="removeOptR('+oi+','+r.id+')">✕</button>':'';
+      return '<div class="opt-round '+(r.result==='win'?'done-win':r.result==='lose'?'done-lose':r.result==='skip'?'done-skip':'')+'">' +
+        '<span class="opt-rnum">'+(ri+1)+'回目</span>' +
+        '<button class="rbtn '+(r.result==='win'?'sel-win':'')+'" style="padding:3px 8px;font-size:12px" onclick="setOptR('+oi+','+r.id+',\'win\',this)">○</button>' +
+        '<button class="rbtn '+(r.result==='lose'?'sel-lose':'')+'" style="padding:3px 8px;font-size:12px" onclick="setOptR('+oi+','+r.id+',\'lose\',this)">✕</button>' +
+        '<button class="rbtn '+(r.result==='skip'?'sel-skip':'')+'" style="padding:3px 8px;font-size:12px" onclick="setOptR('+oi+','+r.id+',\'skip\',this)">－</button>' +
+        delBtn +
+      '</div>';
+    }).join('');
+    return '<div class="opt-block"><div class="opt-name">'+ob.name+'</div>' +
+      '<div class="opt-rounds">'+rounds+'<button class="add-btn" style="width:auto;padding:4px 10px;font-size:11px;margin-top:0" onclick="addOptR('+oi+')">＋</button></div>' +
+      '<div class="opt-memo"><input type="text" id="om-'+oi+'" placeholder="メモ" value="'+(ob.memo||'')+'"></div>' +
     '</div>';
   }).join('');
 }
 
-function delRec(id){
-  if(!confirm('削除しますか？'))return;
-  db=db.filter(function(t){return t.id!==id;});
-  save();renderToday();
-}
-
-function renderHist(){
-  var list=fp(db,hp);
-  var el=document.getElementById('hcont');
-  if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#ccc">データがありません</div>';return;}
-  var ae=[];list.forEach(function(t){ae=ae.concat(t.entries);});
-  var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
-  var rows=[];
-  list.forEach(function(t){t.entries.forEach(function(e){rows.push({disp:t.disp,pair:e.pair,time:e.time,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo,inj:e.inj,line:e.line,memo:e.memo});});});
-  el.innerHTML=
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
-      '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">脳死 1M込み</div><div style="font-size:22px;font-weight:600" class="'+(sn.m>=60?'win':sn.m>=50?'mar':'lose')+'">'+sn.m+'%</div><div style="font-size:10px;color:#aaa">単発'+sn.s+'% '+sn.t+'件</div></div>'+
-      '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">裁量 1M込み</div><div style="font-size:22px;font-weight:600" class="'+(ss.m>=60?'win':ss.m>=50?'mar':'lose')+'">'+ss.m+'%</div><div style="font-size:10px;color:#aaa">単発'+ss.s+'% '+ss.t+'件</div></div>'+
-    '</div>'+
-    '<div style="overflow-x:auto;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)"><table style="min-width:480px;background:#fff">'+
-    '<thead><tr><th style="min-width:110px">日付</th><th>通貨</th><th>時間</th><th>H/L</th><th>インジ</th><th>ライン</th><th>結果</th><th>メモ</th></tr></thead>'+
-    '<tbody>'+rows.map(function(r){return'<tr><td style="font-size:11px;white-space:nowrap">'+r.disp+'</td><td>'+r.pair+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='high'?'↑H':'↓L')+'</td><td style="font-size:11px;color:#7c6af7">'+(r.inj||'—')+'</td><td style="font-size:11px">'+(r.line||'—')+'</td><td>'+bdg(r.noshi)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';}).join('')+'</tbody>'+
-    '</table></div>';
-}
-
-function acc2(map,k,rn,rs){
-  if(!map[k])map[k]={wn:0,mn:0,ln:0,tn:0,ws:0,ms:0,ls:0,ts:0};
-  var v=map[k];
-  if(rn==='win'){v.wn++;v.mn++;v.tn++;}else if(rn==='martin'){v.mn++;v.ln++;v.tn++;}else if(rn==='lose'){v.ln++;v.tn++;}
-  if(rs==='win'){v.ws++;v.ms++;v.ts++;}else if(rs==='martin'){v.ms++;v.ls++;v.ts++;}else if(rs==='lose'){v.ls++;v.ts++;}
-}
-function wrCls(p){return p===100?'wr100':p>=90?'wr90':p>=75?'wr75':p>=60?'wr60':'wrlow';}
-function mkRow2(lbl,v){
-  var sn=v.tn?Math.round(v.mn/v.tn*100):null;
-  var ss=v.ts?Math.round(v.ms/v.ts*100):null;
-  var swn=v.tn?Math.round(v.wn/v.tn*100):null;
-  var sws=v.ts?Math.round(v.ws/v.ts*100):null;
-  return'<tr>'+
-    '<td style="font-size:11px;color:#555">'+lbl+'</td>'+
-    '<td class="gp-data '+(sn!==null?wrCls(sn):'')+'">'+(sn!==null?sn+'%':'—')+'</td>'+
-    '<td class="sep '+(swn!==null?wrCls(swn):'')+'" style="font-size:11px">'+(swn!==null?swn+'%':'—')+'</td>'+
-    '<td class="sep" style="color:#aaa;font-size:11px;text-align:center">'+(v.tn||'')+'</td>'+
-    '<td class="gp-data '+(ss!==null?wrCls(ss):'')+'">'+(ss!==null?ss+'%':'—')+'</td>'+
-    '<td class="sep '+(sws!==null?wrCls(sws):'')+'" style="font-size:11px">'+(sws!==null?sws+'%':'—')+'</td>'+
-    '<td class="sep" style="color:#aaa;font-size:11px;text-align:center">'+(v.ts||'')+'</td>'+
-  '</tr>';
-}
-function mkTbl2(title,map,keys){
-  if(!keys.length)return'';
-  return'<div class="card" style="margin-bottom:10px"><div style="font-size:13px;font-weight:500;margin-bottom:10px">'+title+'</div>'+
-    '<table class="ana-tbl2"><thead>'+
-    '<tr><th>項目</th><th colspan="3" class="gp2">🧠 脳死</th><th colspan="3" class="gp2">🎯 裁量</th></tr>'+
-    '<tr><th></th><th class="gp2">1M込み</th><th class="sep">単発</th><th class="sep">件数</th><th class="gp2">1M込み</th><th class="sep">単発</th><th class="sep">件数</th></tr>'+
-    '</thead><tbody>'+keys.map(function(k){return mkRow2(k,map[k]);}).join('')+'</tbody></table></div>';
-}
-function renderAna(){
-  var list=fp(db,ap);
-  var el=document.getElementById('acont');
-  var ae=[];list.forEach(function(t){t.entries.forEach(function(e){ae.push(Object.assign({},e,{date:t.date}));});});
-  if(!ae.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#ccc">データがありません</div>';return;}
-  var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
-  var tMap={},dMap={},pMap={},wdMap={};
-  var WD=['日','月','火','水','木','金','土'];
-  var WDKEYS=['月曜','火曜','水曜','木曜','金曜','土曜','日曜'];
-  ae.forEach(function(e){
-    var rn=e.noshi,rs=e.sairyo;
-    if((!rn||rn==='none')&&(!rs||rs==='none'))return;
-    if(e.time){
-      var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));
-      var slot=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);
-      acc2(tMap,slot,rn,rs);
-    }
-    acc2(dMap,e.dir==='high'?'↑HIGH':'↓LOW',rn,rs);
-    if(e.pair)acc2(pMap,e.pair,rn,rs);
-    if(e.date){var wd=WD[new Date(e.date).getDay()]+'曜';acc2(wdMap,wd,rn,rs);}
+// ===== エントリー =====
+function saveEntVals(){
+  entList.forEach(function(e){
+    var p=document.getElementById('enp-'+e.id);if(p)e._pair=p.value;
+    var t=document.getElementById('ent-'+e.id);if(t)e._time=t.value;
+    var d=document.getElementById('end-'+e.id);if(d)e._dir=d.value;
+    var i=document.getElementById('eni-'+e.id);if(i)e._inj=i.value;
+    var o=document.getElementById('eno-'+e.id);if(o)e._opt=o.value;
+    var a=document.getElementById('ena-'+e.id);if(a)e._ano=a.value;
+    var m=document.getElementById('enm-'+e.id);if(m)e._memo=m.value;
   });
-  el.innerHTML=
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
-      '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">🧠 脳死 全体</div><div style="font-size:22px;font-weight:600" class="'+(sn.m>=60?'win':sn.m>=50?'mar':'lose')+'">'+sn.m+'%</div><div style="font-size:10px;color:#aaa">単発'+sn.s+'% / '+sn.t+'件</div></div>'+
-      '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">🎯 裁量 全体</div><div style="font-size:22px;font-weight:600" class="'+(ss.m>=60?'win':ss.m>=50?'mar':'lose')+'">'+ss.m+'%</div><div style="font-size:10px;color:#aaa">単発'+ss.s+'% / '+ss.t+'件</div></div>'+
-    '</div>'+
-    mkTbl2('⏰ 時間帯別',tMap,Object.keys(tMap).sort())+
-    mkTbl2('📅 曜日別',wdMap,WDKEYS.filter(function(k){return wdMap[k];}))+
-    mkTbl2('🔀 H/L別',dMap,Object.keys(dMap))+
-    mkTbl2('💱 通貨ペア別',pMap,PAIRS.filter(function(p){return pMap[p];}))+
-    '<div class="card" style="margin-bottom:10px"><div style="font-size:13px;font-weight:500;margin-bottom:10px">🔍 条件組み合わせ分析</div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">'+
-      '<select id="cond-dir" class="si"><option value="">方向（全て）</option><option value="high">↑HIGH</option><option value="low">↓LOW</option></select>'+
-      '<select id="cond-pair" class="si"><option value="">通貨ペア（全て）</option>'+PAIRS.map(function(p){return'<option value="'+p+'">'+p+'</option>';}).join('')+'</select>'+
-      '<select id="cond-time" class="si"><option value="">時間（全て）</option>'+['09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','12:00'].map(function(t){return'<option value="'+t+'">'+t+'</option>';}).join('')+'</select>'+
-      '<select id="cond-wd" class="si"><option value="">曜日（全て）</option><option value="月曜">月曜</option><option value="火曜">火曜</option><option value="水曜">水曜</option><option value="木曜">木曜</option><option value="金曜">金曜</option></select>'+
-    '</div>'+
-    '<button onclick="runCond()" class="btn btn-dark" style="width:100%;margin-bottom:8px">分析する</button>'+
-    '<div id="cond-result"></div></div>'+
-    '';
 }
-function runCond(){
-  var fd=document.getElementById('cond-dir').value;
-  var fpv=document.getElementById('cond-pair').value;
-  var ft=document.getElementById('cond-time').value;
-  var fw=document.getElementById('cond-wd').value;
-  var WD=['日','月','火','水','木','金','土'];
-  var ae=[];fp(db,ap).forEach(function(t){
-    (t.entries||[]).forEach(function(e){
-      ae.push({date:t.date,pair:e.pair,time:e.time,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo,memo:e.memo});
+function restoreEntVals(){
+  entList.forEach(function(e){
+    var p=document.getElementById('enp-'+e.id);if(p&&e._pair)p.value=e._pair;
+    var t=document.getElementById('ent-'+e.id);if(t&&e._time)t.value=e._time;
+    var d=document.getElementById('end-'+e.id);if(d&&e._dir)d.value=e._dir;
+    var i=document.getElementById('eni-'+e.id);if(i&&e._inj)i.value=e._inj;
+    var o=document.getElementById('eno-'+e.id);if(o&&e._opt)o.value=e._opt;
+    var a=document.getElementById('ena-'+e.id);if(a&&e._ano)a.value=e._ano;
+    var m=document.getElementById('enm-'+e.id);if(m&&e._memo)m.value=e._memo;
+  });
+}
+function addEnt(){saveEntVals();entList.push({id:Date.now(),result:'none'});renderEnt();restoreEntVals();}
+function removeEnt(eid){saveEntVals();entList=entList.filter(function(e){return e.id!==eid;});renderEnt();restoreEntVals();}
+function setEntR(eid,v,btn){
+  entList.find(function(e){return e.id===eid;}).result=v;
+  var item=btn.closest('.ent-item');
+  item.querySelectorAll('.rbtn').forEach(function(b){b.className='rbtn';});
+  btn.classList.add(v==='win'?'sel-win':v==='martin'?'sel-martin':'sel-lose');
+  item.style.background=v==='win'?'#f0fdf6':v==='martin'?'#f0f4ff':'#fff5f3';
+  item.style.borderColor=v==='win'?'#1aaa6a':v==='martin'?'#5a8aee':'#ee6a50';
+}
+function renderEnt(){
+  var injOpts=INJS.map(function(i){return '<option>'+i.name+'</option>';}).join('');
+  var anoOpts=ANO_LABELS.map(function(l){return '<option>'+l+'</option>';}).join('');
+  var optOpts=OPTIONS.map(function(o){return '<option>'+o+'</option>';}).join('');
+  document.getElementById('ent-list').innerHTML=entList.map(function(e){
+    var pOpts=PAIRS.map(function(p){return '<option>'+p+'</option>';}).join('');
+    var delBtn=entList.length>1?'<button class="del-ent" onclick="removeEnt('+e.id+')">✕</button>':'';
+    return '<div class="ent-item">' +
+      '<div class="ent-f1">' +
+        '<div class="fg"><label>通貨ペア</label><select id="enp-'+e.id+'">'+pOpts+'</select></div>' +
+        '<div class="fg"><label>時間</label><input type="time" id="ent-'+e.id+'"></div>' +
+        '<div class="fg"><label>方向</label><select id="end-'+e.id+'"><option value="up">↑ HIGH</option><option value="down">↓ LOW</option></select></div>' +
+        delBtn +
+      '</div>' +
+      '<div class="ent-f2">' +
+        '<div class="fg"><label>インジ</label><select id="eni-'+e.id+'"><option value="">—</option>'+injOpts+'</select></div>' +
+        '<div class="fg"><label>オプション</label><select id="eno-'+e.id+'"><option value="">—</option>'+optOpts+'</select></div>' +
+        '<div class="fg"><label>アノマリー</label><select id="ena-'+e.id+'"><option value="">—</option>'+anoOpts+'</select></div>' +
+      '</div>' +
+      '<div class="ent-rrow">' +
+        '<button class="rbtn" onclick="setEntR('+e.id+',\'win\',this)">○ 勝ち</button>' +
+        '<button class="rbtn" onclick="setEntR('+e.id+',\'martin\',this)">✕○ 1マーチン勝ち</button>' +
+        '<button class="rbtn" onclick="setEntR('+e.id+',\'lose\',this)">✕✕ 負け</button>' +
+      '</div>' +
+      '<div class="ent-memo"><textarea id="enm-'+e.id+'" placeholder="メモ・気づき" style="min-height:34px"></textarea></div>' +
+    '</div>';
+  }).join('');
+}
+
+// ===== データ収集・保存 =====
+function collectInjs(){
+  var r=[];
+  INJS.forEach(function(inj,i){
+    injEntries[i].forEach(function(e){
+      r.push({name:inj.name,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id)||'up',line:ge('el-'+e.id)||'—',result:e.result,memo:ge('em-'+e.id)});
     });
   });
-  var matched=ae.filter(function(e){
-    if(fd&&e.dir!==fd)return false;
-    if(fpv&&e.pair!==fpv)return false;
-    if(ft){
-      var hh=parseInt((e.time||'').slice(0,2)),mm=parseInt((e.time||'').slice(3,5));
-      var slot=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);
-      if(slot!==ft)return false;
-    }
-    if(fw){var dt=new Date(e.date);if(WD[dt.getDay()]+'曜'!==fw)return false;}
-    return(e.noshi&&e.noshi!=='none')||(e.sairyo&&e.sairyo!=='none');
+  return r;
+}
+function collectOpts(){
+  return optBlocks.map(function(ob,oi){return{name:ob.name,rounds:ob.rounds.map(function(r){return r.result;}),memo:ge('om-'+oi)};});
+}
+function collectEnts(){
+  return entList.map(function(e){return{pair:ge('enp-'+e.id),time:ge('ent-'+e.id),dir:ge('end-'+e.id)||'up',inj:ge('eni-'+e.id),opt:ge('eno-'+e.id),ano:ge('ena-'+e.id),result:e.result,memo:ge('enm-'+e.id)};});
+}
+function saveTrade(){
+  var anos=[];
+  Object.keys(anoState).forEach(function(k){
+    var p=k.split('_').map(Number);var a=ANOMALIES[p[0]];
+    anos.push({time:a.time,dir:a.dir,pair:a.pairs[p[1]],result:anoState[k],memo:ge('am-'+k)});
   });
-  var el=document.getElementById('cond-result');
-  if(!matched.length){el.innerHTML='<div style="background:#f8f8f8;border-radius:8px;padding:12px;color:#aaa;font-size:13px;text-align:center">該当データがありません</div>';return;}
-  var sn=calcWR(matched,'noshi'),ss=calcWR(matched,'sairyo');
-  var conds=[fd==='high'?'↑HIGH':fd==='low'?'↓LOW':'',fpv,ft,fw].filter(Boolean).join(' × ')||'全条件';
-  var cls=sn.m>=60?'#1aaa6a':sn.m>=50?'#5a8aee':'#ee6a50';
-  var comment=sn.m>=60?'✅ 優秀な組み合わせです！積極的に狙いましょう':sn.m>=50?'📊 標準的な勝率です':'⚠️ この条件は勝率が低めです';
-  el.innerHTML='<div style="border-left:4px solid '+cls+';background:#f8f8f8;border-radius:0 8px 8px 0;padding:12px">'+
-    '<div style="font-size:11px;color:#888;margin-bottom:8px">📋 条件: <b>'+conds+'</b></div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">'+
-      '<div><div style="font-size:11px;color:#888;margin-bottom:2px">🧠 脳死 1M込み</div>'+
-        '<div style="font-size:24px;font-weight:600;color:'+cls+'">'+sn.m+'%</div>'+
-        '<div style="font-size:11px;color:#aaa">単発'+sn.s+'% / '+sn.t+'件</div></div>'+
-      '<div><div style="font-size:11px;color:#888;margin-bottom:2px">🎯 裁量 1M込み</div>'+
-        '<div style="font-size:24px;font-weight:600;color:'+(ss.m>=60?'#1aaa6a':ss.m>=50?'#5a8aee':'#ee6a50')+'">'+ss.m+'%</div>'+
-        '<div style="font-size:11px;color:#aaa">単発'+ss.s+'% / '+ss.t+'件</div></div>'+
-    '</div>'+
-    '<div style="font-size:12px;font-weight:500;color:'+cls+'">'+comment+'</div>'+
-  '</div>';
+  var dv=getDateVal();
+  var newRec={id:Date.now(),date:dv,dateDisplay:fmtDisp(toIso(dv)),injs:collectInjs(),anos:anos,opts:collectOpts(),entries:collectEnts()};
+  // 同じ日の記録は追記（編集は編集ボタンから）
+  trades.unshift(newRec);
+  saveData();
+  var msg=document.getElementById('msg');
+  msg.style.color='#1aaa6a';
+  msg.textContent='記録しました！';setTimeout(function(){msg.textContent='';},2000);
+  renderTodayList();renderDash();
+}
+function resetForm(){
+  var t=todayIso();document.getElementById('f-date-pk').value=t;document.getElementById('f-date-tx').value='';updateDateDisp(t);
+  entList=[];buildInj();buildAno();buildOpt();document.getElementById('ent-list').innerHTML='';
 }
 
-function loadCSV(ev){
-  var file=ev.target.files[0];if(!file)return;
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var lines=e.target.result.split(/\r?\n/).filter(function(l){return l.trim();});
-    csvRows=[];
-    lines.forEach(function(line){
-      var cols=line.split(',').map(function(s){return s.trim().replace(/^"|"$/g,'');});
-      // CSV列: [0]=空, [1]=日付, [2]=時間区分, [3]=時間, [4]=H/L, [5]=脳死, [6]=分, [7]=裁量
-      var dateStr=cols[1]||'';
-      var m=dateStr.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-      if(!m)return;
-      var iso=m[1]+'-'+pad2(parseInt(m[2]))+'-'+pad2(parseInt(m[3]));
-      var timeStr=(cols[3]||'').replace(/[：:]/g,':').replace(/[^\d:]/g,'');
-      var tm=timeStr.match(/(\d{1,2}):(\d{2})/);
-      var time=tm?pad2(parseInt(tm[1]))+':'+tm[2]:'';
-      var hl=(cols[4]||'').trim().toUpperCase();
-      var dir=hl==='H'||hl==='HIGH'?'high':'low';
-      var noshi=convRes(cols[5]||'');
-      var sairyo=convRes(cols[7]||'');
-      if(noshi==='none'&&sairyo==='none')return;
-      csvRows.push({date:iso,time:time,dir:dir,noshi:noshi,sairyo:sairyo});
-    });
-    if(!csvRows.length){msg('cmsg','データが見つかりません','#ee6a50');return;}
-    var prev=document.getElementById('cprev');
-    prev.style.display='block';
-    // 結果種別カウント（脳死のみでカウント）
-    var cnt={win:0,martin:0,lose:0};
-    csvRows.forEach(function(r){
-      if(r.noshi==='win')cnt.win++;
-      else if(r.noshi==='martin')cnt.martin++;
-      else if(r.noshi==='lose')cnt.lose++;
-    });
-    document.getElementById('cprevtbl').innerHTML=
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+
-      '<span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;font-size:12px">○○勝ち '+cnt.win+'</span>'+
-      '<span style="background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:10px;font-size:12px">✕○マーチン '+cnt.martin+'</span>'+
-      '<span style="background:#fce4ec;color:#c62828;padding:2px 8px;border-radius:10px;font-size:12px">✕✕負け '+cnt.lose+'</span>'+
-      '</div>'+
-      '<div style="max-height:300px;overflow-y:auto;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)">'+
-      '<table style="min-width:360px;width:100%;background:#fff">'+
-      '<thead style="position:sticky;top:0;background:#1a1a2e;color:#fff"><tr><th style="padding:6px 8px">日付</th><th style="padding:6px 8px">時間</th><th style="padding:6px 8px">H/L</th><th style="padding:6px 8px">脳死</th><th style="padding:6px 8px">裁量</th></tr></thead>'+
-      '<tbody>'+csvRows.map(function(r,i){return'<tr style="background:'+(i%2?'#f8f8f8':'#fff')+'"><td style="padding:5px 8px">'+r.date+'</td><td style="padding:5px 8px">'+(r.time||'—')+'</td><td style="padding:5px 8px">'+(r.dir==='high'?'↑H':'↓L')+'</td><td style="padding:5px 8px">'+bdg(r.noshi)+'</td><td style="padding:5px 8px">'+bdg(r.sairyo)+'</td></tr>';}).join('')+'</tbody></table>'+
-      '</div>'+
-      '<div style="color:#888;font-size:11px;margin-top:4px">計'+csvRows.length+'件（スクロールで全件確認できます）</div>';
-    msg('cmsg',csvRows.length+'件読み込みました','#5a8aee');
-  };
-  reader.readAsText(file,'UTF-8');
-}
+// ===== 一括入力 =====
+var bulkInjIdx=0;
+var bulkRows=[];  // [{id, date, pair, time, dir, line, result}]
 
-function convRes(s){
-  var t=s.trim();
-  if(!t||t==='-')return'none';
-  // \u3007=〇(漢数字ゼロ) \u25cb=○(白丸) 両対応
-  var hasCircle=t.indexOf('\u3007')>=0||t.indexOf('\u25cb')>=0||t.indexOf('O')>=0;
-  var hasCross=t.indexOf('\u2715')>=0||t.indexOf('\u00d7')>=0||t.indexOf('X')>=0;
-  if(hasCircle&&!hasCross)return'win';
-  if(hasCross&&hasCircle)return'martin';
-  if(hasCross)return'lose';
-  if(t==='\u2212')return'skip';
-  return'none';
-}
-
-function saveCSV(){
-  if(!csvRows.length)return;
-  var pair=sv('cpair');
-  csvRows.forEach(function(r){
-    var ex=db.find(function(t){return t.date===r.date&&t.pair===pair;});
-    var entry={pair:pair,time:r.time,dir:r.dir,noshi:r.noshi,sairyo:r.sairyo,memo:''};
-    if(ex){ex.entries.push(entry);}
-    else{db.unshift({id:Date.now()+Math.floor(Math.random()*9999),date:r.date,pair:pair,disp:disp(r.date),entries:[entry]});}
-  });
-  save();renderToday();
-  msg('cmsg',csvRows.length+'件保存しました！','#1aaa6a');
-  csvRows=[];
-  document.getElementById('cprev').style.display='none';
-}
-
-function doExport(){
-  var a=document.createElement('a');
-  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify({trades:db,at:new Date().toISOString()}));
-  a.download='2nd_'+today()+'.json';a.click();
-}
-function doImport(ev){
-  var file=ev.target.files[0];if(!file)return;
-  var r=new FileReader();
-  r.onload=function(e){
-    try{var d=JSON.parse(e.target.result);if(d.trades){db=d.trades;save();renderToday();msg('bmsg','読み込みました！','#1aaa6a');}}
-    catch(ex){msg('bmsg','エラー','#ee6a50');}
-  };
-  r.readAsText(file);
-}
-
-load();
-addRows(8);
-renderToday();
-
-function wrColor(p){
-  if(p>=100)return'#cc0000';
-  if(p>=85)return'#ee4400';
-  if(p>=75)return'#ee8800';
-  if(p>=65)return'#5a8aee';
-  return'#888';
-}
-function fmtAI(txt){
-  txt=txt.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  // %の数字に色付け（正規表現を使わずsplit方式）
-  var parts=txt.split('%');
-  var out='';
-  for(var i=0;i<parts.length-1;i++){
-    var s=parts[i];
-    // 末尾の数字を取り出す
-    var j=s.length-1;
-    while(j>=0&&s[j]>='0'&&s[j]<='9')j--;
-    var pre=s.slice(0,j+1);
-    var num=s.slice(j+1);
-    if(num.length>0){
-      out+=pre+'<b style="color:'+wrColor(parseInt(num))+'">'+num+'%</b>';
-    }else{
-      out+=s+'%';
-    }
+function initBulk(){
+  if(bulkRows.length===0){
+    for(var i=0;i<10;i++)addBulkRow();
   }
-  out+=parts[parts.length-1];
-  out=out.replace(/\n/g,'<br>');
-  return out;
+  renderBulkTable();
 }
-function runAI(){
-  var btn=document.getElementById('ai-btn'),el=document.getElementById('ai-result');
-  var ae=[];fp(db,ap).forEach(function(t){
-    (t.entries||[]).forEach(function(e){
-      ae.push({date:t.date,pair:e.pair,time:e.time,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo});
-    });
-  });
-  if(ae.length<5){el.innerHTML='<div class="ai-out">データが5件以上必要です</div>';return;}
-  btn.textContent='分析中...';btn.disabled=true;
-  var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
-  var WD=['日','月','火','水','木','金','土'];
-  var WKD=['月','火','水','木','金'];
-  var tMap={},pMap={},wdMap={},wdtMap={},ptnMap={},hiMap={},loMap={};
-  ae.forEach(function(e){
-    var rn=e.noshi;
-    if(!rn||rn==='none')return;
-    var slot='';
-    if(e.time){
-      var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));
-      slot=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);
-    }
-    var wd='';
-    if(e.date){wd=WD[new Date(e.date).getDay()];}
-    function add(map,k){
-      if(!map[k])map[k]={w:0,m:0,t:0};
-      map[k].t++;
-      if(rn==='win'){map[k].w++;map[k].m++;}
-      else if(rn==='martin')map[k].m++;
-    }
-    if(slot)add(tMap,slot);
-    if(e.pair)add(pMap,e.pair);
-    if(wd)add(wdMap,wd+'曜');
-    if(wd&&slot&&WKD.indexOf(wd)>=0)add(wdtMap,wd+'曜 '+slot);
-    if(wd&&slot&&e.dir&&WKD.indexOf(wd)>=0)add(ptnMap,wd+'曜 '+slot+' '+(e.dir==='high'?'H':'L'));
-    if(slot&&e.dir==='high')add(hiMap,slot);
-    if(slot&&e.dir==='low')add(loMap,slot);
-  });
-  setTimeout(function(){
-    function wr(v){return v&&v.t?Math.round(v.m/v.t*100):0;}
-    function sort(map,min){
-      return Object.keys(map)
-        .filter(function(k){return map[k].t>=(min||1);})
-        .map(function(k){var v=map[k];return{k:k,wr:wr(v),ws:v.t?Math.round(v.w/v.t*100):0,t:v.t};})
-        .sort(function(a,b){return b.wr-a.wr||b.t-a.t;});
-    }
-    function clr(p){return p>=70?'#1aaa6a':p>=55?'#5a8aee':p<45?'#ee6a50':'#888';}
-    function row(r,i,medal){
-      var m=medal&&i<3?['🥇','🥈','🥉'][i]:(i+1)+'';
-      var bg=i%2?'#fafafa':'#fff';
-      return '<tr style="background:'+bg+'">'+
-        '<td style="padding:5px 8px;color:#888;font-size:11px;width:32px">'+m+'</td>'+
-        '<td style="padding:5px 8px;font-weight:500">'+r.k+'</td>'+
-        '<td style="padding:5px 8px;text-align:center;font-weight:700;color:'+clr(r.wr)+'">'+r.wr+'%</td>'+
-        '<td style="padding:5px 8px;text-align:center;color:#5a8aee;font-size:11px">'+r.ws+'%</td>'+
-        '<td style="padding:5px 8px;text-align:center;color:#aaa;font-size:11px">'+r.t+'件</td>'+
-      '</tr>';
-    }
-    function tblWrap(header,rows){
-      return '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px">'+
-        '<thead><tr style="background:#1a1a2e;color:#fff">'+
-        '<th style="padding:5px 8px;text-align:left;width:32px">順</th>'+
-        '<th style="padding:5px 8px;text-align:left">'+header+'</th>'+
-        '<th style="padding:5px 8px;text-align:center">1M込み</th>'+
-        '<th style="padding:5px 8px;text-align:center">単発</th>'+
-        '<th style="padding:5px 8px;text-align:center">件数</th>'+
-        '</tr></thead><tbody>'+rows+'</tbody></table>';
-    }
-    var html='';
-    // 全体
-    html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
-    html+='📊 <b>全体勝率（脳死1M込み）: <span style="color:'+clr(sn.m)+'">'+sn.m+'%</span></b>（単発'+sn.s+'% / '+sn.t+'件）';
-    html+='</div>';
-    if(ss.t>0){
-      html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
-      html+='🎯 <b>裁量勝率（1M込み）: <span style="color:'+clr(ss.m)+'">'+ss.m+'%</span></b>（単発'+ss.s+'% / '+ss.t+'件）';
-      html+='</div>';
-    }
-    // 時間帯
-    var tR=sort(tMap,3);
-    if(tR.length){
-      var bt=tR[0],wt=tR[tR.length-1];
-      html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
-      html+='⏰ ゴールデンタイム: <b>'+bt.k+'</b> <span style="color:#1aaa6a;font-weight:600">'+bt.wr+'%</span>（'+bt.t+'件）';
-      if(wt.wr<50)html+=' / 避けたい: <b>'+wt.k+'</b> <span style="color:#ee6a50">'+wt.wr+'%</span>';
-      html+='</div>';
-    }
-    // ⏰ 時間帯ランキング（脳死・裁量別）
-    var tMapS={};
-    ae.forEach(function(e){
-      var rs=e.sairyo;if(!rs||rs==='none')return;
-      if(e.time){var hh=parseInt(e.time.slice(0,2)),mm=parseInt(e.time.slice(3,5));var s2=('0'+hh).slice(-2)+':'+('0'+(Math.floor(mm/15)*15)).slice(-2);if(!tMapS[s2])tMapS[s2]={w:0,m:0,t:0};tMapS[s2].t++;if(rs==='win'){tMapS[s2].w++;tMapS[s2].m++;}else if(rs==='martin')tMapS[s2].m++;}
-    });
-    var tRankedN=sort(tMap,3),tRankedS=sort(tMapS,3);
-    if(tRankedN.length||tRankedS.length){
-      html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
-      html+='<b>⏰ 時間帯ランキング</b>';
-      html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:8px">';
-      html+='<div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🧠 脳死</div>';
-      html+=tblWrap('時間',tRankedN.slice(0,8).map(function(r,i){return row(r,i,true);}).join(''));
-      html+='</div><div><div style="font-size:11px;font-weight:600;color:#888;margin-bottom:4px">🎯 裁量</div>';
-      html+=tblWrap('時間',tRankedS.slice(0,8).map(function(r,i){return row(r,i,true);}).join(''));
-      html+='</div></div></div>';
-    }
-    // H/Lマトリックス（divのみ）
-    var slots=['09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','12:00'];
-    var hasSlot=slots.filter(function(s){return hiMap[s]||loMap[s];});
-    if(false&&hasSlot.length){
-      html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
-      html+='⏰ <b>時間×H/L（脳死1M込み）</b>';
-      html+='<div style="margin-top:6px">';
-      html+='<div style="display:flex;font-size:11px;font-weight:600;padding:4px 0;border-bottom:2px solid #1a1a2e"><span style="flex:1">時間</span><span style="width:80px;text-align:center">↑HIGH</span><span style="width:80px;text-align:center">↓LOW</span></div>';
-      hasSlot.forEach(function(s,i){
-        var hw=wr(hiMap[s]),lw=wr(loMap[s]);
-        html+='<div style="display:flex;font-size:11px;padding:4px 0;border-bottom:1px solid #f0f0f0;background:'+(i%2?'#fafafa':'#fff')+'">';
-        html+='<span style="flex:1;color:#555">'+s+'</span>';
-        html+='<span style="width:80px;text-align:center;font-weight:500;color:'+(hiMap[s]?clr(hw):'#ccc')+'">'+( hiMap[s]?hw+'%<small style="color:#aaa;margin-left:2px">'+hiMap[s].t+'</small>':'—')+'</span>';
-        html+='<span style="width:80px;text-align:center;font-weight:500;color:'+(loMap[s]?clr(lw):'#ccc')+'">'+( loMap[s]?lw+'%<small style="color:#aaa;margin-left:2px">'+loMap[s].t+'</small>':'—')+'</span>';
-        html+='</div>';
-      });
-      html+='</div></div>';
-    }
-    // 曜日×時間ランキング
-    var wdtR=sort(wdtMap,3);
-    if(wdtR.length){
-      html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
-      html+='<b>📅 曜日×時間 ランキング（脳死1M込み・3件以上）</b>';
-      html+=tblWrap('曜日×時間',wdtR.slice(0,10).map(function(r,i){return row(r,i,true);}).join(''));
-      var wdtBot=wdtR.filter(function(r){return r.wr<50;}).slice(-3).reverse();
-      if(wdtBot.length){
-        html+='<div style="font-size:11px;color:#888;margin-top:10px;margin-bottom:4px">⚠️ 避けたいパターン</div>';
-        html+=tblWrap('',wdtBot.map(function(r,i){return row(r,i,false);}).join(''));
-      }
-      html+='</div>';
-    }
-    // 最強パターンランキング
-    var ptnR=sort(ptnMap,3);
-    if(ptnR.length){
-      html+='<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #eee">';
-      html+='<b>🏆 最強パターンランキング（曜日×時間×H/L・3件以上）</b>';
-      html+=tblWrap('パターン',ptnR.slice(0,10).map(function(r,i){return row(r,i,true);}).join(''));
-      var ptnBot=ptnR.filter(function(r){return r.wr<50;}).slice(-5).reverse();
-      if(ptnBot.length){
-        html+='<div style="font-size:11px;color:#888;margin-top:10px;margin-bottom:4px">⚠️ 避けたいパターン</div>';
-        html+=tblWrap('',ptnBot.map(function(r,i){return row(r,i,false);}).join(''));
-      }
-      html+='</div>';
-    }
 
-    // デバッグ情報
-var win=window.open('','_blank','width=800,height=600,scrollbars=yes');
-    win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>AI分析結果</title><style>body{font-family:-apple-system,sans-serif;padding:20px;max-width:800px;margin:0 auto;font-size:13px;line-height:1.8;color:#333}.sec{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #eee}.row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px}h2{font-size:15px;margin:0 0 8px}</style></head><body><h1 style="font-size:18px;margin-bottom:20px">✨ AI分析結果</h1><div style="background:#fff3cd;padding:10px;border-radius:6px;margin-bottom:16px;font-size:11px">'+dbg+'<br>'+dbg2+'</div>'+html+'</body></html>');
-    win.document.close();
-    el.innerHTML='<div style="background:#f0fff4;border-radius:8px;padding:10px;font-size:13px;color:#1aaa6a">✅ 分析結果を別タブで開きました</div>';
-    btn.textContent='✨ AI分析を実行する';btn.disabled=false;
+function setBulkInj(idx){
+  bulkInjIdx=idx;
+  document.querySelectorAll('#bulk-inj-tabs .sub-tab').forEach(function(b,i){b.classList.toggle('active',i===idx);});
+  document.getElementById('bulk-inj-name').textContent=INJS[idx].name+' 一括入力';
+  // 行のライン選択を現在のインジに合わせて再描画
+  renderBulkTable();
+}
+
+function addBulkRow(){
+  var ti=todayIso();
+  bulkRows.push({id:Date.now()+Math.random()*1000|0,date:ti,pair:PAIRS[0],time:'',dir:'up',line:'—',result:'none'});
+  renderBulkTable();
+}
+
+function removeBulkRow(id){
+  bulkRows=bulkRows.filter(function(r){return r.id!==id;});
+  if(bulkRows.length===0)addBulkRow();
+  else renderBulkTable();
+}
+
+
+function saveBulkRowVals(){
+  bulkRows.forEach(function(row){
+    var dEl=document.getElementById('bd-'+row.id);
+    var pEl=document.getElementById('bp-'+row.id);
+    var tEl=document.getElementById('bt-'+row.id);
+    var dirEl=document.getElementById('bdir-'+row.id);
+    var rEl=document.getElementById('br-'+row.id);
+    var lEl=document.getElementById('bl-'+row.id);
+    if(dEl)row.date=dEl.value;
+    if(pEl)row.pair=pEl.value;
+    if(tEl)row.time=tEl.value;
+    if(dirEl)row.dir=dirEl.value;
+    if(rEl)row.result=rEl.value;
+    if(lEl)row.line=lEl.value;
+  });
+}
+
+function onBulkRes(id,sel){
+  var row=bulkRows.find(function(r){return r.id===id;});
+  if(row)row.result=sel.value;
+  var tr=document.getElementById('brow-'+id);
+  if(!tr)return;
+  var v=sel.value;
+  tr.className=v==='win'?'bulk-row-win':v==='martin'?'bulk-row-martin':v==='lose'?'bulk-row-lose':v==='skip'?'bulk-row-skip':'';
+}
+
+function renderBulkTable(){
+  saveBulkRowVals();
+  var inj=INJS[bulkInjIdx];
+  var RSEL='<option value="none">—</option><option value="win">○ 勝ち</option><option value="martin">✕○ 1M勝ち</option><option value="lose">✕✕ 負け</option><option value="skip">－ スルー</option>';
+  var lOpts=inj.lines.map(function(l){return'<option>'+l+'</option>';}).join('');
+
+  // thead
+  document.getElementById('bulk-thead').innerHTML='<tr>'+
+    '<th style="background:#111827;color:#fff;font-size:11px;padding:8px;white-space:nowrap">日付</th>'+
+    '<th style="background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">通貨ペア</th>'+
+    '<th style="background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">時間</th>'+
+    '<th style="background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">H/L</th>'+
+    '<th style="background:#1a3a2e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">① 結果</th>'+
+    '<th style="background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">② '+inj.tag+'</th>'+
+    '<th style="background:#111827;color:#fff;font-size:11px;padding:8px 4px"></th>'+
+  '</tr>';
+
+  // tbody
+  document.getElementById('bulk-tbody').innerHTML=bulkRows.map(function(row){
+    var resCls=row.result==='win'?'bulk-row-win':row.result==='martin'?'bulk-row-martin':row.result==='lose'?'bulk-row-lose':row.result==='skip'?'bulk-row-skip':'';
+    var rSel=RSEL.replace('value="'+row.result+'"','value="'+row.result+'" selected');
+    return '<tr class="'+resCls+'" id="brow-'+row.id+'">'+
+      '<td><input type="date" class="bulk-date" id="bd-'+row.id+'" value="'+row.date+'"></td>'+
+      '<td><select class="bulk-sel" id="bp-'+row.id+'">'+PAIRS.map(function(p){return'<option'+(p===row.pair?' selected':'')+'>'+p+'</option>';}).join('')+'</select></td>'+
+      '<td><input type="time" class="bulk-date" id="bt-'+row.id+'" value="'+(row.time||'')+'"></td>'+
+      '<td><select class="bulk-sel" id="bdir-'+row.id+'">'+
+        '<option value="up"'+(row.dir==='up'?' selected':'')+'>↑ HIGH</option>'+
+        '<option value="down"'+(row.dir==='down'?' selected':'')+'>↓ LOW</option>'+
+      '</select></td>'+
+      '<td style="background:#f0fff8"><select class="bulk-sel" id="br-'+row.id+'" onchange="onBulkRes('+row.id+',this)">'+rSel+'</select></td>'+
+      '<td style="background:#f0f4ff"><select class="bulk-sel" id="bl-'+row.id+'">'+inj.lines.map(function(l){return'<option'+(l===row.line?' selected':'')+'>'+l+'</option>';}).join('')+'</select></td>'+
+      '<td><button class="bulk-del" onclick="removeBulkRow('+row.id+')">✕</button></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function saveBulk(){
+  saveBulkRowVals();
+  var inj=INJS[bulkInjIdx];
+  // 結果が入力されている行だけ対象
+  var validRows=bulkRows.filter(function(r){return r.result!=='none'&&r.date;});
+  if(!validRows.length){
+    var msg=document.getElementById('bulk-msg');
+    msg.style.color='#ee6a50';msg.textContent='⚠️ 結果を入力してください';
+    setTimeout(function(){msg.textContent='';msg.style.color='#1aaa6a';},3000);return;
+  }
+
+  // 日付ごとにグループ化して既存tradesにマージ
+  var byDate={};
+  validRows.forEach(function(row){
+    var iso=row.date;
+    if(!byDate[iso])byDate[iso]=[];
+    byDate[iso].push({name:inj.name,pair:row.pair,time:row.time,dir:row.dir||'up',line:row.line||'—',result:row.result,memo:''});
+  });
+
+  var addedDates=[];
+  Object.keys(byDate).forEach(function(iso){
+    var newInjs=byDate[iso];
+    // 同日の既存レコードを探す
+    var existing=trades.find(function(t){return toIso(t.date)===iso;});
+    if(existing){
+      // 既存レコードのinjsに追記（同インジ名の件数を維持しつつ追加）
+      newInjs.forEach(function(ni){existing.injs.push(ni);});
+    } else {
+      // 新規レコード作成（アノマリー/オプションは空で作成）
+      var dv=iso;
+      var emptyAnos=ANOMALIES.map(function(a){return a.pairs.map(function(p){return{time:a.time,dir:a.dir,pair:p,result:'none',memo:''};});}).reduce(function(a,b){return a.concat(b);},[]);
+      var emptyOpts=OPTIONS.map(function(o){return{name:o,rounds:['none'],memo:''};});
+      trades.unshift({id:Date.now()+Math.random()*10000|0,date:dv,dateDisplay:fmtDisp(iso),injs:newInjs,anos:emptyAnos,opts:emptyOpts,entries:[]});
+    }
+    addedDates.push(iso);
+  });
+
+  saveData();
+  renderDash();renderTodayList();
+
+  // プレビュー表示
+  var prev=document.getElementById('bulk-preview');
+  var pc=document.getElementById('bulk-preview-card');
+  pc.style.display='';
+  var grouped=Object.keys(byDate).sort().map(function(iso){
+    var p=iso.split('-');
+    var dt=new Date(iso+'T00:00:00');
+    var head=p[0]+'年'+p[1]+'月'+p[2]+'日（'+WD[dt.getDay()]+'）';
+    var rows=byDate[iso].map(function(r){
+      var rb=r.result==='win'?'<span class="badge b-win">○</span>':r.result==='martin'?'<span class="badge b-martin">✕○</span>':r.result==='lose'?'<span class="badge b-lose">✕✕</span>':'<span class="badge b-skip">－</span>';
+      return '<div style="font-size:12px;color:#444;padding:2px 0">'+inj.name+' / '+r.pair+' '+(r.time||'')+'　'+(r.dir==='up'?'↑HIGH':'↓LOW')+' ['+(r.line||'—')+']　'+rb+'</div>';
+    }).join('');
+    return '<div style="margin-bottom:8px;padding:8px;background:#f8f8ff;border-radius:8px;border:1px solid #e8e8f8"><div style="font-size:11px;font-weight:500;color:#1a1a2e;margin-bottom:4px">'+head+'</div>'+rows+'</div>';
+  }).join('');
+  prev.innerHTML=grouped;
+
+  var msg=document.getElementById('bulk-msg');
+  msg.style.color='#1aaa6a';
+  msg.textContent='✅ '+validRows.length+'件を'+addedDates.length+'日分に記録しました！';
+  setTimeout(function(){msg.textContent='';},4000);
+}
+
+function clearBulk(){
+  bulkRows=[];
+  for(var i=0;i<10;i++)addBulkRow();
+  document.getElementById('bulk-preview-card').style.display='none';
+  document.getElementById('bulk-preview').innerHTML='';
+}
+
+// ===== 履歴 =====
+function renderHistory(){
+  var list=filterPeriod(trades,histPeriod);
+  var el=document.getElementById('hist-content');if(!el)return;
+  if(curSub==='summary')el.innerHTML=renderSummary(list);
+  else if(curSub==='gorilla')el.innerHTML=renderInjTab(list,'GORILLA');
+  else if(curSub==='irazu')el.innerHTML=renderInjTab(list,'IRAZU');
+  else if(curSub==='huno')el.innerHTML=renderInjTab(list,'HUNO');
+  else if(curSub==='ano')el.innerHTML=renderAnoTab(list);
+  else if(curSub==='opt')el.innerHTML=renderOptTab(list);
+}
+function fmtSk(sk,t){return sk?'['+sk+'ス '+(t+sk)+'件]':'';}
+function fmtWRs(pct,w,l,t,sk){return '<span class="win-c">単発<b>'+pct+'%</b>('+w+'勝'+l+'敗 '+t+'件'+fmtSk(sk,t)+')</span>';}
+function fmtWRm(pct,wm,l,t){return '<span class="martin-c">1M込<b>'+pct+'%</b>('+wm+'勝'+l+'敗 '+t+'件)</span>';}
+function mkTh(lbl,sel){return '<th><div style="margin-bottom:2px">'+lbl+'</div>'+sel+'</th>';}
+function mkSel(val,onch,opts){return '<select onchange="'+onch+'">'+opts+'</select>';}
+
+function renderSummary(list){
+  var s=calcWR(list);
+  var gWR=calcInj(list,'GORILLA'),iWR=calcInj(list,'IRAZU'),hWR=calcInj(list,'HUNO');
+  var anoS=calcCat(list,'ano'),optS=calcCat(list,'opt');
+  // 曜日集計
+  var wdMap={};
+  list.forEach(function(t){
+    var dt=new Date(toIso(t.date)+'T00:00:00');
+    var wd=WD[dt.getDay()];
+    if(!wdMap[wd])wdMap[wd]={w:0,m:0,l:0,t:0};
+    t.injs.forEach(function(i){if(i.result==='none')return;wdMap[wd].t++;if(i.result==='win')wdMap[wd].w++;if(i.result==='martin')wdMap[wd].m++;if(i.result==='lose')wdMap[wd].l++;});
+  });
+  var wdHTML=['月','火','水','木','金'].map(function(d){
+    var v=wdMap[d]||{w:0,m:0,l:0,t:0};var wr=v.t?Math.round((v.w+v.m)/v.t*100):0;
+    return '<div class="wd-card"><div class="wd-name">'+d+'曜</div><div class="wd-wr '+(wr>=60?'win-c':wr>=50?'martin-c':wr>0?'lose-c':'')+'">'+( v.t?wr+'%':'—')+'</div><div class="wd-det">'+(v.t?(v.w+v.m)+'勝'+v.l+'敗 '+v.t+'件':'')+'</div></div>';
+  }).join('');
+  // インジカード
+  var injC=[{name:'GORILLA',sub:'gorilla',v:gWR,c:'#7c6af7'},{name:'IRAZU',sub:'irazu',v:iWR,c:'#5a8aee'},{name:'HUNO',sub:'huno',v:hWR,c:'#1aaa6a'}].map(function(o){
+    var v=o.v;
+    return '<div class="sum-card" onclick="showSub(\''+o.sub+'\')" style="border-top:3px solid '+o.c+'">'+
+      '<div class="sum-name">'+o.name+'<span style="font-size:9px;color:#bbb">→</span></div>'+
+      '<div class="sum-wr '+(v.mt>=60?'win-c':v.mt>=50?'martin-c':v.t?'lose-c':'')+'">'+(v.t?v.mt+'%':'—')+'</div>'+
+      '<div class="sum-det">'+(v.t?'単発'+v.s+'%('+v.w+'勝'+v.l+'敗 '+v.t+'件)<br>1M込'+v.mt+'%('+v.wm+'勝'+(v.t-v.wm)+'敗 '+v.t+'件)':'')+'</div>'+
+    '</div>';
+  }).join('');
+  var skStr=s.sk?'['+s.sk+'ス '+(s.t+s.sk)+'件]':'';
+  return '<div class="sum-total">'+
+    '<div style="font-size:11px;color:#888;margin-bottom:8px;font-weight:500">📊 全体トータル</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+      '<div><div style="font-size:24px;font-weight:600" class="win-c">'+s.s+'%</div><div style="font-size:10px;color:#aaa;margin-top:2px">単発 '+s.w+'勝'+s.l+'敗 '+s.t+'件'+skStr+'</div></div>'+
+      '<div><div style="font-size:24px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:10px;color:#aaa;margin-top:2px">1M込み '+s.wm+'勝'+(s.t-s.wm)+'敗 '+s.t+'件</div></div>'+
+    '</div></div>'+
+    '<div class="sum-grid">'+injC+
+      '<div class="sum-card" onclick="showSub(\'ano\')" style="border-top:3px solid #f0a020;cursor:pointer">'+
+        '<div class="sum-name">アノマリー<span style="font-size:9px;color:#bbb">→</span></div>'+
+        '<div class="sum-wr '+(anoS.wr>=60?'win-c':anoS.wr>=50?'martin-c':anoS.t?'lose-c':'')+'">'+(anoS.t?anoS.wr+'%':'—')+'</div>'+
+        '<div class="sum-det">'+(anoS.t?'単発'+anoS.wr+'%('+anoS.w+'勝'+anoS.l+'敗 '+anoS.t+'件'+(anoS.sk?'['+anoS.sk+'ス '+(anoS.t+anoS.sk)+'件]':'')+')'  :'')+'</div>'+
+      '</div>'+
+      '<div class="sum-card" onclick="showSub(\'opt\')" style="border-top:3px solid #ee6a50;cursor:pointer">'+
+        '<div class="sum-name">オプション<span style="font-size:9px;color:#bbb">→</span></div>'+
+        '<div class="sum-wr '+(optS.wr>=60?'win-c':optS.wr>=50?'martin-c':optS.t?'lose-c':'')+'">'+(optS.t?optS.wr+'%':'—')+'</div>'+
+        '<div class="sum-det">'+(optS.t?'単発'+optS.wr+'%('+optS.w+'勝'+optS.l+'敗 '+optS.t+'件'+(optS.sk?'['+optS.sk+'ス '+(optS.t+optS.sk)+'件]':'')+')'  :'')+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="font-size:12px;font-weight:500;color:#888;margin-bottom:6px">📅 曜日別勝率（1マーチン込み）</div>'+
+    '<div class="wd-grid">'+wdHTML+'</div>';
+}
+
+function mkXlStat(label,wr,wrm,w,l,t){
+  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">'+label+'</span><span class="win-c" style="font-weight:600">単発'+wr+'%</span><span class="martin-c" style="font-weight:600">1M込'+wrm+'%</span><span style="color:#aaa;font-size:12px">'+w+'勝'+l+'敗 '+t+'件</span></div>';
+}
+
+function renderInjTab(list,injName){
+  var rows=[];
+  list.forEach(function(t){t.injs.filter(function(i){return i.name===injName&&i.result!=='none';}).forEach(function(i){rows.push({date:t.dateDisplay||t.date,pair:i.pair,time:i.time,dir:i.dir,line:i.line,result:i.result,memo:i.memo});});});
+  var inj=INJS.find(function(i){return i.name===injName;});
+  var WD=['月','火','水','木','金','土','日'];
+  var ts=['07:00','07:15','07:30','07:45','08:00','08:15','08:30','08:45','09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','14:45','15:00','15:45','16:00','16:45','17:00','17:45'];
+  var filtered=rows.filter(function(r){
+    if(injF.pair&&r.pair!==injF.pair)return false;
+    if(injF.line&&r.line!==injF.line)return false;
+    if(injF.dir&&r.dir!==injF.dir)return false;
+    if(injF.result&&r.result!==injF.result)return false;
+    if(injF.time&&(!r.time||r.time.slice(0,5)!==injF.time))return false;
+    if(injF.weekday&&!r.date.includes('（'+injF.weekday+'）'))return false;
+    if(injF.dateStr&&!r.date.includes(injF.dateStr))return false;
+    if(injF.memo&&!r.memo)return false;
+    if(!matchDateRange(r.date,injF.dateFrom,injF.dateTo))return false;
+    return true;
+  });
+  var ws=filtered.filter(function(r){return r.result==='win';}).length;
+  var wm=filtered.filter(function(r){return r.result==='win'||r.result==='martin';}).length;
+  var l=filtered.filter(function(r){return r.result==='lose'||r.result==='martin';}).length;
+  var t=filtered.length;
+  var wr=t?Math.round(ws/t*100):0,wrm=t?Math.round(wm/t*100):0;
+  var lOpts='<option value="">全ライン</option>'+inj.lines.filter(function(x){return x!=='—';}).map(function(x){return '<option value="'+x+'" '+(injF.line===x?'selected':'')+'>'+x+'</option>';}).join('');
+  var pOpts='<option value="">全通貨</option>'+PAIRS.map(function(p){return '<option value="'+p+'" '+(injF.pair===p?'selected':'')+'>'+p+'</option>';}).join('');
+  var dOpts='<option value="">全H/L</option><option value="up" '+(injF.dir==='up'?'selected':'')+'>↑HIGH</option><option value="down" '+(injF.dir==='down'?'selected':'')+'>↓LOW</option>';
+  var rOpts='<option value="">全結果</option><option value="win" '+(injF.result==='win'?'selected':'')+'>○</option><option value="martin" '+(injF.result==='martin'?'selected':'')+'>✕○</option><option value="lose" '+(injF.result==='lose'?'selected':'')+'>✕✕</option>';
+  var tOpts='<option value="">全時間</option>'+ts.map(function(v){return '<option value="'+v+'" '+(injF.time===v?'selected':'')+'>'+v+'</option>';}).join('');
+  var wdOpts='<option value="">（曜日を選択）</option>'+WD.map(function(d){return '<option value="'+d+'" '+(injF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
+  var mOpts='<option value="">全</option><option value="1" '+(injF.memo==='1'?'selected':'')+'>あり</option>';
+  var rows_html=filtered.length?filtered.map(function(r){
+    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';
+  }).join(''):'<tr><td colspan="7" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+  var statHtml='<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">'+injName+'</span>'+
+    '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件)</span>'+
+    '<span class="martin-c" style="font-weight:600">1M込'+wrm+'%('+wm+'勝'+(t-wm)+'敗 '+t+'件)</span></div>';
+  return statHtml+
+    '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
+    '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
+      '<div style="display:flex;gap:1px">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/25" value="'+(injF.dateFrom||'')+'" onchange="injF.dateFrom=this.value;renderHistory()">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/28" value="'+(injF.dateTo||'')+'" onchange="injF.dateTo=this.value;renderHistory()">'+
+      '</div>'+
+      '<select class="xl-fi" style="font-size:9px;padding:1px 2px" onchange="injF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
+    mkTh('通貨',mkSel(injF.pair,'injF.pair=this.value;renderHistory()',pOpts))+
+    mkTh('時間',mkSel(injF.time,'injF.time=this.value;renderHistory()',tOpts))+
+    mkTh('H/L',mkSel(injF.dir,'injF.dir=this.value;renderHistory()',dOpts))+
+    mkTh('ライン',mkSel(injF.line,'injF.line=this.value;renderHistory()',lOpts))+
+    mkTh('結果',mkSel(injF.result,'injF.result=this.value;renderHistory()',rOpts))+
+    mkTh('メモ',mkSel(injF.memo,'injF.memo=this.value;renderHistory()',mOpts))+
+    '</tr></thead><tbody>'+rows_html+'</tbody></table></div>';
+}
+
+function renderAnoTab(list){
+  var rows=[];
+  list.forEach(function(t){t.anos.forEach(function(a){if(a.result==='none')return;rows.push({date:t.dateDisplay||t.date,time:a.time,dir:a.dir,pair:a.pair,result:a.result,memo:a.memo});});});
+  var WD=['月','火','水','木','金','土','日'];
+  var times=[];rows.forEach(function(r){if(times.indexOf(r.time)<0)times.push(r.time);});times.sort();
+  var pairs=[];rows.forEach(function(r){if(pairs.indexOf(r.pair)<0)pairs.push(r.pair);});pairs.sort();
+  var filtered=rows.filter(function(r){
+    if(anoF.result&&r.result!==anoF.result)return false;
+    if(anoF.weekday&&!r.date.includes('（'+anoF.weekday+'）'))return false;
+    if(anoF.dateStr&&!r.date.includes(anoF.dateStr))return false;
+    if(anoF.time&&r.time!==anoF.time)return false;
+    if(anoF.dir&&r.dir!==anoF.dir)return false;
+    if(anoF.pair&&r.pair!==anoF.pair)return false;
+    if(anoF.memo&&!r.memo)return false;
+    return true;
+  });
+  var ws=filtered.filter(function(r){return r.result==='win';}).length;
+  var sk=filtered.filter(function(r){return r.result==='skip';}).length;
+  var t=filtered.length-sk;var l=t-ws;var wr=t?Math.round(ws/t*100):0;
+  var rOpts='<option value="">全結果</option><option value="win" '+(anoF.result==='win'?'selected':'')+'>○</option><option value="lose" '+(anoF.result==='lose'?'selected':'')+'>✕</option><option value="skip" '+(anoF.result==='skip'?'selected':'')+'>－</option>';
+  var wdOpts='<option value="">（曜日を選択）</option>'+WD.map(function(d){return '<option value="'+d+'" '+(anoF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
+  var tOpts='<option value="">全時間</option>'+times.map(function(v){return '<option value="'+v+'" '+(anoF.time===v?'selected':'')+'>'+v+'</option>';}).join('');
+  var dOpts='<option value="">全H/L</option><option value="↑" '+(anoF.dir==='↑'?'selected':'')+'>↑</option><option value="↓" '+(anoF.dir==='↓'?'selected':'')+'>↓</option><option value="↑↓" '+(anoF.dir==='↑↓'?'selected':'')+'>↑↓</option>';
+  var pOpts='<option value="">全通貨</option>'+pairs.map(function(p){return '<option value="'+p+'" '+(anoF.pair===p?'selected':'')+'>'+p+'</option>';}).join('');
+  var tbody=filtered.length?filtered.map(function(r){return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.time+'</td><td style="color:#7c6af7">'+r.dir+'</td><td>'+r.pair+'</td><td>'+badge2(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';}).join(''):'<tr><td colspan="6" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span>'+fmtWRs(wr,ws,l,t,sk)+'</div>'+
+    '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
+    '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
+      '<div style="display:flex;gap:1px">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/25" value="'+(anoF.dateFrom||'')+'" onchange="anoF.dateFrom=this.value;renderHistory()">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/28" value="'+(anoF.dateTo||'')+'" onchange="anoF.dateTo=this.value;renderHistory()">'+
+      '</div>'+
+      '<select class="xl-fi" style="font-size:9px;padding:1px 2px" onchange="anoF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
+    mkTh('時間',mkSel(anoF.time,'anoF.time=this.value;renderHistory()',tOpts))+
+    mkTh('H/L',mkSel(anoF.dir,'anoF.dir=this.value;renderHistory()',dOpts))+
+    mkTh('通貨',mkSel(anoF.pair,'anoF.pair=this.value;renderHistory()',pOpts))+
+    mkTh('結果',mkSel(anoF.result,'anoF.result=this.value;renderHistory()',rOpts))+
+    mkTh('メモ',mkSel(anoF.memo,'anoF.memo=this.value;renderHistory()','<option value="">全</option><option value="1" '+(anoF.memo==="1"?'selected':'')+'>あり</option>'))+
+    '</tr></thead><tbody>'+tbody+'</tbody></table></div>';
+}
+function renderOptTab(list){
+  var rows=[];
+  list.forEach(function(t){t.opts.forEach(function(o){var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});if(!rs.length)return;rows.push({date:t.dateDisplay||t.date,name:o.name,rounds:rs,memo:o.memo});});});
+  var WD=['月','火','水','木','金','土','日'];
+  var names=[];rows.forEach(function(r){if(names.indexOf(r.name)<0)names.push(r.name);});
+  var filtered=rows.filter(function(r){
+    if(optF.name&&r.name!==optF.name)return false;
+    if(optF.weekday&&!r.date.includes('（'+optF.weekday+'）'))return false;
+    if(optF.dateStr&&!r.date.includes(optF.dateStr))return false;
+    if(optF.result){var has=r.rounds.some(function(v){return v===optF.result;});if(!has)return false;}
+    if(optF.memo&&!r.memo)return false;
+    if(!matchDateRange(r.date,optF.dateFrom,optF.dateTo))return false;
+    return true;
+  });
+  var ws=0,l=0,sk=0;
+  filtered.forEach(function(r){r.rounds.forEach(function(v){if(v==='win')ws++;else if(v==='lose')l++;else if(v==='skip')sk++;});});
+  var t=ws+l;var wr=t?Math.round(ws/t*100):0;
+  var nOpts='<option value="">全オプション</option>'+names.map(function(n){return '<option value="'+n+'" '+(optF.name===n?'selected':'')+'>'+n.slice(0,18)+'</option>';}).join('');
+  var rOpts='<option value="">全結果</option><option value="win" '+(optF.result==='win'?'selected':'')+'>○</option><option value="lose" '+(optF.result==='lose'?'selected':'')+'>✕</option><option value="skip" '+(optF.result==='skip'?'selected':'')+'>－</option>';
+  var wdOpts='<option value="">（曜日を選択）</option>'+WD.map(function(d){return '<option value="'+d+'" '+(optF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
+  var mOpts='<option value="">全</option><option value="1" '+(optF.memo==='1'?'selected':'')+'>あり</option>';
+  var skStr=sk?'['+sk+'ス '+(t+sk)+'件]':'';
+  var rows_html=filtered.length?filtered.map(function(r){
+    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td style="font-size:11px">'+r.name+'</td><td>'+r.rounds.map(function(v){return badge2(v);}).join(' ')+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';
+  }).join(''):'<tr><td colspan="4" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">オプション</span>'+
+    '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span></div>'+
+    '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
+    '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
+      '<div style="display:flex;gap:1px">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/25" value="'+(optF.dateFrom||'')+'" onchange="optF.dateFrom=this.value;renderHistory()">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/28" value="'+(optF.dateTo||'')+'" onchange="optF.dateTo=this.value;renderHistory()">'+
+      '</div>'+
+      '<select class="xl-fi" style="font-size:9px;padding:1px 2px" onchange="optF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
+    mkTh('オプション名',mkSel(optF.name,'optF.name=this.value;renderHistory()',nOpts))+
+    mkTh('結果',mkSel(optF.result,'optF.result=this.value;renderHistory()',rOpts))+
+    mkTh('メモ',mkSel(optF.memo,'optF.memo=this.value;renderHistory()',mOpts))+
+    '</tr></thead><tbody>'+rows_html+'</tbody></table></div>';
+}
+
+// ===== 分析 =====
+function acc(map,k,r){if(!map[k])map[k]={w:0,m:0,l:0,t:0};map[k].t++;if(r==='win')map[k].w++;else if(r==='martin')map[k].m++;else if(r==='lose')map[k].l++;}
+function mapRows(map){return Object.keys(map).filter(function(k){return map[k].t>0;}).map(function(k){var v=map[k];return{k:k,t:v.t,w:v.w,m:v.m,l:v.l,s:Math.round(v.w/v.t*100),mt:Math.round((v.w+v.m)/v.t*100)};});}
+function mkAnaTbl(title,rows,cls){
+  if(!rows.length)return '<div class="ana-sec"><div class="ana-ttl">'+title+'</div><div style="background:#fff;border-radius:0 0 10px 10px;padding:12px;font-size:12px;color:#ccc;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)">データなし</div></div>';
+  return '<div class="ana-sec"><div class="ana-ttl">'+title+'</div>'+
+    '<table class="ana-tbl"><thead><tr><th>項目</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead><tbody>'+
+    rows.sort(function(a,b){return b.t-a.t;}).map(function(r){
+      return '<tr><td style="font-weight:500">'+r.k+'</td><td class="win-c">'+wrl(r.s,r.w,r.l,r.t)+'</td><td class="martin-c">'+wrl(r.mt,r.w+r.m,r.l,r.t)+'</td><td><div class="bar-wrap"><div class="bar-fill '+(cls||'')+'" style="width:'+r.s+'%"></div></div></td></tr>';
+    }).join('')+'</tbody></table></div>';
+}
+function mkSub(map,label,cls){
+  var rows=mapRows(map);if(!rows.length)return'';
+  return '<div class="inj-sub-ttl">'+label+'</div>'+
+    '<table class="ana-tbl"><thead><tr><th>項目</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead><tbody>'+
+    rows.sort(function(a,b){return b.t-a.t;}).map(function(r){
+      return '<tr><td style="font-weight:500">'+r.k+'</td><td class="win-c">'+wrl(r.s,r.w,r.l,r.t)+'</td><td class="martin-c">'+wrl(r.mt,r.w+r.m,r.l,r.t)+'</td><td><div class="bar-wrap"><div class="bar-fill '+(cls||'')+'" style="width:'+r.s+'%"></div></div></td></tr>';
+    }).join('')+'</tbody></table>';
+}
+function renderAnalysis(){
+  var list=filterPeriod(trades,anaPeriod),s=calcWR(list);
+  var skStr=s.sk?'['+s.sk+'ス '+(s.t+s.sk)+'件]':'';
+  document.getElementById('ana-wr').innerHTML=
+    '<div style="background:#fff;border-radius:12px;padding:13px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)"><div style="font-size:27px;font-weight:600" class="win-c">'+s.s+'%</div><div style="font-size:11px;color:#888;margin-top:3px">単発勝率</div><div style="font-size:11px;color:#bbb;margin-top:4px">'+s.w+'勝'+s.l+'敗 '+s.t+'件'+skStr+'</div></div>'+
+    '<div style="background:#fff;border-radius:12px;padding:13px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)"><div style="font-size:27px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:11px;color:#888;margin-top:3px">1M込み勝率</div><div style="font-size:11px;color:#bbb;margin-top:4px">'+s.wm+'勝'+(s.t-s.wm)+'敗 '+s.t+'件</div></div>';
+  var cats=[{k:'inj',l:'インジ'},{k:'ano',l:'アノマリー'},{k:'opt',l:'オプション'},{k:'entry',l:'エントリー'}];
+  document.getElementById('ana-cats').innerHTML=cats.map(function(cat){
+    var cs=calcCat(list,cat.k);
+    if(!cs.t)return'';
+    var cls=cs.wr>=60?'win-c':cs.wr>=50?'martin-c':'lose-c';
+    var sk=cs.sk?'['+cs.sk+'ス '+(cs.t+cs.sk)+'件]':'';
+    var noM=(cat.k==='ano'||cat.k==='opt');
+    var det='単発'+cs.wr+'%('+cs.w+'勝'+cs.l+'敗 '+cs.t+'件'+sk+')';
+    if(!noM&&cs.wm>0)det+=' / 1M込'+cs.wrm+'%('+cs.wm+'勝'+(cs.t-cs.wm)+'敗)';
+    return'<div style="background:#fff;border-radius:10px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06)">'+
+      '<div style="font-size:16px;font-weight:600" class="'+cls+'">'+cs.wr+'%</div>'+
+      '<div style="font-size:10px;color:#888;margin-top:3px;line-height:1.5">'+cat.l+'<br>'+det+'</div>'+
+    '</div>';
+  }).join('');
+  var injMap={},pairMap={},dirMap={},timeMap={},lineMap={},anoMap={},optMap={};
+  list.forEach(function(t){
+    t.injs.forEach(function(i){
+      if(i.result==='none')return;
+      acc(injMap,i.name,i.result);
+      if(i.line&&i.line!=='—')acc(lineMap,i.name+'['+i.line+']',i.result);
+      acc(pairMap,i.pair,i.result);
+      acc(dirMap,i.dir==='up'?'↑ HIGH':'↓ LOW',i.result);
+      if(i.time)acc(timeMap,timeSlot(i.time),i.result);
+    });
+    t.anos.forEach(function(a){if(a.result==='none'||a.result==='skip')return;acc(anoMap,a.time+' '+a.pair,a.result);});
+    t.opts.forEach(function(o){(o.rounds||[o.result]).forEach(function(r){if(!r||r==='none'||r==='skip')return;acc(optMap,o.name,r==='win'?'win':'lose');});});
+  });
+  var injSec='';
+  INJS.forEach(function(inj){
+    var iname=inj.name,ir=injMap[iname];
+    if(!ir){injSec+='<div class="ana-sec" style="margin-bottom:14px"><div style="background:#aaa;color:#fff;border-radius:10px;padding:9px 13px;font-size:13px;font-weight:500">'+iname+' — データなし</div></div>';return;}
+    var iWRs=Math.round(ir.w/ir.t*100),iWRm=Math.round((ir.w+ir.m)/ir.t*100);
+    var iPair={},iTime={},iLine={},iDir={up:{w:0,m:0,l:0,t:0},down:{w:0,m:0,l:0,t:0}};
+    list.forEach(function(t){t.injs.filter(function(i){return i.name===iname&&i.result!=='none';}).forEach(function(i){
+      var w=i.result==='win',m=i.result==='martin',l=i.result==='lose';
+      if(!iPair[i.pair])iPair[i.pair]={w:0,m:0,l:0,t:0};iPair[i.pair].t++;if(w)iPair[i.pair].w++;if(m)iPair[i.pair].m++;if(l)iPair[i.pair].l++;
+      if(i.time){var sl=timeSlot(i.time);if(!iTime[sl])iTime[sl]={w:0,m:0,l:0,t:0};iTime[sl].t++;if(w)iTime[sl].w++;if(m)iTime[sl].m++;if(l)iTime[sl].l++;}
+      if(i.line&&i.line!=='—'){if(!iLine[i.line])iLine[i.line]={w:0,m:0,l:0,t:0};iLine[i.line].t++;if(w)iLine[i.line].w++;if(m)iLine[i.line].m++;if(l)iLine[i.line].l++;}
+      var dk=i.dir==='up'?'up':'down';iDir[dk].t++;if(w)iDir[dk].w++;if(m)iDir[dk].m++;if(l)iDir[dk].l++;
+    });});
+    var dirR=[{k:'↑ HIGH',v:iDir.up},{k:'↓ LOW',v:iDir.down}].filter(function(d){return d.v.t>0;}).map(function(d){var v=d.v;return{k:d.k,t:v.t,w:v.w,m:v.m,l:v.l,s:Math.round(v.w/v.t*100),mt:Math.round((v.w+v.m)/v.t*100)};});
+    var dirHTML=dirR.length?'<div class="inj-sub-ttl">UP / DOWN 別</div><table class="ana-tbl"><thead><tr><th>方向</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead><tbody>'+dirR.map(function(r){return '<tr><td style="font-weight:500">'+r.k+'</td><td class="win-c">'+wrl(r.s,r.w,r.l,r.t)+'</td><td class="martin-c">'+wrl(r.mt,r.w+r.m,r.l,r.t)+'</td><td><div class="bar-wrap"><div class="bar-fill amber" style="width:'+r.s+'%"></div></div></td></tr>';}).join('')+'</tbody></table>':'';
+    injSec+='<div class="ana-sec" style="margin-bottom:14px">'+
+      '<div class="inj-hdr"><span>'+iname+'</span><span style="font-size:12px;opacity:0.9">単発 <b>'+iWRs+'%</b> / 1M込 <b>'+iWRm+'%</b> ('+ir.w+'勝'+ir.l+'敗) '+ir.t+'件</span></div>'+
+      mkSub(iPair,'通貨ペア別','blue')+mkSub(iTime,'時間帯別（15分単位）','blue')+mkSub(iLine,'ライン別')+dirHTML+
+    '</div>';
+  });
+  document.getElementById('ana-content').innerHTML=injSec+mkAnaTbl('アノマリー別勝率（単発）',mapRows(anoMap))+mkAnaTbl('オプション別勝率（単発）',mapRows(optMap),'blue');
+}
+
+// ===== 条件組み合わせ =====
+function runCond(){
+  var fi=ge('cond-inj'),fd=ge('cond-dir'),fl=ge('cond-line'),ft=ge('cond-time'),fp=ge('cond-pair');
+  var list=filterPeriod(trades,anaPeriod);
+  var matched=[];
+  list.forEach(function(t){t.injs.forEach(function(i){
+    if(i.result==='none')return;
+    if(fi&&i.name!==fi)return;if(fd&&i.dir!==fd)return;if(fl&&i.line!==fl)return;if(ft&&timeSlot(i.time)!==ft)return;if(fp&&i.pair!==fp)return;
+    matched.push(i);
+  });});
+  var el=document.getElementById('cond-result');
+  if(!matched.length){el.innerHTML='<div class="cond-card"><div style="color:#aaa;font-size:13px;text-align:center">該当データがありません</div></div>';return;}
+  var t=matched.length,w=matched.filter(function(i){return i.result==='win';}).length,m=matched.filter(function(i){return i.result==='martin';}).length,l=matched.filter(function(i){return i.result==='lose';}).length;
+  var ws=Math.round(w/t*100),wm=Math.round((w+m)/t*100);
+  var cls=wm>=70?'good':wm>=55?'mid':'warn';
+  var conds=[fi,fd==='up'?'↑HIGH':fd==='down'?'↓LOW':'',fl,ft,fp].filter(Boolean).join(' × ')||'全条件';
+  var comment=wm>=70?'<div style="margin-top:8px;font-size:12px;color:#1aaa6a;font-weight:500">✅ 優秀な組み合わせです！積極的に狙いましょう</div>':wm>=55?'<div style="margin-top:8px;font-size:12px;color:#5a8aee">📊 標準的な勝率です</div>':'<div style="margin-top:8px;font-size:12px;color:#ee6a50">⚠️ この条件は勝率が低めです</div>';
+  el.innerHTML='<div class="cond-card '+cls+'"><div style="font-size:11px;color:#888;margin-bottom:6px">📋 条件: <b>'+conds+'</b></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:26px;font-weight:600" class="win-c">'+ws+'%</div><div style="font-size:11px;color:#888">単発勝率 '+w+'勝'+l+'敗 '+t+'件</div></div><div><div style="font-size:26px;font-weight:600" class="martin-c">'+wm+'%</div><div style="font-size:11px;color:#888">1M込み勝率 '+(w+m)+'勝'+l+'敗 '+t+'件</div></div></div>'+comment+'</div>';
+}
+
+// ===== AIランキング =====
+function runRanking(){
+  var btn=document.getElementById('rank-btn'),el=document.getElementById('rank-result');
+  var list=filterPeriod(trades,anaPeriod);
+  if(list.length<3){el.innerHTML='<div style="text-align:center;color:#aaa;font-size:13px;padding:16px">データが3件以上必要です（現在'+list.length+'件）</div>';return;}
+  btn.textContent='分析中...';btn.disabled=true;
+  setTimeout(function(){
+    var pMap={};
+    list.forEach(function(t){t.injs.forEach(function(i){
+      if(i.result==='none')return;
+      var pats=[];
+      if(i.line&&i.line!=='—'&&i.time)pats.push(i.name+' × '+i.line+' × '+(i.dir==='up'?'↑HIGH':'↓LOW')+' × '+timeSlot(i.time));
+      if(i.line&&i.line!=='—')pats.push(i.name+' × '+i.line+' × '+(i.dir==='up'?'↑HIGH':'↓LOW'));
+      if(i.time)pats.push(i.name+' × '+timeSlot(i.time)+' × '+(i.dir==='up'?'↑HIGH':'↓LOW'));
+      pats.push(i.name+' × '+i.pair+' × '+(i.dir==='up'?'↑HIGH':'↓LOW'));
+      pats.forEach(function(p){if(!pMap[p])pMap[p]={w:0,m:0,l:0,t:0};pMap[p].t++;if(i.result==='win')pMap[p].w++;else if(i.result==='martin')pMap[p].m++;else pMap[p].l++;});
+    });});
+    var ranked=Object.keys(pMap).filter(function(k){return pMap[k].t>=3;}).map(function(k){var v=pMap[k];return{k:k,t:v.t,w:v.w,m:v.m,l:v.l,wr:Math.round((v.w+v.m)/v.t*100)};}).sort(function(a,b){return b.wr-a.wr||b.t-a.t;}).slice(0,10);
+    btn.innerHTML='🏆 最強パターンを探す';btn.disabled=false;
+    if(!ranked.length){el.innerHTML='<div style="text-align:center;color:#aaa;font-size:13px;padding:16px">各条件3件以上でランキングが表示されます</div>';return;}
+    var medals=['🥇','🥈','🥉'],cc=['gold','silver','bronze'];
+    el.innerHTML=ranked.map(function(r,i){
+      return '<div class="rank-card '+(i<3?cc[i]:'')+'">'+'<div style="font-size:20px;min-width:28px;text-align:center">'+(i<3?medals[i]:i+1)+'</div>'+'<div style="flex:1"><div style="font-size:12px;font-weight:500;color:#1a1a2e;margin-bottom:3px">'+r.k+'</div><div style="font-size:11px;color:#888">'+r.w+'勝'+r.l+'敗 計'+r.t+'件</div></div>'+'<div style="font-size:16px;font-weight:600;min-width:60px;text-align:right" class="'+(r.wr>=70?'win-c':r.wr>=55?'martin-c':'lose-c')+'">'+r.wr+'%</div></div>';
+    }).join('');
   },600);
 }
+
+// ===== AI分析 =====
+function runAI(){
+  var el=document.getElementById('ai-result'),btn=document.getElementById('ai-btn');
+  var list=filterPeriod(trades,anaPeriod);
+  if(list.length<3){el.innerHTML='<div class="ai-card"><div style="text-align:center;color:#aaa;padding:16px;font-size:13px">データが3件以上必要です（現在'+list.length+'件）</div></div>';return;}
+  btn.textContent='分析中...';btn.disabled=true;
+  setTimeout(function(){
+    var items=genAI(list);
+    el.innerHTML='<div class="ai-card"><h4>✨ AI分析レポート</h4>'+items.map(function(i){return '<div class="ai-item"><span style="font-size:14px;flex-shrink:0;margin-top:1px">'+i.icon+'</span><span>'+i.text+'</span></div>';}).join('')+'</div>';
+    btn.innerHTML='✨ AI分析を実行する';btn.disabled=false;
+  },800);
+}
+function genAI(list){
+  var items=[],lMap={},pMap={},dMap={up:{w:0,m:0,t:0},down:{w:0,m:0,t:0}},tMap={},aMap={},oMap={};
+  list.forEach(function(t){
+    t.injs.forEach(function(i){
+      if(i.result==='none')return;
+      var w=i.result==='win',m=i.result==='martin';
+      if(i.line&&i.line!=='—'){var lk=i.name+'['+i.line+']';if(!lMap[lk])lMap[lk]={w:0,m:0,t:0};lMap[lk].t++;if(w)lMap[lk].w++;if(m)lMap[lk].m++;}
+      if(!pMap[i.pair])pMap[i.pair]={w:0,m:0,t:0};pMap[i.pair].t++;if(w)pMap[i.pair].w++;if(m)pMap[i.pair].m++;
+      var dk=i.dir==='up'?'up':'down';dMap[dk].t++;if(w)dMap[dk].w++;if(m)dMap[dk].m++;
+      if(i.time){var sl=timeSlot(i.time);if(!tMap[sl])tMap[sl]={w:0,m:0,t:0};tMap[sl].t++;if(w)tMap[sl].w++;if(m)tMap[sl].m++;}
+    });
+    t.anos.forEach(function(a){if(a.result==='none'||a.result==='skip')return;var k=a.time+' '+a.pair;if(!aMap[k])aMap[k]={w:0,t:0};aMap[k].t++;if(a.result==='win')aMap[k].w++;});
+    t.opts.forEach(function(o){(o.rounds||[o.result]).forEach(function(r){if(!r||r==='none'||r==='skip')return;if(!oMap[o.name])oMap[o.name]={w:0,t:0};oMap[o.name].t++;if(r==='win')oMap[o.name].w++;});});
+  });
+  function wr(m,k){return m[k]?Math.round((m[k].w+(m[k].m||0))/m[k].t*100):0;}
+  function best(map,min){var e=Object.keys(map).filter(function(k){return map[k].t>=(min||3);});if(!e.length)return null;return e.sort(function(a,b){return wr(map,b)-wr(map,a);})[0];}
+  function worst(map,min){var e=Object.keys(map).filter(function(k){return map[k].t>=(min||3);});if(!e.length)return null;return e.sort(function(a,b){return wr(map,a)-wr(map,b);})[0];}
+  var totalW=list.reduce(function(s,t){return s+t.injs.filter(function(i){return i.result==='win'||i.result==='martin';}).length;},0);
+  var totalT=list.reduce(function(s,t){return s+t.injs.filter(function(i){return i.result!=='none';}).length;},0);
+  var ovr=totalT?Math.round(totalW/totalT*100):0;
+  items.push({icon:'📊',text:'<span class="'+(ovr>=60?'ai-good':ovr>=50?'ai-note':'ai-warn')+'">'+ovr+'%</span> — 全体の1マーチン込み勝率です。'+(ovr>=60?'安定した成績です！':ovr>=50?'もう少しで安定ゾーンです。':'戦略の見直しが必要かもしれません。')});
+  var bl=best(lMap);if(bl)items.push({icon:'🏆',text:'最強ライン: <span class="ai-good">'+bl+'</span> — 勝率 <b>'+wr(lMap,bl)+'%</b>（'+lMap[bl].t+'件）。このラインを優先エントリーにするのがオススメです。'});
+  var wl=worst(lMap);if(wl&&wr(lMap,wl)<50)items.push({icon:'⚠️',text:'注意ライン: <span class="ai-warn">'+wl+'</span> — 勝率 <b>'+wr(lMap,wl)+'%</b>（'+lMap[wl].t+'件）。このラインでのエントリーは慎重に。'});
+  var bt=best(tMap);if(bt)items.push({icon:'⏰',text:'ゴールデンタイム: <span class="ai-good">'+bt+'</span> — 勝率 <b>'+wr(tMap,bt)+'%</b>（'+tMap[bt].t+'件）。この時間帯を狙い目にしましょう。'});
+  var wt=worst(tMap);if(wt&&wr(tMap,wt)<50)items.push({icon:'⏸️',text:'避けたい時間: <span class="ai-warn">'+wt+'</span> — 勝率 <b>'+wr(tMap,wt)+'%</b>（'+tMap[wt].t+'件）。この時間帯はスルーも選択肢です。'});
+  var upWR=dMap.up.t?Math.round((dMap.up.w+dMap.up.m)/dMap.up.t*100):0,dnWR=dMap.down.t?Math.round((dMap.down.w+dMap.down.m)/dMap.down.t*100):0;
+  if(dMap.up.t>2&&dMap.down.t>2){if(Math.abs(upWR-dnWR)>=10)items.push({icon:'↕️',text:'方向バイアス: <span class="'+(upWR>dnWR?'ai-good':'ai-note')+'">'+(upWR>dnWR?'↑HIGH':'↓LOW')+'</span>のほうが勝率が高い傾向（↑'+upWR+'% vs ↓'+dnWR+'%）。'});else items.push({icon:'↕️',text:'方向バイアス: ↑UP '+upWR+'% / ↓DOWN '+dnWR+'% — 方向による差は少ないです。'});}
+  var bp=best(pMap);if(bp)items.push({icon:'💱',text:'得意通貨: <span class="ai-good">'+bp+'</span> — 勝率 <b>'+wr(pMap,bp)+'%</b>（'+pMap[bp].t+'件）。'});
+  var ba=best(aMap,2);if(ba)items.push({icon:'🎯',text:'信頼度高アノマリー: <span class="ai-good">'+ba+'</span> — 勝率 <b>'+Math.round(aMap[ba].w/aMap[ba].t*100)+'%</b>（'+aMap[ba].t+'件）。'});
+  var bo=best(oMap,2);if(bo)items.push({icon:'⚡',text:'オプション注目: <span class="ai-good">'+bo.slice(0,16)+'</span> — 勝率 <b>'+Math.round(oMap[bo].w/oMap[bo].t*100)+'%</b>（'+oMap[bo].t+'件）。'});
+  if(!items.length)items.push({icon:'📝',text:'<span class="ai-note">データ蓄積中</span> — まだデータが少ないです。記録を続けると分析精度が上がります！'});
+  return items;
+}
+
+// ===== メモ =====
+function saveDailyMemo(){
+  var dv=getDateVal()||todayIso();var text=document.getElementById('daily-memo-input').value.trim();
+  if(!text)return;
+  if(!dailyMemos[dv])dailyMemos[dv]=[];
+  var d=new Date();
+  dailyMemos[dv].unshift({id:Date.now(),text:text,ts:pad(d.getHours())+':'+pad(d.getMinutes())});
+  saveMemos();document.getElementById('daily-memo-input').value='';
+  var msg=document.getElementById('memo-save-msg');msg.textContent='保存しました！';setTimeout(function(){msg.textContent='';},2000);
+}
+function deleteMemo(date,id){
+  if(!dailyMemos[date])return;
+  dailyMemos[date]=dailyMemos[date].filter(function(m){return m.id!==id;});
+  if(!dailyMemos[date].length)delete dailyMemos[date];
+  saveMemos();renderMemos();
+}
+function renderMemos(){
+  var entries=Object.keys(dailyMemos).sort(function(a,b){return b.localeCompare(a);});
+  var el=document.getElementById('memo-list');
+  var total=entries.reduce(function(s,k){return s+dailyMemos[k].length;},0);
+  document.getElementById('memo-count').textContent=entries.length+'日 '+total+'件';
+  if(!entries.length){el.innerHTML='<div style="text-align:center;padding:3rem;color:#ccc;font-size:13px">まだメモがありません</div>';return;}
+  el.innerHTML=entries.map(function(date){
+    var memos=dailyMemos[date];
+    var p=toIso(date).split('-');
+    var dt=new Date(toIso(date)+'T00:00:00');
+    var wd=WD[dt.getDay()];
+    return '<div class="card" style="margin-bottom:10px">'+
+      '<div style="font-size:13px;font-weight:500;color:#1a1a2e;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid #f0f0f0">'+p[0]+'年'+p[1]+'月'+p[2]+'日（'+wd+'）</div>'+
+      memos.map(function(m){
+        return '<div class="memo-item"><div style="flex:1"><div style="font-size:11px;color:#aaa;margin-bottom:3px">'+m.ts+'</div><div style="font-size:13px;color:#333;line-height:1.7;white-space:pre-wrap">'+m.text+'</div></div><button onclick="deleteMemo(\''+date+'\','+m.id+')" style="font-size:10px;padding:2px 6px;cursor:pointer;border:1px solid #eee;border-radius:4px;background:#fff;color:#ccc;flex-shrink:0">削除</button></div>';
+      }).join('')+
+    '</div>';
+  }).join('');
+}
+
+// ===== データ保存・読み込み =====
+function saveData(){try{localStorage.setItem('trade_journal_v1',JSON.stringify(trades));}catch(e){}}
+function saveMemos(){try{localStorage.setItem('trade_memos_v1',JSON.stringify(dailyMemos));}catch(e){}}
+function loadData(){
+  try{
+    var d=localStorage.getItem('trade_journal_v1');
+    if(!d)d=localStorage.getItem('trade_journal_v2');
+    if(d)trades=JSON.parse(d);
+  }catch(e){}
+}
+function loadMemos(){try{var d=localStorage.getItem('trade_memos_v1');if(d)dailyMemos=JSON.parse(d);}catch(e){}}
+function exportData(){
+  var d=new Date(),fn='trade_journal_'+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'.json';
+  var backup={trades:trades,memos:dailyMemos,exportedAt:new Date().toISOString()};
+  var a=document.createElement('a');
+  a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(backup,null,2));
+  a.download=fn;a.click();
+  var mc=Object.values(dailyMemos).reduce(function(s,v){return s+v.length;},0);
+  var msg=document.getElementById('backup-msg');
+  if(msg){msg.textContent='✅ '+fn+' をダウンロードしました（トレード'+trades.length+'件・メモ'+mc+'件）';setTimeout(function(){msg.textContent='';},3000);}
+}
+function importData(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var raw=JSON.parse(ev.target.result);
+      var msg=document.getElementById('backup-msg');
+      var isNew=raw&&raw.trades&&Array.isArray(raw.trades);
+      var td=isNew?raw.trades:raw;
+      if(!Array.isArray(td))throw new Error('形式エラー');
+      var ids=new Set(trades.map(function(t){return t.id;}));
+      var added=td.filter(function(t){return !ids.has(t.id);});
+      trades=trades.concat(added).sort(function(a,b){return toIso(b.date).localeCompare(toIso(a.date));});
+      saveData();
+      var am=0;
+      if(isNew&&raw.memos){Object.keys(raw.memos).forEach(function(date){if(!dailyMemos[date])dailyMemos[date]=[];var ex=new Set(dailyMemos[date].map(function(m){return m.id;}));var nm=raw.memos[date].filter(function(m){return !ex.has(m.id);});dailyMemos[date]=dailyMemos[date].concat(nm);am+=nm.length;});saveMemos();}
+      renderHistory();renderTodayList();renderDash();
+      if(msg){msg.textContent='✅ トレード'+added.length+'件'+(am>0?'・メモ'+am+'件':'')+'を追加しました';setTimeout(function(){msg.textContent='';},4000);}
+    }catch(err){
+      var msg=document.getElementById('backup-msg');
+      if(msg){msg.style.color='#ee6a50';msg.textContent='❌ 読み込みに失敗しました';setTimeout(function(){msg.textContent='';msg.style.color='#1aaa6a';},4000);}
+    }
+  };
+  reader.readAsText(file);e.target.value='';
+}
+
+// ===== 初期化 =====
+var ti=todayIso();
+document.getElementById('f-date-pk').value=ti;
+updateDateDisp(ti);
+buildInj();buildAno();buildOpt();
+loadData();loadMemos();
+renderDash();renderTodayList();
 </script>
 </body>
 </html>
