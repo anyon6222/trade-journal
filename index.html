@@ -260,7 +260,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.05-J</span>
+  <span class="ver">v2026.05.05-K</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -1415,7 +1415,7 @@ function mkXlStat(label,wr,wrm,w,l,t){
 
 function renderInjTab(list,injName){
   var rows=[];
-  list.forEach(function(t){t.injs.filter(function(i){return i.name===injName&&i.result!=='none';}).forEach(function(i){rows.push({date:t.dateDisplay||t.date,pair:i.pair,time:i.time,dir:i.dir,line:i.line,result:i.result,memo:i.memo});});});
+  list.forEach(function(t){t.injs.filter(function(i){return i.name===injName&&i.result!=='none';}).forEach(function(i,idx){rows.push({date:t.dateDisplay||t.date,tradeId:t.id,injIdx:idx,pair:i.pair,time:i.time,dir:i.dir,line:i.line,result:i.result,memo:i.memo});});});
   var inj=INJS.find(function(i){return i.name===injName;});
   var WD=['月','火','水','木','金','土','日'];
   var ts=['07:00','07:15','07:30','07:45','08:00','08:15','08:30','08:45','09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','14:45','15:00','15:45','16:00','16:45','17:00','17:45'];
@@ -1444,8 +1444,9 @@ function renderInjTab(list,injName){
   var wdOpts='<option value="">（曜日を選択）</option>'+WD.map(function(d){return '<option value="'+d+'" '+(injF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
   var mOpts='<option value="">全</option><option value="1" '+(injF.memo==='1'?'selected':'')+'>あり</option>';
   var rows_html=filtered.length?filtered.map(function(r){
-    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';
-  }).join(''):'<tr><td colspan="7" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+    var delBtn='<button onclick="deleteInjRow('+r.tradeId+',\''+injName+'\',\''+r.pair+'\',\''+r.time+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" title="削除" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
+    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
+  }).join(''):'<tr><td colspan="8" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   var statHtml='<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">'+injName+'</span>'+
     '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件)</span>'+
     '<span class="martin-c" style="font-weight:600">1M込'+wrm+'%('+wm+'勝'+(t-wm)+'敗 '+t+'件)</span></div>';
@@ -1463,12 +1464,44 @@ function renderInjTab(list,injName){
     mkTh('ライン',mkSel(injF.line,'injF.line=this.value;renderHistory()',lOpts))+
     mkTh('結果',mkSel(injF.result,'injF.result=this.value;renderHistory()',rOpts))+
     mkTh('メモ',mkSel(injF.memo,'injF.memo=this.value;renderHistory()',mOpts))+
+    '<th style="width:32px;background:#2a2a3e"></th>'+
     '</tr></thead><tbody>'+rows_html+'</tbody></table></div>';
 }
 
+// ===== 履歴削除関数 =====
+function deleteInjRow(tradeId,injName,pair,time){
+  if(!confirm(injName+' / '+pair+' '+time+' の記録を削除しますか？'))return;
+  var trade=trades.find(function(t){return t.id===tradeId;});
+  if(!trade)return;
+  // 同じpair+timeの最初の1件だけ削除
+  var found=false;
+  trade.injs=trade.injs.filter(function(i){
+    if(!found&&i.name===injName&&i.pair===pair&&i.time===time){found=true;return false;}
+    return true;
+  });
+  saveData();renderDash();renderHistory();
+}
+
+function deleteAnoRow(tradeId,time,dir,pair){
+  if(!confirm(time+' '+dir+' '+pair+' のアノマリー記録を削除（結果をリセット）しますか？'))return;
+  var trade=trades.find(function(t){return t.id===tradeId;});
+  if(!trade)return;
+  var ano=trade.anos.find(function(a){return a.time===time&&a.dir===dir&&a.pair===pair;});
+  if(ano){ano.result='none';ano.memo='';}
+  saveData();renderDash();renderHistory();
+}
+
+function deleteOptRow(tradeId,optName){
+  if(!confirm(optName+' のオプション記録を削除（結果をリセット）しますか？'))return;
+  var trade=trades.find(function(t){return t.id===tradeId;});
+  if(!trade)return;
+  var opt=trade.opts.find(function(o){return o.name===optName;});
+  if(opt){opt.rounds=['none'];opt.memo='';}
+  saveData();renderDash();renderHistory();
+}
 function renderAnoTab(list){
   var rows=[];
-  list.forEach(function(t){t.anos.forEach(function(a){if(a.result==='none')return;rows.push({date:t.dateDisplay||t.date,time:a.time,dir:a.dir,pair:a.pair,result:a.result,memo:a.memo});});});
+  list.forEach(function(t){t.anos.forEach(function(a){if(a.result==='none')return;rows.push({date:t.dateDisplay||t.date,tradeId:t.id,time:a.time,dir:a.dir,pair:a.pair,result:a.result,memo:a.memo});});});
   var WD=['月','火','水','木','金','土','日'];
   var times=[];rows.forEach(function(r){if(times.indexOf(r.time)<0)times.push(r.time);});times.sort();
   var pairs=[];rows.forEach(function(r){if(pairs.indexOf(r.pair)<0)pairs.push(r.pair);});pairs.sort();
@@ -1490,7 +1523,10 @@ function renderAnoTab(list){
   var tOpts='<option value="">全時間</option>'+times.map(function(v){return '<option value="'+v+'" '+(anoF.time===v?'selected':'')+'>'+v+'</option>';}).join('');
   var dOpts='<option value="">全H/L</option><option value="↑" '+(anoF.dir==='↑'?'selected':'')+'>↑</option><option value="↓" '+(anoF.dir==='↓'?'selected':'')+'>↓</option><option value="↑↓" '+(anoF.dir==='↑↓'?'selected':'')+'>↑↓</option>';
   var pOpts='<option value="">全通貨</option>'+pairs.map(function(p){return '<option value="'+p+'" '+(anoF.pair===p?'selected':'')+'>'+p+'</option>';}).join('');
-  var tbody=filtered.length?filtered.map(function(r){return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.time+'</td><td style="color:#7c6af7">'+r.dir+'</td><td>'+r.pair+'</td><td>'+badge2(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';}).join(''):'<tr><td colspan="6" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+  var tbody=filtered.length?filtered.map(function(r){
+    var delBtn='<button onclick="deleteAnoRow('+r.tradeId+',\''+r.time+'\',\''+r.dir+'\',\''+r.pair+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
+    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.time+'</td><td style="color:#7c6af7">'+r.dir+'</td><td>'+r.pair+'</td><td>'+badge2(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
+  }).join(''):'<tr><td colspan="7" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span>'+fmtWRs(wr,ws,l,t,sk)+'</div>'+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
     '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
@@ -1504,11 +1540,12 @@ function renderAnoTab(list){
     mkTh('通貨',mkSel(anoF.pair,'anoF.pair=this.value;renderHistory()',pOpts))+
     mkTh('結果',mkSel(anoF.result,'anoF.result=this.value;renderHistory()',rOpts))+
     mkTh('メモ',mkSel(anoF.memo,'anoF.memo=this.value;renderHistory()','<option value="">全</option><option value="1" '+(anoF.memo==="1"?'selected':'')+'>あり</option>'))+
+    '<th style="width:32px;background:#2a2a3e"></th>'+
     '</tr></thead><tbody>'+tbody+'</tbody></table></div>';
 }
 function renderOptTab(list){
   var rows=[];
-  list.forEach(function(t){t.opts.forEach(function(o){var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});if(!rs.length)return;rows.push({date:t.dateDisplay||t.date,name:o.name,rounds:rs,memo:o.memo});});});
+  list.forEach(function(t){t.opts.forEach(function(o){var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});if(!rs.length)return;rows.push({date:t.dateDisplay||t.date,tradeId:t.id,name:o.name,rounds:rs,memo:o.memo});});});
   var WD=['月','火','水','木','金','土','日'];
   var names=[];rows.forEach(function(r){if(names.indexOf(r.name)<0)names.push(r.name);});
   var filtered=rows.filter(function(r){
@@ -1529,8 +1566,9 @@ function renderOptTab(list){
   var mOpts='<option value="">全</option><option value="1" '+(optF.memo==='1'?'selected':'')+'>あり</option>';
   var skStr=sk?'['+sk+'ス '+(t+sk)+'件]':'';
   var rows_html=filtered.length?filtered.map(function(r){
-    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td style="font-size:11px">'+r.name+'</td><td>'+r.rounds.map(function(v){return badge2(v);}).join(' ')+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';
-  }).join(''):'<tr><td colspan="4" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+    var delBtn='<button onclick="deleteOptRow('+r.tradeId+',\''+r.name+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
+    return '<tr><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td style="font-size:11px">'+r.name+'</td><td>'+r.rounds.map(function(v){return badge2(v);}).join(' ')+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
+  }).join(''):'<tr><td colspan="5" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">オプション</span>'+
     '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span></div>'+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
