@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-V</span>
+  <span class="ver">v2026.05.06-W</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -821,7 +821,7 @@ function editRecord(id){
     if(arr.length===0)arr=[{result:'none'}];
     injEntries[idx]=arr.map(function(i){
       return{id:Date.now()+Math.floor(Math.random()*10000),result:i.result,
-        _pair:i.pair,_time:i.time,_dir:i.dir,_line:i.line,_memo:i.memo};
+        _pair:i.pair,_time:i.time,_dir:i.dir,_line:i.line,_line2:i.line2,_ref:i.ref,_memo:i.memo};
     });
   });
   renderInj(0);renderInj(1);renderInj(2);
@@ -829,7 +829,12 @@ function editRecord(id){
   INJS.forEach(function(inj,idx){
     injEntries[idx].forEach(function(e){
       sv('ep-'+e.id,e._pair);sv('et-'+e.id,e._time);
-      sv('ed-'+e.id,e._dir);sv('el-'+e.id,e._line);sv('em-'+e.id,e._memo);
+      sv('ed-'+e.id,e._dir);sv('el-'+e.id,e._line);
+      if(e._line2)sv('el2-'+e.id,e._line2);
+      sv('em-'+e.id,e._memo);
+      // ☆チェック復元（チェックあり=☆=ref:false）
+      var refEl=document.getElementById('eref-'+e.id);
+      if(refEl)refEl.checked=!e._ref;
       // ボタン状態復元
       if(e.result!=='none'){
         var btns=document.querySelectorAll('[onclick*="setInjR('+idx+','+e.id+'"]');
