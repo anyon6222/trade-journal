@@ -43,7 +43,9 @@ tr:nth-child(even) td{background:#fafafa}
 .ana-tbl2 thead tr:nth-child(2) th{background:#2a2a3e;color:#ccc;font-size:11px;font-weight:normal;border-top:2px solid #555}
 .ana-tbl2 tr:nth-child(even) td{background:#fafafa}
 .ana-tbl2 .gp{border-left:3px solid #fff!important}
-.ana-tbl2 .gp-data{border-left:3px solid #bbb!important}
+.ana-tbl2 .gp2{border-left:3px solid #999!important}
+.ana-tbl2 .gp-data{border-left:3px solid #888!important}
+.ana-tbl2 .sep{border-left:2px solid #bbb!important}
 .wr100{color:#cc0000;font-weight:700}
 .wr90{color:#e63300;font-weight:700}
 .wr75{color:#e67700;font-weight:600}
@@ -52,7 +54,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-BE</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-BF</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -327,11 +329,11 @@ function mkRow2(lbl,v){
   return'<tr>'+
     '<td style="font-size:11px;color:#555">'+lbl+'</td>'+
     '<td class="gp-data '+(sn!==null?wrCls(sn):'')+'">'+(sn!==null?sn+'%':'—')+'</td>'+
-    '<td class="'+(swn!==null?wrCls(swn):'')+'" style="font-size:11px">'+(swn!==null?swn+'%':'—')+'</td>'+
-    '<td style="color:#aaa;font-size:11px;text-align:center">'+(v.tn||'')+'</td>'+
+    '<td class="sep '+(swn!==null?wrCls(swn):'')+'" style="font-size:11px">'+(swn!==null?swn+'%':'—')+'</td>'+
+    '<td class="sep" style="color:#aaa;font-size:11px;text-align:center">'+(v.tn||'')+'</td>'+
     '<td class="gp-data '+(ss!==null?wrCls(ss):'')+'">'+(ss!==null?ss+'%':'—')+'</td>'+
-    '<td class="'+(sws!==null?wrCls(sws):'')+'" style="font-size:11px">'+(sws!==null?sws+'%':'—')+'</td>'+
-    '<td style="color:#aaa;font-size:11px;text-align:center">'+(v.ts||'')+'</td>'+
+    '<td class="sep '+(sws!==null?wrCls(sws):'')+'" style="font-size:11px">'+(sws!==null?sws+'%':'—')+'</td>'+
+    '<td class="sep" style="color:#aaa;font-size:11px;text-align:center">'+(v.ts||'')+'</td>'+
   '</tr>';
 }
 function mkTbl2(title,map,keys){
@@ -339,7 +341,7 @@ function mkTbl2(title,map,keys){
   return'<div class="card" style="margin-bottom:10px"><div style="font-size:13px;font-weight:500;margin-bottom:10px">'+title+'</div>'+
     '<table class="ana-tbl2"><thead>'+
     '<tr><th>項目</th><th colspan="3" class="gp">🧠 脳死</th><th colspan="3" class="gp">🎯 裁量</th></tr>'+
-    '<tr><th></th><th class="gp">1M込み</th><th>単発</th><th>件数</th><th class="gp">1M込み</th><th>単発</th><th>件数</th></tr>'+
+    '<tr><th></th><th class="gp2">1M込み</th><th class="sep">単発</th><th class="sep">件数</th><th class="gp2">1M込み</th><th class="sep">単発</th><th class="sep">件数</th></tr>'+
     '</thead><tbody>'+keys.map(function(k){return mkRow2(k,map[k]);}).join('')+'</tbody></table></div>';
 }
 function renderAna(){
