@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.05-P</span>
+  <span class="ver">v2026.05.06-Q</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -485,8 +485,8 @@ function fmtDisp(iso){
 function isoToSlash(iso){return iso?iso.replace(/-/g,'/'):''}
 function slashToIso(s){var m=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);if(!m)return'';return m[1]+'-'+pad(parseInt(m[2]))+'-'+pad(parseInt(m[3]));}
 function updateDateDisp(iso){curDateIso=iso;document.getElementById('date-disp').textContent=fmtDisp(iso);}
-function onDatePick(v){updateDateDisp(v);}
-function onDateText(v){var iso=slashToIso(v);if(iso)updateDateDisp(iso);else document.getElementById('date-disp').textContent=v||'日付を入力';}
+function onDatePick(v){updateDateDisp(v);renderTodayList();}
+function onDateText(v){var iso=slashToIso(v);if(iso)updateDateDisp(iso);else document.getElementById('date-disp').textContent=v||'日付を入力';renderTodayList();}
 function toggleDateMode(){
   dateMode=dateMode==='picker'?'text':'picker';
   var pk=document.getElementById('f-date-pk'),tx=document.getElementById('f-date-tx'),bt=document.getElementById('date-mode-btn');
@@ -690,7 +690,8 @@ function calcInj(list,name){
 
 // ===== ダッシュボード =====
 function renderDash(){
-  var td=todayIso(),tdList=filterPeriod(trades,'today');
+  var selDate=getDateVal()||todayIso();
+  var tdList=trades.filter(function(t){return toIso(t.date)===toIso(selDate);});
   var s=calcWR(tdList);
   var streak=calcStreak();
   var el=document.getElementById('dash-grid');if(!el)return;
@@ -715,10 +716,12 @@ function calcStreak(){
 
 // ===== 今日の記録 =====
 function renderTodayList(){
-  var tdList=filterPeriod(trades,'today');
+  var selDate=getDateVal()||todayIso();
+  var tdList=trades.filter(function(t){return toIso(t.date)===toIso(selDate);});
   var s=calcWR(tdList);
   var injS=calcCat(tdList,'inj'),anoS=calcCat(tdList,'ano'),optS=calcCat(tdList,'opt');
-  document.getElementById('today-ttl').textContent='今日の記録（'+tdList.length+'件）';
+  var dispDate=selDate?fmtDisp(toIso(selDate)):'';
+  document.getElementById('today-ttl').textContent=dispDate+'の記録（'+tdList.length+'件）';
   var wrEl=document.getElementById('today-wr');
   if(tdList.length){
     var sk=s.sk?'['+s.sk+'ス '+(s.t+s.sk)+'件]':'';
