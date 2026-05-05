@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-U</span>
+  <span class="ver">v2026.05.06-V</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -485,7 +485,7 @@ function fmtDisp(iso){
 function isoToSlash(iso){return iso?iso.replace(/-/g,'/'):''}
 function slashToIso(s){var m=s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);if(!m)return'';return m[1]+'-'+pad(parseInt(m[2]))+'-'+pad(parseInt(m[3]));}
 function updateDateDisp(iso){curDateIso=iso;document.getElementById('date-disp').textContent=fmtDisp(iso);}
-function onDatePick(v){updateDateDisp(v);resetForm();renderTodayList();}
+function onDatePick(v){updateDateDisp(v);resetFormInputs();renderTodayList();}
 function onDateText(v){var iso=slashToIso(v);if(iso)updateDateDisp(iso);else document.getElementById('date-disp').textContent=v||'日付を入力';renderTodayList();}
 function toggleDateMode(){
   dateMode=dateMode==='picker'?'text':'picker';
@@ -1235,6 +1235,9 @@ function saveTrade(){
 }
 function resetForm(){
   var t=todayIso();document.getElementById('f-date-pk').value=t;document.getElementById('f-date-tx').value='';updateDateDisp(t);
+  resetFormInputs();
+}
+function resetFormInputs(){
   entList=[];buildInj();buildAno();buildOpt();document.getElementById('ent-list').innerHTML='';
 }
 
