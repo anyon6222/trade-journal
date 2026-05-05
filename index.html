@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-Q</span>
+  <span class="ver">v2026.05.06-R</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -626,7 +626,7 @@ function calcWR(list){
       if(!e.result||e.result==='none')return;
       t++;
       if(e.result==='win'){ws++;wm++;}
-      else if(e.result==='martin'){l++;wm++;}  // 単発は負け、1M込みは勝ち
+      else if(e.result==='martin'){l++;wm++;}  // 単発は負け、1M込みは勝ち（lはmt計算に使わない）
       else if(e.result==='lose'){l++;}
     });
     // アノマリー（スルーはsk、勝敗のみt）
@@ -648,44 +648,59 @@ function calcWR(list){
       if(!e.result||e.result==='none')return;
       t++;
       if(e.result==='win'){ws++;wm++;}
-      else if(e.result==='martin'){l++;wm++;}  // 単発は負け、1M込みは勝ち
+      else if(e.result==='martin'){l++;wm++;}
       else if(e.result==='lose'){l++;}
     });
   });
-  return{t:t,w:ws,wm:wm,l:l,sk:sk,s:t?Math.round(ws/t*100):0,mt:t?Math.round(wm/t*100):0};
+  // 1M込み勝率の敗は✕✕のみ（✕○は勝ち扱い）
+  var lm=l-(list.reduce(function(s,tr){
+    var c=0;
+    tr.injs.forEach(function(e){if(e.result==='martin')c++;});
+    (tr.entries||[]).forEach(function(e){if(e.result==='martin')c++;});
+    return s+c;
+  },0));
+  return{t:t,w:ws,wm:wm,l:l,lm:lm<0?0:lm,sk:sk,s:t?Math.round(ws/t*100):0,mt:t?Math.round(wm/t*100):0};
 }
 function calcCat(list,cat){
-  var t=0,ws=0,wm=0,l=0,sk=0;
+  var t=0,ws=0,wm=0,l=0,lm=0,sk=0;
   list.forEach(function(tr){
     if(cat==='inj')tr.injs.forEach(function(i){
       if(!i.result||i.result==='none')return;t++;
-      if(i.result==='win'){ws++;wm++;}else if(i.result==='martin'){l++;wm++;}else if(i.result==='lose'){l++;}
+      if(i.result==='win'){ws++;wm++;}
+      else if(i.result==='martin'){l++;wm++;}  // 単発負、1M勝
+      else if(i.result==='lose'){l++;lm++;}
     });
     if(cat==='ano')tr.anos.forEach(function(a){
       if(!a.result||a.result==='none')return;
-      if(a.result==='skip'){sk++;}else{t++;if(a.result==='win'){ws++;wm++;}else l++;}
+      if(a.result==='skip'){sk++;}else{t++;if(a.result==='win'){ws++;wm++;}else{l++;lm++;}}
     });
     if(cat==='opt')tr.opts.forEach(function(o){
       (o.rounds||[o.result]).forEach(function(r){
         if(!r||r==='none')return;
-        if(r==='skip'){sk++;}else{t++;if(r==='win'){ws++;wm++;}else l++;}
+        if(r==='skip'){sk++;}else{t++;if(r==='win'){ws++;wm++;}else{l++;lm++;}}
       });
     });
     if(cat==='entry')(tr.entries||[]).forEach(function(e){
       if(!e.result||e.result==='none')return;t++;
-      if(e.result==='win'){ws++;wm++;}else if(e.result==='martin'){l++;wm++;}else if(e.result==='lose'){l++;}
+      if(e.result==='win'){ws++;wm++;}
+      else if(e.result==='martin'){l++;wm++;}
+      else if(e.result==='lose'){l++;lm++;}
     });
   });
-  return{t:t,w:ws,wm:wm,l:l,sk:sk,wr:t?Math.round(ws/t*100):0,wrm:t?Math.round(wm/t*100):0};
+  return{t:t,w:ws,wm:wm,l:l,lm:lm,sk:sk,wr:t?Math.round(ws/t*100):0,wrm:t?Math.round(wm/t*100):0};
 }
 function calcInj(list,name){
-  var t=0,ws=0,wm=0,l=0;
+  var t=0,ws=0,wm=0,l=0,lm=0;
+  var isHuno=name==='HUNO';
   list.forEach(function(tr){
-    tr.injs.filter(function(i){return i.name===name&&i.result!=='none';}).forEach(function(i){
-      t++;if(i.result==='win'){ws++;wm++;}else if(i.result==='martin'){l++;wm++;}else if(i.result==='lose'){l++;}
+    tr.injs.filter(function(i){return i.name===name&&i.result!=='none'&&!(isHuno&&i.ref);}).forEach(function(i){
+      t++;
+      if(i.result==='win'){ws++;wm++;}
+      else if(i.result==='martin'){l++;wm++;}
+      else if(i.result==='lose'){l++;lm++;}
     });
   });
-  return{t:t,w:ws,wm:wm,l:l,s:t?Math.round(ws/t*100):0,mt:t?Math.round(wm/t*100):0};
+  return{t:t,w:ws,wm:wm,l:l,lm:lm,s:t?Math.round(ws/t*100):0,mt:t?Math.round(wm/t*100):0};
 }
 
 // ===== ダッシュボード =====
@@ -704,7 +719,7 @@ function renderDash(){
     var d=toIso(t.date);if(d&&uniqueDates.indexOf(d)<0)uniqueDates.push(d);
   });
   el.innerHTML='<div class="dash-card"><div class="dash-val">'+tdList.length+'</div><div class="dash-lbl">本日の記録</div></div>'+
-    '<div class="dash-card"><div class="dash-val '+(s.mt>=60?'win-c':s.mt>=50?'martin-c':'lose-c')+'">'+s.mt+'%</div><div class="dash-lbl">本日1M込み勝率</div><div class="dash-sub">'+s.wm+'勝'+s.l+'敗</div></div>'+
+    '<div class="dash-card"><div class="dash-val '+(s.mt>=60?'win-c':s.mt>=50?'martin-c':'lose-c')+'">'+s.mt+'%</div><div class="dash-lbl">本日1M込み勝率</div><div class="dash-sub">'+s.wm+'勝'+(s.lm||0)+'敗</div></div>'+
     '<div class="dash-card"><div class="dash-val">'+uniqueDates.length+'</div><div class="dash-lbl">累計記録日数</div></div>'+
     '<div class="dash-card"><div class="dash-val '+(streak>0?'win-c':'')+'">'+streak+'</div><div class="dash-lbl">連勝中</div></div>';
 }
@@ -725,14 +740,15 @@ function renderTodayList(){
   var wrEl=document.getElementById('today-wr');
   if(tdList.length){
     var sk=s.sk?'['+s.sk+'ス '+(s.t+s.sk)+'件]':'';
-    wrEl.innerHTML='<span class="win-c">単発 <b>'+s.s+'%</b>('+s.w+'勝'+s.l+'敗 '+s.t+'件'+sk+')</span> / <span class="martin-c">1M込 <b>'+s.mt+'%</b>('+s.wm+'勝'+s.l+'敗 '+s.t+'件)</span>';
+    wrEl.innerHTML='<span class="win-c">単発 <b>'+s.s+'%</b>('+s.w+'勝'+s.l+'敗 '+s.t+'件'+sk+')</span> / <span class="martin-c">1M込 <b>'+s.mt+'%</b>('+s.wm+'勝'+(s.lm||0)+'敗 '+s.t+'件)</span>';
   }else{wrEl.innerHTML='';}
   var el=document.getElementById('today-items');
   if(!tdList.length){el.innerHTML='<div class="today-empty">まだ今日の記録はありません</div>';return;}
   el.innerHTML=tdList.map(function(tr,idx){
     var lines=[];
     ['GORILLA','IRAZU','HUNO'].forEach(function(name){
-      var arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none';});
+      var isHuno=name==='HUNO';
+      var arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none'&&!(isHuno&&i.ref);});
       if(!arr.length)return;
       var injWs=arr.filter(function(i){return i.result==='win';}).length;
       var injWm=arr.filter(function(i){return i.result==='win'||i.result==='martin';}).length;
@@ -1435,7 +1451,7 @@ function renderSummary(list){
     '<div style="font-size:11px;color:#888;margin-bottom:8px;font-weight:500">📊 全体トータル</div>'+
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
       '<div><div style="font-size:24px;font-weight:600" class="win-c">'+s.s+'%</div><div style="font-size:10px;color:#aaa;margin-top:2px">単発 '+s.w+'勝'+s.l+'敗 '+s.t+'件'+skStr+'</div></div>'+
-      '<div><div style="font-size:24px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:10px;color:#aaa;margin-top:2px">1M込み '+s.wm+'勝'+(s.t-s.wm)+'敗 '+s.t+'件</div></div>'+
+      '<div><div style="font-size:24px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:10px;color:#aaa;margin-top:2px">1M込み '+s.wm+'勝'+(s.lm||0)+'敗 '+s.t+'件</div></div>'+
     '</div></div>'+
     '<div class="sum-grid">'+injC+
       '<div class="sum-card" onclick="showSub(\'ano\')" style="border-top:3px solid #f0a020;cursor:pointer">'+
@@ -1730,7 +1746,7 @@ function renderAnalysis(){
   var skStr=s.sk?'['+s.sk+'ス '+(s.t+s.sk)+'件]':'';
   document.getElementById('ana-wr').innerHTML=
     '<div style="background:#fff;border-radius:12px;padding:13px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)"><div style="font-size:27px;font-weight:600" class="win-c">'+s.s+'%</div><div style="font-size:11px;color:#888;margin-top:3px">単発勝率</div><div style="font-size:11px;color:#bbb;margin-top:4px">'+s.w+'勝'+s.l+'敗 '+s.t+'件'+skStr+'</div></div>'+
-    '<div style="background:#fff;border-radius:12px;padding:13px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)"><div style="font-size:27px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:11px;color:#888;margin-top:3px">1M込み勝率</div><div style="font-size:11px;color:#bbb;margin-top:4px">'+s.wm+'勝'+(s.t-s.wm)+'敗 '+s.t+'件</div></div>';
+    '<div style="background:#fff;border-radius:12px;padding:13px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)"><div style="font-size:27px;font-weight:600" class="martin-c">'+s.mt+'%</div><div style="font-size:11px;color:#888;margin-top:3px">1M込み勝率</div><div style="font-size:11px;color:#bbb;margin-top:4px">'+s.wm+'勝'+(s.lm||0)+'敗 '+s.t+'件</div></div>';
   var cats=[{k:'inj',l:'インジ'},{k:'ano',l:'アノマリー'},{k:'opt',l:'オプション'},{k:'entry',l:'エントリー'}];
   document.getElementById('ana-cats').innerHTML=cats.map(function(cat){
     var cs=calcCat(list,cat.k);
