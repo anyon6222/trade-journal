@@ -260,7 +260,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.05-N</span>
+  <span class="ver">v2026.05.05-O</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -999,12 +999,13 @@ function renderInj(i){
         '<div class="fg"><label>時間</label><input type="time" id="et-'+e.id+'"></div>' +
         '<div class="fg"><label>方向</label><select id="ed-'+e.id+'"><option value="up">↑ HIGH</option><option value="down">↓ LOW</option></select></div>' +
         (isHuno?'<div class="fg"><label>フィボ</label><div style="display:flex;gap:4px"><select id="el-'+e.id+'" style="flex:1;min-width:0;font-size:11px">'+lOpts+'</select><select id="el2-'+e.id+'" style="flex:1;min-width:0;font-size:11px">'+lOpts2+'</select></div></div>':'<div class="fg"><label>'+inj.tag+'</label><select id="el-'+e.id+'">'+lOpts+'</select></div>') +
-        refChk+delBtn +
+        delBtn +
       '</div>' +
-      '<div class="rbtn-row">' +
+      '<div class="rbtn-row" style="display:flex;align-items:center;flex-wrap:wrap;gap:6px">' +
         '<button class="rbtn '+(e.result==='win'?'sel-win':'')+'" onclick="setInjR('+i+','+e.id+',\'win\',this)">○ 勝ち</button>' +
         '<button class="rbtn '+(e.result==='martin'?'sel-martin':'')+'" onclick="setInjR('+i+','+e.id+',\'martin\',this)">✕○ 1マーチン勝ち</button>' +
         '<button class="rbtn '+(e.result==='lose'?'sel-lose':'')+'" onclick="setInjR('+i+','+e.id+',\'lose\',this)">✕✕ 負け</button>' +
+        refChk+
       '</div>' +
       '<div class="memo-area"><textarea id="em-'+e.id+'" placeholder="メモ・気づき"></textarea></div>' +
     '</div>';
