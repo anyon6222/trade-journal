@@ -260,7 +260,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.05-M</span>
+  <span class="ver">v2026.05.05-N</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -986,19 +986,20 @@ function setInjR(i,eid,v,btn){
 function renderInj(i){
   var inj=INJS[i];
   var isHuno=inj.name==='HUNO';
-  var saved=injEntries[i].map(function(e){return{id:e.id,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id),line:ge('el-'+e.id),line2:ge('el2-'+e.id),memo:ge('em-'+e.id)};});
+  var saved=injEntries[i].map(function(e){return{id:e.id,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id),line:ge('el-'+e.id),line2:ge('el2-'+e.id),memo:ge('em-'+e.id),ref:document.getElementById('eref-'+e.id)?document.getElementById('eref-'+e.id).checked:false};});
   document.getElementById('ie-'+i).innerHTML=injEntries[i].map(function(e){
     var pOpts=PAIRS.map(function(p){return '<option>'+p+'</option>';}).join('');
     var lOpts=inj.lines.map(function(l){return '<option>'+l+'</option>';}).join('');
     var lOpts2='<option>—</option>'+inj.lines.filter(function(l){return l!=='—';}).map(function(l){return '<option>'+l+'</option>';}).join('');
     var delBtn=injEntries[i].length>1?'<button class="del-btn" onclick="removeInj('+i+','+e.id+')">✕</button>':'';
+    var refChk=isHuno?'<label style="display:flex;align-items:center;gap:4px;font-size:11px;color:#7c6af7;cursor:pointer;white-space:nowrap;margin-left:auto"><input type="checkbox" id="eref-'+e.id+'" style="width:13px;height:13px;cursor:pointer"'+(e.ref?' checked':'')+'>📊 参考</label>':'';
     return '<div class="entry-card '+dcls(e.result)+'">' +
       '<div class="ef">' +
         '<div class="fg"><label>通貨ペア</label><select id="ep-'+e.id+'">'+pOpts+'</select></div>' +
         '<div class="fg"><label>時間</label><input type="time" id="et-'+e.id+'"></div>' +
         '<div class="fg"><label>方向</label><select id="ed-'+e.id+'"><option value="up">↑ HIGH</option><option value="down">↓ LOW</option></select></div>' +
         (isHuno?'<div class="fg"><label>フィボ</label><div style="display:flex;gap:4px"><select id="el-'+e.id+'" style="flex:1;min-width:0;font-size:11px">'+lOpts+'</select><select id="el2-'+e.id+'" style="flex:1;min-width:0;font-size:11px">'+lOpts2+'</select></div></div>':'<div class="fg"><label>'+inj.tag+'</label><select id="el-'+e.id+'">'+lOpts+'</select></div>') +
-        delBtn +
+        refChk+delBtn +
       '</div>' +
       '<div class="rbtn-row">' +
         '<button class="rbtn '+(e.result==='win'?'sel-win':'')+'" onclick="setInjR('+i+','+e.id+',\'win\',this)">○ 勝ち</button>' +
@@ -1011,7 +1012,7 @@ function renderInj(i){
   saved.forEach(function(s){
     if(!s.id)return;
     sv('ep-'+s.id,s.pair);sv('et-'+s.id,s.time);sv('ed-'+s.id,s.dir);sv('el-'+s.id,s.line);
-    if(isHuno)sv('el2-'+s.id,s.line2);
+    if(isHuno){sv('el2-'+s.id,s.line2);var rc=document.getElementById('eref-'+s.id);if(rc)rc.checked=!!s.ref;}
     sv('em-'+s.id,s.memo);
   });
 }
@@ -1160,7 +1161,8 @@ function collectInjs(){
   INJS.forEach(function(inj,i){
     var isHuno=inj.name==='HUNO';
     injEntries[i].forEach(function(e){
-      r.push({name:inj.name,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id)||'up',line:ge('el-'+e.id)||'—',line2:isHuno?(ge('el2-'+e.id)||'—'):'',result:e.result,memo:ge('em-'+e.id)});
+      var ref=isHuno&&document.getElementById('eref-'+e.id)?document.getElementById('eref-'+e.id).checked:false;
+      r.push({name:inj.name,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id)||'up',line:ge('el-'+e.id)||'—',line2:isHuno?(ge('el2-'+e.id)||'—'):'',ref:ref,result:e.result,memo:ge('em-'+e.id)});
     });
   });
   return r;
@@ -1237,12 +1239,14 @@ function saveBulkRowVals(){
     var rEl=document.getElementById('br-'+row.id);
     var lEl=document.getElementById('bl-'+row.id);
     var l2El=document.getElementById('bl2-'+row.id);
+    var refEl=document.getElementById('bref-'+row.id);
     if(pEl)row.pair=pEl.value;
     if(tEl)row.time=tEl.value;
     if(dirEl)row.dir=dirEl.value;
     if(rEl)row.result=rEl.value;
     if(lEl)row.line=lEl.value;
     if(isHuno&&l2El)row.line2=l2El.value;
+    if(isHuno&&refEl)row.ref=refEl.checked;
   });
 }
 
@@ -1271,6 +1275,7 @@ function renderBulkTable(){
     '<th style="min-width:110px;background:#1a3a2e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">① 結果</th>'+
     '<th style="min-width:90px;background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">② '+(isHuno?'フィボ①':inj.tag)+'</th>'+
     (isHuno?'<th style="min-width:90px;background:#1a2a3e;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">③ フィボ②</th>':'')+
+    (isHuno?'<th style="min-width:54px;background:#2a1a3e;color:#c4a8ff;font-size:11px;padding:8px 6px;white-space:nowrap">📊参考</th>':'')+
     '<th style="min-width:70px;background:#111827;color:#fff;font-size:11px;padding:8px 6px;white-space:nowrap">メモ</th>'+
     '<th style="width:28px;background:#111827"></th>'+
   '</tr>';
@@ -1290,6 +1295,7 @@ function renderBulkTable(){
       '<td style="background:#f0fff8"><select class="bulk-sel" id="br-'+row.id+'" onchange="onBulkRes('+row.id+',this)">'+rSel+'</select></td>'+
       '<td style="background:#f0f4ff"><select class="bulk-sel" id="bl-'+row.id+'">'+inj.lines.map(function(l){return'<option'+(l===row.line?' selected':'')+'>'+l+'</option>';}).join('')+'</select></td>'+
       (isHuno?'<td style="background:#f0f4ff"><select class="bulk-sel" id="bl2-'+row.id+'">'+lOpts2.replace('<option>'+(row.line2||'—')+'</option>','<option selected>'+(row.line2||'—')+'</option>')+'</select></td>':'')+
+      (isHuno?'<td style="text-align:center;background:#faf0ff"><input type="checkbox" id="bref-'+row.id+'"'+(row.ref?' checked':'')+' style="width:14px;height:14px;cursor:pointer"></td>':'')+
       '<td><input type="text" class="bulk-date" id="bm-'+row.id+'" placeholder="メモ" style="font-size:11px"></td>'+
       '<td><button class="bulk-del" onclick="removeBulkRow('+row.id+')">✕</button></td>'+
     '</tr>';
@@ -1317,7 +1323,7 @@ function saveBulk(){
   var isHuno=inj.name==='HUNO';
   var newInjs=validRows.map(function(row){
     var memo=document.getElementById('bm-'+row.id);
-    return{name:inj.name,pair:row.pair,time:row.time,dir:row.dir||'up',line:row.line||'—',line2:isHuno?(row.line2||'—'):'',result:row.result,memo:memo?memo.value:''};
+    return{name:inj.name,pair:row.pair,time:row.time,dir:row.dir||'up',line:row.line||'—',line2:isHuno?(row.line2||'—'):'',ref:isHuno?!!row.ref:false,result:row.result,memo:memo?memo.value:''};
   });
   // 同日の既存レコードを探してマージ
   var existing=trades.find(function(t){return toIso(t.date)===iso;});
@@ -1427,12 +1433,20 @@ function mkXlStat(label,wr,wrm,w,l,t){
 }
 
 function renderInjTab(list,injName){
+  var isHuno=injName==='HUNO';
+  var hunoMode=isHuno?(window._hunoMode||'main'):'main';
   var rows=[];
-  list.forEach(function(t){t.injs.filter(function(i){return i.name===injName&&i.result!=='none';}).forEach(function(i,idx){rows.push({date:t.dateDisplay||t.date,tradeId:t.id,injIdx:idx,pair:i.pair,time:i.time,dir:i.dir,line:i.line,result:i.result,memo:i.memo});});});
+  list.forEach(function(t){t.injs.filter(function(i){return i.name===injName&&i.result!=='none';}).forEach(function(i,idx){rows.push({date:t.dateDisplay||t.date,tradeId:t.id,injIdx:idx,pair:i.pair,time:i.time,dir:i.dir,line:i.line,result:i.result,memo:i.memo,ref:!!i.ref});});});
   var inj=INJS.find(function(i){return i.name===injName;});
   var WD=['月','火','水','木','金','土','日'];
   var ts=['07:00','07:15','07:30','07:45','08:00','08:15','08:30','08:45','09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','14:45','15:00','15:45','16:00','16:45','17:00','17:45'];
-  var filtered=rows.filter(function(r){
+  // HUNOのみメイン/参考フィルター
+  var modeRows=isHuno?rows.filter(function(r){
+    if(hunoMode==='main')return !r.ref;
+    if(hunoMode==='ref')return !!r.ref;
+    return true;
+  }):rows;
+  var filtered=modeRows.filter(function(r){
     if(injF.pair&&r.pair!==injF.pair)return false;
     if(injF.line&&r.line!==injF.line)return false;
     if(injF.dir&&r.dir!==injF.dir)return false;
@@ -1459,10 +1473,17 @@ function renderInjTab(list,injName){
   var rows_html=filtered.length?filtered.map(function(r,ri){
     var delBtn='<button onclick="deleteInjRow('+r.tradeId+',\''+injName+'\',\''+r.pair+'\',\''+r.time+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" title="削除" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
     var chk='<input type="checkbox" class="bulk-chk-inj" data-tradeid="'+r.tradeId+'" data-inj="'+injName+'" data-pair="'+r.pair+'" data-time="'+r.time+'" style="cursor:pointer;width:14px;height:14px">';
-    return '<tr><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
+    var refBadge=r.ref?'<span style="font-size:10px;background:#f0e8ff;color:#7c6af7;border-radius:4px;padding:1px 5px;margin-left:3px">📊参考</span>':'';
+    return '<tr'+(r.ref?' style="opacity:0.8"':'')+'><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+refBadge+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
   }).join(''):'<tr><td colspan="9" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   var bulkDelBtn='<button onclick="bulkDeleteInj(\''+injName+'\')" style="margin-top:6px;padding:5px 14px;font-size:12px;border-radius:7px;cursor:pointer;border:1px solid #ee6a50;background:#fff;color:#ee6a50;font-family:inherit">🗑 チェックした行を削除</button>';
-  var statHtml='<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">'+injName+'</span>'+
+  var modeUI=isHuno?'<span style="display:inline-flex;gap:4px;margin-left:10px;vertical-align:middle">'+
+    ['main','ref','all'].map(function(m){
+      var lbl=m==='main'?'メイン':m==='ref'?'📊参考':'全体';
+      var active=hunoMode===m;
+      return '<button onclick="window._hunoMode=\''+m+'\';renderHistory()" style="padding:3px 10px;font-size:11px;border-radius:6px;cursor:pointer;border:1px solid '+(active?'#7c6af7':'#ddd')+';background:'+(active?'#7c6af7':'#fff')+';color:'+(active?'#fff':'#888')+';font-family:inherit">'+lbl+'</button>';
+    }).join('')+'</span>':'';
+  var statHtml='<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">'+injName+'</span>'+modeUI+
     '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件)</span>'+
     '<span class="martin-c" style="font-weight:600">1M込'+wrm+'%('+wm+'勝'+(t-wm)+'敗 '+t+'件)</span></div>';
   return statHtml+bulkDelBtn+
