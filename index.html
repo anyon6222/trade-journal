@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-W</span>
+  <span class="ver">v2026.05.06-X</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -693,7 +693,7 @@ function calcInj(list,name){
   var t=0,ws=0,wm=0,l=0,lm=0;
   var isHuno=name==='HUNO';
   list.forEach(function(tr){
-    tr.injs.filter(function(i){return i.name===name&&i.result!=='none'&&!(isHuno&&i.ref);}).forEach(function(i){
+    tr.injs.filter(function(i){return i.name===name&&i.result!=='none'&&!(isHuno&&!i.ref);}).forEach(function(i){
       t++;
       if(i.result==='win'){ws++;wm++;}
       else if(i.result==='martin'){l++;wm++;}
@@ -748,7 +748,7 @@ function renderTodayList(){
     var lines=[];
     ['GORILLA','IRAZU','HUNO'].forEach(function(name){
       var isHuno=name==='HUNO';
-      var arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none'&&!(isHuno&&i.ref);});
+      var arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none'&&!(isHuno&&!i.ref);});
       if(!arr.length)return;
       var injWs=arr.filter(function(i){return i.result==='win';}).length;
       var injWm=arr.filter(function(i){return i.result==='win'||i.result==='martin';}).length;
@@ -834,7 +834,7 @@ function editRecord(id){
       sv('em-'+e.id,e._memo);
       // ☆チェック復元（チェックあり=☆=ref:false）
       var refEl=document.getElementById('eref-'+e.id);
-      if(refEl)refEl.checked=!e._ref;
+      if(refEl)refEl.checked=!!e._ref;
       // ボタン状態復元
       if(e.result!=='none'){
         var btns=document.querySelectorAll('[onclick*="setInjR('+idx+','+e.id+'"]');
@@ -1024,7 +1024,7 @@ function renderInj(i){
     var lOpts=inj.lines.map(function(l){return '<option>'+l+'</option>';}).join('');
     var lOpts2='<option>—</option>'+inj.lines.filter(function(l){return l!=='—';}).map(function(l){return '<option>'+l+'</option>';}).join('');
     var delBtn=injEntries[i].length>1?'<button class="del-btn" onclick="removeInj('+i+','+e.id+')">✕</button>':'';
-    var refChk=isHuno?'<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#f5a623;cursor:pointer;white-space:nowrap;margin-left:auto"><input type="checkbox" id="eref-'+e.id+'" style="width:13px;height:13px;cursor:pointer"'+(!e.ref?' checked':'')+'> ☆</label>':'';
+    var refChk=isHuno?'<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#f5a623;cursor:pointer;white-space:nowrap;margin-left:auto"><input type="checkbox" id="eref-'+e.id+'" style="width:13px;height:13px;cursor:pointer"'+(e.ref?' checked':'')+'> ☆</label>':'';
     return '<div class="entry-card '+dcls(e.result)+'">' +
       '<div class="ef">' +
         '<div class="fg"><label>通貨ペア</label><select id="ep-'+e.id+'">'+pOpts+'</select></div>' +
@@ -1045,7 +1045,7 @@ function renderInj(i){
   saved.forEach(function(s){
     if(!s.id)return;
     sv('ep-'+s.id,s.pair);sv('et-'+s.id,s.time);sv('ed-'+s.id,s.dir);sv('el-'+s.id,s.line);
-    if(isHuno){sv('el2-'+s.id,s.line2);var rc=document.getElementById('eref-'+s.id);if(rc)rc.checked=!s.ref;}
+    if(isHuno){sv('el2-'+s.id,s.line2);var rc=document.getElementById('eref-'+s.id);if(rc)rc.checked=!!s.ref;}
     sv('em-'+s.id,s.memo);
   });
 }
@@ -1209,8 +1209,8 @@ function collectInjs(){
     var isHuno=inj.name==='HUNO';
     injEntries[i].forEach(function(e){
       var refEl=document.getElementById('eref-'+e.id);
-      // チェックあり=メイン(ref:false)、チェックなし=参考(ref:true)
-      var ref=isHuno&&refEl?!refEl.checked:false;
+      // チェックあり=☆(ref:true)、チェックなし=参考(ref:false)
+      var ref=isHuno&&refEl?refEl.checked:false;
       r.push({name:inj.name,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id)||'up',line:ge('el-'+e.id)||'—',line2:isHuno?(ge('el2-'+e.id)||'—'):'',ref:ref,result:e.result,memo:ge('em-'+e.id)});
     });
   });
@@ -1298,7 +1298,7 @@ function saveBulkRowVals(){
     if(rEl)row.result=rEl.value;
     if(lEl)row.line=lEl.value;
     if(isHuno&&l2El)row.line2=l2El.value;
-    if(isHuno&&refEl)row.ref=!refEl.checked;  // チェックあり=メイン=ref:false
+    if(isHuno&&refEl)row.ref=refEl.checked;  // チェックあり=☆=ref:true
   });
 }
 
@@ -1347,7 +1347,7 @@ function renderBulkTable(){
       '<td style="background:#f0fff8"><select class="bulk-sel" id="br-'+row.id+'" onchange="onBulkRes('+row.id+',this)">'+rSel+'</select></td>'+
       '<td style="background:#f0f4ff"><select class="bulk-sel" id="bl-'+row.id+'">'+inj.lines.map(function(l){return'<option'+(l===row.line?' selected':'')+'>'+l+'</option>';}).join('')+'</select></td>'+
       (isHuno?'<td style="background:#f0f4ff"><select class="bulk-sel" id="bl2-'+row.id+'">'+lOpts2.replace('<option>'+(row.line2||'—')+'</option>','<option selected>'+(row.line2||'—')+'</option>')+'</select></td>':'')+
-      (isHuno?'<td style="text-align:center;background:#f0f8ff"><input type="checkbox" id="bref-'+row.id+'"'+(!row.ref?' checked':'')+' style="width:14px;height:14px;cursor:pointer"></td>':'')+
+      (isHuno?'<td style="text-align:center;background:#fffbe6"><input type="checkbox" id="bref-'+row.id+'"'+(row.ref?' checked':'')+' style="width:14px;height:14px;cursor:pointer" title="☆"></td>':'')+
       '<td><input type="text" class="bulk-date" id="bm-'+row.id+'" placeholder="メモ" style="font-size:11px"></td>'+
       '<td><button class="bulk-del" onclick="removeBulkRow('+row.id+')">✕</button></td>'+
     '</tr>';
@@ -1494,8 +1494,8 @@ function renderInjTab(list,injName){
   var ts=['07:00','07:15','07:30','07:45','08:00','08:15','08:30','08:45','09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','14:45','15:00','15:45','16:00','16:45','17:00','17:45'];
   // HUNOのみメイン/参考フィルター
   var modeRows=isHuno?rows.filter(function(r){
-    if(hunoMode==='main')return !r.ref;
-    if(hunoMode==='ref')return !!r.ref;
+    if(hunoMode==='main')return !!r.ref;   // ☆あり=ref:true
+    if(hunoMode==='ref')return !r.ref;     // 参考=ref:false
     return true;
   }):rows;
   var filtered=modeRows.filter(function(r){
