@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-Z7</span>
+  <span class="ver">v2026.05.06-Z8</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -828,7 +828,7 @@ function editRecord(id){
         _pair:i.pair,_time:i.time,_dir:i.dir,_line:i.line,_line2:i.line2,_ref:i.ref,_all:i.all,_memo:i.memo};
     });
   });
-  renderInj(0);renderInj(1);renderInj(2);
+  renderInj(0);renderInj(1);renderInj(2);renderInj(3);
   // DOM値を復元
   INJS.forEach(function(inj,idx){
     injEntries[idx].forEach(function(e){
