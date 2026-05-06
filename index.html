@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-Z8</span>
+  <span class="ver">v2026.05.07-A</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -750,7 +750,7 @@ function renderTodayList(){
   if(!tdList.length){el.innerHTML='<div class="today-empty">まだ今日の記録はありません</div>';return;}
   el.innerHTML=tdList.map(function(tr,idx){
     var lines=[];
-    ['GORILLA','IRAZU','HUNO'].forEach(function(name){
+    ['GORILLA','IRAZU','HUNO','HUNO ALL'].forEach(function(name){
       var isHuno=name==='HUNO'||name==='HUNO ALL';
       var arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none';});
       if(!arr.length)return;
@@ -761,10 +761,28 @@ function renderTodayList(){
       var injWRs=arr.length?Math.round(injWs/arr.length*100):0;
       var injWRm=arr.length?Math.round(injWm/arr.length*100):0;
       var cls=injWRs>=60?'win-c':injWRs>=50?'martin-c':'lose-c';
-      var detail=arr.map(function(i){return (i.line&&i.line!=='—'?'['+i.line+']':'')+' '+(i.time||'')+' '+(i.dir==='up'?'↑':'↓')+' '+badge(i.result);}).join('　');
+      var detail=arr.map(function(i){
+        var starMark=isHuno&&i.ref?'☆':'';
+        return starMark+(i.line&&i.line!=='—'?'['+i.line+']':'')+' '+(i.time||'')+' '+(i.dir==='up'?'↑':'↓')+' '+badge(i.result);
+      }).join('　');
       var injStat='単発<b class="'+cls+'">'+injWRs+'%</b>('+injWs+'勝'+injL+'敗)';
       if(injWm>injWs)injStat+=' 1M<b class="martin-c">'+injWRm+'%</b>('+injWm+'勝'+injLm+'敗)';
       injStat+=' '+arr.length+'件';
+      // HUNO☆あり勝率
+      if(isHuno){
+        var starArr=arr.filter(function(i){return !!i.ref;});
+        if(starArr.length){
+          var sWs=starArr.filter(function(i){return i.result==='win';}).length;
+          var sWm=starArr.filter(function(i){return i.result==='win'||i.result==='martin';}).length;
+          var sLm=starArr.filter(function(i){return i.result==='lose';}).length;
+          var sWRs=Math.round(sWs/starArr.length*100);
+          var sWRm=Math.round(sWm/starArr.length*100);
+          var sCls=sWRs>=60?'win-c':sWRs>=50?'martin-c':'lose-c';
+          injStat+=' <span style="color:#f5a623">☆単発<b class="'+sCls+'">'+sWRs+'%</b>('+sWs+'勝'+(starArr.length-sWs)+'敗)';
+          if(sWm>sWs)injStat+=' 1M<b class="martin-c">'+sWRm+'%</b>('+sWm+'勝'+sLm+'敗)';
+          injStat+=' '+starArr.length+'件</span>';
+        }
+      }
       lines.push('<span style="display:flex;justify-content:space-between;align-items:baseline"><span><b>'+name+'</b>: '+detail+'</span><span style="font-size:10px;color:#888;margin-left:6px;white-space:nowrap">'+injStat+'</span></span>');
     });
     var anoA=tr.anos.filter(function(a){return a.result!=='none';});
@@ -1028,10 +1046,13 @@ function renderInj(i){
     var pOpts=PAIRS.map(function(p){return '<option>'+p+'</option>';}).join('');
     var lOpts=inj.lines.map(function(l){return '<option>'+l+'</option>';}).join('');
     var lOpts2='<option>—</option>'+inj.lines.filter(function(l){return l!=='—';}).map(function(l){return '<option>'+l+'</option>';}).join('');
-    var delBtn=injEntries[i].length>1?'<button class="del-btn" onclick="removeInj('+i+','+e.id+')">✕</button>':'';
+    var delBtn='<button class="del-btn" onclick="removeInj('+i+','+e.id+')">✕</button>';
+    var numList=['①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩'];
+    var num=numList[injEntries[i].indexOf(e)]||'';
     var refChk=isHuno?'<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#f5a623;cursor:pointer;white-space:nowrap;margin-left:auto"><input type="checkbox" id="eref-'+e.id+'" style="width:13px;height:13px;cursor:pointer"'+(e.ref?' checked':'')+'> ☆</label>':'';
-    return '<div class="entry-card '+dcls(e.result)+'">' +
-      '<div class="ef">' +
+    return '<div class="entry-card '+dcls(e.result)+'" style="position:relative">' +
+      '<div style="position:absolute;top:7px;left:9px;font-size:13px;color:#7c6af7;font-weight:700;pointer-events:none">'+num+'</div>'+
+      '<div class="ef" style="padding-left:22px">' +
         '<div class="fg"><label>通貨ペア</label><select id="ep-'+e.id+'">'+pOpts+'</select></div>' +
         '<div class="fg"><label>時間</label><input type="time" id="et-'+e.id+'"></div>' +
         '<div class="fg"><label>方向</label><select id="ed-'+e.id+'"><option value="up">↑ HIGH</option><option value="down">↓ LOW</option></select></div>' +
