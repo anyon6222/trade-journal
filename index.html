@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-Z6</span>
+  <span class="ver">v2026.05.06-Z7</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -1537,8 +1537,8 @@ function renderInjTab(list,injName){
   var rows_html=filtered.length?filtered.map(function(r,ri){
     var delBtn='<button onclick="deleteInjRow('+r.tradeId+',\''+injName+'\',\''+r.pair+'\',\''+r.time+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" title="削除" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
     var chk='<input type="checkbox" class="bulk-chk-inj" data-tradeid="'+r.tradeId+'" data-inj="'+injName+'" data-pair="'+r.pair+'" data-time="'+r.time+'" style="cursor:pointer;width:14px;height:14px">';
-    var refBadge=r.ref?'':"<span style='font-size:11px;color:#f5a623;margin-left:3px'>☆</span>";
-    return '<tr'+(r.ref?' style="opacity:0.8"':'')+'><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+refBadge+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
+    var refBadge=r.ref?"<span style='font-size:11px;color:#f5a623;margin-left:3px'>☆</span>":'';
+    return '<tr'+(r.ref?'':' style="opacity:0.8"')+'><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+refBadge+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
   }).join(''):'<tr><td colspan="9" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   var bulkDelBtn='<button onclick="bulkDeleteInj(\''+injName+'\')" style="margin-top:6px;padding:5px 14px;font-size:12px;border-radius:7px;cursor:pointer;border:1px solid #ee6a50;background:#fff;color:#ee6a50;font-family:inherit">🗑 チェックした行を削除</button>';
   var modeUI=isHuno?'<span style="display:inline-flex;gap:4px;margin-left:10px;vertical-align:middle">'+
@@ -1957,7 +1957,7 @@ function loadData(){
     if(!d)d=localStorage.getItem('trade_journal_v2');
     if(d)trades=JSON.parse(d);
     // 既存HUNOデータのref反転マイグレーション（1回のみ実行）
-    if(!localStorage.getItem('migration_ref_fixed')){
+    if(!localStorage.getItem('migration_ref_fixed_v2')){
       trades.forEach(function(t){
         t.injs.forEach(function(i){
           if((i.name==='HUNO'||i.name==='HUNO ALL')&&i.ref!==undefined){
@@ -1965,7 +1965,7 @@ function loadData(){
           }
         });
       });
-      localStorage.setItem('migration_ref_fixed','1');
+      localStorage.setItem('migration_ref_fixed_v2','1');
       try{localStorage.setItem('trade_journal_v1',JSON.stringify(trades));}catch(e){}
     }
   }catch(e){}
