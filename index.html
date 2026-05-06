@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-Y</span>
+  <span class="ver">v2026.05.06-Z</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -821,7 +821,7 @@ function editRecord(id){
     if(arr.length===0)arr=[{result:'none'}];
     injEntries[idx]=arr.map(function(i){
       return{id:Date.now()+Math.floor(Math.random()*10000),result:i.result,
-        _pair:i.pair,_time:i.time,_dir:i.dir,_line:i.line,_line2:i.line2,_ref:i.ref,_memo:i.memo};
+        _pair:i.pair,_time:i.time,_dir:i.dir,_line:i.line,_line2:i.line2,_ref:i.ref,_all:i.all,_memo:i.memo};
     });
   });
   renderInj(0);renderInj(1);renderInj(2);
@@ -835,6 +835,8 @@ function editRecord(id){
       // ☆チェック復元（チェックあり=☆=ref:false）
       var refEl=document.getElementById('eref-'+e.id);
       if(refEl)refEl.checked=!!e._ref;
+      var allEl=document.getElementById('eall-'+e.id);
+      if(allEl)allEl.checked=!!e._all;
       // ボタン状態復元
       if(e.result!=='none'){
         var btns=document.querySelectorAll('[onclick*="setInjR('+idx+','+e.id+'"]');
@@ -1019,13 +1021,16 @@ function renderInj(i){
   var inj=INJS[i];
   var isHuno=inj.name==='HUNO';
   var isDouble=inj.name==='HUNO'||inj.name==='IRAZU';
-  var saved=injEntries[i].map(function(e){return{id:e.id,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id),line:ge('el-'+e.id),line2:ge('el2-'+e.id),memo:ge('em-'+e.id),ref:document.getElementById('eref-'+e.id)?document.getElementById('eref-'+e.id).checked:false};});
+  var saved=injEntries[i].map(function(e){return{id:e.id,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id),line:ge('el-'+e.id),line2:ge('el2-'+e.id),memo:ge('em-'+e.id),ref:document.getElementById('eref-'+e.id)?document.getElementById('eref-'+e.id).checked:false,all:document.getElementById('eall-'+e.id)?document.getElementById('eall-'+e.id).checked:false};});
   document.getElementById('ie-'+i).innerHTML=injEntries[i].map(function(e){
     var pOpts=PAIRS.map(function(p){return '<option>'+p+'</option>';}).join('');
     var lOpts=inj.lines.map(function(l){return '<option>'+l+'</option>';}).join('');
     var lOpts2='<option>—</option>'+inj.lines.filter(function(l){return l!=='—';}).map(function(l){return '<option>'+l+'</option>';}).join('');
     var delBtn=injEntries[i].length>1?'<button class="del-btn" onclick="removeInj('+i+','+e.id+')">✕</button>':'';
-    var refChk=isHuno?'<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#f5a623;cursor:pointer;white-space:nowrap;margin-left:auto"><input type="checkbox" id="eref-'+e.id+'" style="width:13px;height:13px;cursor:pointer"'+(e.ref?' checked':'')+'> ☆</label>':'';
+    var refChk=isHuno?'<div style="display:flex;align-items:center;gap:10px;margin-left:auto">'+
+      '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#f5a623;cursor:pointer;white-space:nowrap"><input type="checkbox" id="eref-'+e.id+'" style="width:13px;height:13px;cursor:pointer"'+(e.ref?' checked':'')+'> ☆</label>'+
+      '<label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#5a8aee;cursor:pointer;white-space:nowrap"><input type="checkbox" id="eall-'+e.id+'" style="width:13px;height:13px;cursor:pointer"'+(e.all?' checked':'')+'> ALL</label>'+
+      '</div>':'';
     return '<div class="entry-card '+dcls(e.result)+'">' +
       '<div class="ef">' +
         '<div class="fg"><label>通貨ペア</label><select id="ep-'+e.id+'">'+pOpts+'</select></div>' +
@@ -1047,7 +1052,10 @@ function renderInj(i){
     if(!s.id)return;
     sv('ep-'+s.id,s.pair);sv('et-'+s.id,s.time);sv('ed-'+s.id,s.dir);sv('el-'+s.id,s.line);
     if(isDouble)sv('el2-'+s.id,s.line2);
-    if(isHuno){var rc=document.getElementById('eref-'+s.id);if(rc)rc.checked=!!s.ref;}
+    if(isHuno){
+      var rc=document.getElementById('eref-'+s.id);if(rc)rc.checked=!!s.ref;
+      var ac=document.getElementById('eall-'+s.id);if(ac)ac.checked=!!s.all;
+    }
     sv('em-'+s.id,s.memo);
   });
 }
@@ -1212,8 +1220,10 @@ function collectInjs(){
     var isDouble=inj.name==='HUNO'||inj.name==='IRAZU';
     injEntries[i].forEach(function(e){
       var refEl=document.getElementById('eref-'+e.id);
+      var allEl=document.getElementById('eall-'+e.id);
       var ref=isHuno&&refEl?refEl.checked:false;
-      r.push({name:inj.name,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id)||'up',line:ge('el-'+e.id)||'—',line2:isDouble?(ge('el2-'+e.id)||'—'):'',ref:ref,result:e.result,memo:ge('em-'+e.id)});
+      var all=isHuno&&allEl?allEl.checked:false;
+      r.push({name:inj.name,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id)||'up',line:ge('el-'+e.id)||'—',line2:isDouble?(ge('el2-'+e.id)||'—'):'',ref:ref,all:all,result:e.result,memo:ge('em-'+e.id)});
     });
   });
   return r;
@@ -1491,18 +1501,25 @@ function mkXlStat(label,wr,wrm,w,l,t){
 
 function renderInjTab(list,injName){
   var isHuno=injName==='HUNO';
-  var hunoMode=isHuno?(window._hunoMode||'main'):'main';
+  var hunoMode=isHuno?(window._hunoMode||'std'):'std';   // std/all/all_all
+  var hunoStar=isHuno?(window._hunoStar||'all'):'all';   // all/yes/no
   var rows=[];
-  list.forEach(function(t){t.injs.filter(function(i){return i.name===injName&&i.result!=='none';}).forEach(function(i,idx){rows.push({date:t.dateDisplay||t.date,tradeId:t.id,injIdx:idx,pair:i.pair,time:i.time,dir:i.dir,line:i.line,result:i.result,memo:i.memo,ref:!!i.ref});});});
+  list.forEach(function(t){t.injs.filter(function(i){return i.name===injName&&i.result!=='none';}).forEach(function(i,idx){rows.push({date:t.dateDisplay||t.date,tradeId:t.id,injIdx:idx,pair:i.pair,time:i.time,dir:i.dir,line:i.line,result:i.result,memo:i.memo,ref:!!i.ref,all:!!i.all});});});
   var inj=INJS.find(function(i){return i.name===injName;});
   var WD=['月','火','水','木','金','土','日'];
   var ts=['07:00','07:15','07:30','07:45','08:00','08:15','08:30','08:45','09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','14:45','15:00','15:45','16:00','16:45','17:00','17:45'];
-  // HUNOのみメイン/参考フィルター
+  // 1段階目：スタンダード/ALL/全体
   var modeRows=isHuno?rows.filter(function(r){
-    if(hunoMode==='main')return !!r.ref;   // ☆あり=ref:true
-    if(hunoMode==='ref')return !r.ref;     // 参考=ref:false
+    if(hunoMode==='std')return !r.all;
+    if(hunoMode==='all')return !!r.all;
     return true;
   }):rows;
+  // 2段階目：☆あり/なし/全体（HUNOのみ）
+  modeRows=isHuno?modeRows.filter(function(r){
+    if(hunoStar==='yes')return !!r.ref;
+    if(hunoStar==='no')return !r.ref;
+    return true;
+  }):modeRows;
   var filtered=modeRows.filter(function(r){
     if(injF.pair&&r.pair!==injF.pair)return false;
     if(injF.line&&r.line!==injF.line)return false;
@@ -1534,12 +1551,21 @@ function renderInjTab(list,injName){
     return '<tr'+(r.ref?' style="opacity:0.8"':'')+'><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+refBadge+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
   }).join(''):'<tr><td colspan="9" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   var bulkDelBtn='<button onclick="bulkDeleteInj(\''+injName+'\')" style="margin-top:6px;padding:5px 14px;font-size:12px;border-radius:7px;cursor:pointer;border:1px solid #ee6a50;background:#fff;color:#ee6a50;font-family:inherit">🗑 チェックした行を削除</button>';
-  var modeUI=isHuno?'<span style="display:inline-flex;gap:4px;margin-left:10px;vertical-align:middle">'+
-    ['main','ref','all'].map(function(m){
-      var lbl=m==='main'?'☆あり':m==='ref'?'参考':'全体';
+  var modeUI=isHuno?'<span style="display:inline-flex;flex-direction:column;gap:3px;margin-left:10px;vertical-align:middle">'+
+    // 1段階目：スタンダード/ALL/全体
+    '<span style="display:flex;gap:3px">'+
+    ['std','all','all_all'].map(function(m){
+      var lbl=m==='std'?'スタンダード':m==='all'?'ALL':'全体';
       var active=hunoMode===m;
-      return '<button onclick="window._hunoMode=\''+m+'\';renderHistory()" style="padding:3px 10px;font-size:11px;border-radius:6px;cursor:pointer;border:1px solid '+(active?'#f5a623':'#ddd')+';background:'+(active?'#fff8e0':'#fff')+';color:'+(active?'#c06000':'#888')+';font-family:inherit">'+lbl+'</button>';
-    }).join('')+'</span>':'';
+      return '<button onclick="window._hunoMode=\''+m+'\';window._hunoStar=\'all\';renderHistory()" style="padding:2px 8px;font-size:11px;border-radius:5px;cursor:pointer;border:1px solid '+(active?'#1a1a2e':'#ddd')+';background:'+(active?'#1a1a2e':'#fff')+';color:'+(active?'#fff':'#888')+';font-family:inherit">'+lbl+'</button>';
+    }).join('')+'</span>'+
+    // 2段階目：☆あり/☆なし/全体
+    '<span style="display:flex;gap:3px">'+
+    [{m:'yes',l:'☆あり'},{m:'no',l:'☆なし'},{m:'all',l:'全体'}].map(function(o){
+      var active=hunoStar===o.m;
+      return '<button onclick="window._hunoStar=\''+o.m+'\';renderHistory()" style="padding:2px 8px;font-size:11px;border-radius:5px;cursor:pointer;border:1px solid '+(active?'#f5a623':'#ddd')+';background:'+(active?'#fff8e0':'#fff')+';color:'+(active?'#c06000':'#888')+';font-family:inherit">'+o.l+'</button>';
+    }).join('')+'</span>'+
+  '</span>':'';
   var statHtml='<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">'+injName+'</span>'+modeUI+
     '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件)</span>'+
     '<span class="martin-c" style="font-weight:600">1M込'+wrm+'%('+wm+'勝'+(t-wm)+'敗 '+t+'件)</span></div>';
