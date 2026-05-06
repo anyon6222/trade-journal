@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-Z2</span>
+  <span class="ver">v2026.05.06-Z3</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -695,7 +695,7 @@ function calcInj(list,name){
   var t=0,ws=0,wm=0,l=0,lm=0;
   var isHuno=name==='HUNO'||name==='HUNO ALL';
   list.forEach(function(tr){
-    tr.injs.filter(function(i){return i.name===name&&i.result!=='none'&&!(isHuno&&!i.ref);}).forEach(function(i){
+    tr.injs.filter(function(i){return i.name===name&&i.result!=='none'&&!(isHuno&&!!i.ref);}).forEach(function(i){
       t++;
       if(i.result==='win'){ws++;wm++;}
       else if(i.result==='martin'){l++;wm++;}
@@ -750,7 +750,7 @@ function renderTodayList(){
     var lines=[];
     ['GORILLA','IRAZU','HUNO'].forEach(function(name){
       var isHuno=name==='HUNO'||name==='HUNO ALL';
-      var arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none'&&!(isHuno&&!i.ref);});
+      var arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none'&&!(isHuno&&!!i.ref);});
       if(!arr.length)return;
       var injWs=arr.filter(function(i){return i.result==='win';}).length;
       var injWm=arr.filter(function(i){return i.result==='win'||i.result==='martin';}).length;
@@ -1504,8 +1504,8 @@ function renderInjTab(list,injName){
   var ts=['07:00','07:15','07:30','07:45','08:00','08:15','08:30','08:45','09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','14:45','15:00','15:45','16:00','16:45','17:00','17:45'];
   // ☆あり/なし フィルター（HUNOのみ）
   var modeRows=isHuno?rows.filter(function(r){
-    if(hunoStar==='yes')return !!r.ref;
-    if(hunoStar==='no')return !r.ref;
+    if(hunoStar==='yes')return !r.ref;   // ☆あり → ref:false（旧データ互換）
+    if(hunoStar==='no')return !!r.ref;   // ☆なし → ref:true（旧データ互換）
     return true;
   }):rows;
   var filtered=modeRows.filter(function(r){
@@ -1954,6 +1954,8 @@ function loadData(){
     var d=localStorage.getItem('trade_journal_v1');
     if(!d)d=localStorage.getItem('trade_journal_v2');
     if(d)trades=JSON.parse(d);
+    // HUNOのrefマイグレーション：旧データでref値が逆に保存されていた場合は修正不要
+    // 現在の仕様：チェックあり=☆=ref:true / チェックなし=参考=ref:false
   }catch(e){}
 }
 function loadMemos(){try{var d=localStorage.getItem('trade_memos_v1');if(d)dailyMemos=JSON.parse(d);}catch(e){}}
