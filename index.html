@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-Z3</span>
+  <span class="ver">v2026.05.06-Z4</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -836,7 +836,7 @@ function editRecord(id){
       sv('em-'+e.id,e._memo);
       // ☆チェック復元（チェックあり=☆=ref:false）
       var refEl=document.getElementById('eref-'+e.id);
-      if(refEl)refEl.checked=!!e._ref;
+      if(refEl)refEl.checked=!e._ref;  // 旧データ互換
       // ボタン状態復元
       if(e.result!=='none'){
         var btns=document.querySelectorAll('[onclick*="setInjR('+idx+','+e.id+'"]');
@@ -1050,7 +1050,7 @@ function renderInj(i){
     sv('ep-'+s.id,s.pair);sv('et-'+s.id,s.time);sv('ed-'+s.id,s.dir);sv('el-'+s.id,s.line);
     if(isDouble)sv('el2-'+s.id,s.line2);
     if(isHuno){
-      var rc=document.getElementById('eref-'+s.id);if(rc)rc.checked=!!s.ref;
+      var rc=document.getElementById('eref-'+s.id);if(rc)rc.checked=!s.ref;  // 旧データ互換
     }
     sv('em-'+s.id,s.memo);
   });
@@ -1216,7 +1216,7 @@ function collectInjs(){
     var isDouble=inj.name==='HUNO'||inj.name==='HUNO ALL'||inj.name==='IRAZU';
     injEntries[i].forEach(function(e){
       var refEl=document.getElementById('eref-'+e.id);
-      var ref=isHuno&&refEl?refEl.checked:false;
+      var ref=isHuno&&refEl?!refEl.checked:false;  // 旧データ互換：逆保存
       r.push({name:inj.name,pair:ge('ep-'+e.id),time:ge('et-'+e.id),dir:ge('ed-'+e.id)||'up',line:ge('el-'+e.id)||'—',line2:isDouble?(ge('el2-'+e.id)||'—'):'',ref:ref,result:e.result,memo:ge('em-'+e.id)});
     });
   });
@@ -1305,7 +1305,7 @@ function saveBulkRowVals(){
     if(rEl)row.result=rEl.value;
     if(lEl)row.line=lEl.value;
     if(isDouble&&l2El)row.line2=l2El.value;
-    if(isHuno&&refEl)row.ref=refEl.checked;
+    if(isHuno&&refEl)row.ref=!refEl.checked;  // 旧データ互換：逆保存
   });
 }
 
