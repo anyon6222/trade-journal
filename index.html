@@ -28,7 +28,7 @@ select:focus,input:focus,textarea:focus{border-color:#7c6af7}
 textarea{min-height:36px;resize:vertical}
 
 /* ダッシュボード */
-.dash-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
 .dash-card{background:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,0.06);text-align:center}
 .dash-val{font-size:20px;font-weight:600;color:#1a1a2e}
 .dash-lbl{font-size:10px;color:#aaa;margin-top:2px}
@@ -265,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.06-Z5</span>
+  <span class="ver">v2026.05.06-Z6</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -720,10 +720,12 @@ function renderDash(){
     if(!hasData)return;
     var d=toIso(t.date);if(d&&uniqueDates.indexOf(d)<0)uniqueDates.push(d);
   });
-  el.innerHTML='<div class="dash-card"><div class="dash-val">'+tdList.length+'</div><div class="dash-lbl">本日の記録</div></div>'+
-    '<div class="dash-card"><div class="dash-val '+(s.mt>=60?'win-c':s.mt>=50?'martin-c':'lose-c')+'">'+s.mt+'%</div><div class="dash-lbl">本日1M込み勝率</div><div class="dash-sub">'+s.wm+'勝'+(s.lm||0)+'敗</div></div>'+
+  // 累計勝率計算
+  var allS=calcWR(trades);
+  el.innerHTML=
     '<div class="dash-card"><div class="dash-val">'+uniqueDates.length+'</div><div class="dash-lbl">累計記録日数</div></div>'+
-    '<div class="dash-card"><div class="dash-val '+(streak>0?'win-c':'')+'">'+streak+'</div><div class="dash-lbl">連勝中</div></div>';
+    '<div class="dash-card"><div class="dash-val '+(allS.s>=60?'win-c':allS.s>=50?'martin-c':allS.t?'lose-c':'')+'">'+( allS.t?allS.s+'%':'—')+'</div><div class="dash-lbl">単発勝率（累計）</div><div class="dash-sub">'+(allS.t?allS.w+'勝'+allS.l+'敗 '+allS.t+'件':'')+'</div></div>'+
+    '<div class="dash-card"><div class="dash-val '+(allS.mt>=60?'win-c':allS.mt>=50?'martin-c':allS.t?'lose-c':'')+'">'+( allS.t?allS.mt+'%':'—')+'</div><div class="dash-lbl">1M込み勝率（累計）</div><div class="dash-sub">'+(allS.t?allS.wm+'勝'+(allS.lm||0)+'敗 '+allS.t+'件':'')+'</div></div>';
 }
 function calcStreak(){
   var all=[];
@@ -750,7 +752,7 @@ function renderTodayList(){
     var lines=[];
     ['GORILLA','IRAZU','HUNO'].forEach(function(name){
       var isHuno=name==='HUNO'||name==='HUNO ALL';
-      var arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none'&&!(isHuno&&!i.ref);});
+      var arr=tr.injs.filter(function(i){return i.name===name&&i.result!=='none';});
       if(!arr.length)return;
       var injWs=arr.filter(function(i){return i.result==='win';}).length;
       var injWm=arr.filter(function(i){return i.result==='win'||i.result==='martin';}).length;
