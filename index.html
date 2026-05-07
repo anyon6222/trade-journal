@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -265,7 +266,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-C</span>
+  <span class="ver">v2026.05.07-F</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -1898,64 +1899,56 @@ function runAI(){
     btn.textContent='AI分析を実行する';btn.disabled=false;
   },600);
 }
+
 function genAI(list){
   function pctS(w,t){return t?Math.round(w/t*100):0;}
   function pctM(w,m,t){return t?Math.round((w+(m||0))/t*100):0;}
   function cls(v){return v>=60?'ai-good':v>=50?'ai-note':'ai-warn';}
-  function rankTable(map,label){
+
+  // ランキングテーブル（ベスト/ワースト）
+  function rankTable(map,label,mode,maxN){
+    maxN=maxN||5;
     var keys=Object.keys(map).filter(function(k){return map[k].t>=1;});
     if(!keys.length)return '<div style="color:#bbb;font-size:11px;padding:4px 0">データ不足</div>';
-    keys.sort(function(a,b){return pctM(map[b].w,map[b].m,map[b].t)-pctM(map[a].w,map[a].m,map[a].t);});
+    keys.sort(function(a,b){
+      var va=pctM(map[a].w,map[a].m,map[a].t);
+      var vb=pctM(map[b].w,map[b].m,map[b].t);
+      return mode==='worst'?va-vb:vb-va;
+    });
+    keys=keys.slice(0,maxN);
     var rows=keys.map(function(k,i){
       var d=map[k];
       var s=pctS(d.w,d.t);var m=pctM(d.w,d.m,d.t);
       var lm=d.t-(d.w+(d.m||0));
+      var rank=mode==='worst'?(i+1)+'位':(i+1)+'位';
       return '<tr style="border-bottom:1px solid #f5f5f5">'+
-        '<td style="padding:4px 8px;font-size:11px;color:#999;width:32px;text-align:center">'+(i+1)+'位</td>'+
-        '<td style="padding:4px 8px;font-size:12px;font-weight:500;color:#1a1a2e">'+k+'</td>'+
-        '<td style="padding:4px 8px;font-size:12px;text-align:right"><span class="'+cls(s)+'">'+s+'%</span></td>'+
-        '<td style="padding:4px 8px;font-size:12px;text-align:right"><span class="'+cls(m)+'">'+m+'%</span></td>'+
-        '<td style="padding:4px 8px;font-size:11px;color:#aaa;text-align:right;white-space:nowrap">'+d.w+'勝'+(d.m||0)+'M '+lm+'敗 '+d.t+'件</td>'+
+        '<td style="padding:3px 6px;font-size:11px;color:#999;width:28px;text-align:center">'+rank+'</td>'+
+        '<td style="padding:3px 6px;font-size:12px;font-weight:500;color:#1a1a2e">'+k+'</td>'+
+        '<td style="padding:3px 6px;font-size:12px;text-align:right"><span class="'+cls(s)+'">'+s+'%</span></td>'+
+        '<td style="padding:3px 6px;font-size:12px;text-align:right"><span class="'+cls(m)+'">'+m+'%</span></td>'+
+        '<td style="padding:3px 6px;font-size:11px;color:#aaa;text-align:right;white-space:nowrap">'+d.w+'勝'+(d.m||0)+'M '+lm+'敗 '+d.t+'件</td>'+
       '</tr>';
     }).join('');
     return '<table style="width:100%;border-collapse:collapse">'+
       '<thead><tr style="border-bottom:2px solid #eee">'+
-        '<th style="padding:4px 8px;font-size:10px;color:#bbb;text-align:center"></th>'+
-        '<th style="padding:4px 8px;font-size:10px;color:#bbb;text-align:left">'+label+'</th>'+
-        '<th style="padding:4px 8px;font-size:10px;color:#bbb;text-align:right">単発</th>'+
-        '<th style="padding:4px 8px;font-size:10px;color:#bbb;text-align:right">1M込み</th>'+
-        '<th style="padding:4px 8px;font-size:10px;color:#bbb;text-align:right">内訳</th>'+
+        '<th style="padding:3px 6px;font-size:10px;color:#bbb;text-align:center"></th>'+
+        '<th style="padding:3px 6px;font-size:10px;color:#bbb;text-align:left">'+label+'</th>'+
+        '<th style="padding:3px 6px;font-size:10px;color:#bbb;text-align:right">単発</th>'+
+        '<th style="padding:3px 6px;font-size:10px;color:#bbb;text-align:right">1M込み</th>'+
+        '<th style="padding:3px 6px;font-size:10px;color:#bbb;text-align:right">内訳</th>'+
       '</tr></thead><tbody>'+rows+'</tbody></table>';
   }
   function section(title,sub,body){
     return '<div style="background:#fff;border:1px solid #e8e8f8;border-radius:10px;padding:12px 16px;margin-bottom:10px">'+
-      '<div style="font-size:13px;font-weight:700;color:#1a1a2e;border-bottom:2px solid #1a1a2e;padding-bottom:6px;margin-bottom:6px">'+title+'</div>'+
+      '<div style="font-size:13px;font-weight:700;color:#1a1a2e;border-bottom:2px solid #1a1a2e;padding-bottom:5px;margin-bottom:6px">'+title+'</div>'+
       (sub?'<div style="font-size:11px;color:#666;margin-bottom:8px">'+sub+'</div>':'')+
       body+'</div>';
   }
-  function subHead(t){return '<div style="font-size:11px;font-weight:700;color:#555;margin:10px 0 4px;padding:3px 0;border-bottom:1px solid #eee">'+t+'</div>';}
-  var html='';
-
-  // 全体サマリー
-  var tw=0,tm=0,tl=0,tt=0;
-  list.forEach(function(t){t.injs.forEach(function(i){if(i.result==='none')return;tt++;if(i.result==='win')tw++;else if(i.result==='martin')tm++;else if(i.result==='lose')tl++;});});
-  var ovr=pctM(tw,tm,tt);var ovrs=pctS(tw,tt);
-  html+=section('全体サマリー','',
-    '<table style="width:100%;border-collapse:collapse">'+
-    '<tr><td style="font-size:12px;color:#666;padding:3px 0;width:100px">総件数</td><td style="font-size:12px;font-weight:500">'+tt+'件（'+tw+'勝 '+tm+'M '+tl+'敗）</td></tr>'+
-    '<tr><td style="font-size:12px;color:#666;padding:3px 0">単発勝率</td><td style="font-size:14px;font-weight:700"><span class="'+cls(ovrs)+'">'+ovrs+'%</span></td></tr>'+
-    '<tr><td style="font-size:12px;color:#666;padding:3px 0">1M込み勝率</td><td style="font-size:14px;font-weight:700"><span class="'+cls(ovr)+'">'+ovr+'%</span></td></tr>'+
-    '</table>');
-
-  // インジ別
-  ['GORILLA','IRAZU','HUNO','HUNO ALL'].forEach(function(injName){
-    var isHuno=injName==='HUNO'||injName==='HUNO ALL';
-    var arr=[];
-    list.forEach(function(t){t.injs.forEach(function(i){if(i.name===injName&&i.result!=='none')arr.push(i);});});
-    if(!arr.length)return;
-    var iw=arr.filter(function(i){return i.result==='win';}).length;
-    var im=arr.filter(function(i){return i.result==='martin';}).length;
-    var il=arr.filter(function(i){return i.result==='lose';}).length;
+  function subHead(t,color){
+    color=color||'#444';
+    return '<div style="font-size:11px;font-weight:700;color:'+color+';margin:10px 0 3px;padding:2px 6px;background:'+(color==='#ee6a50'?'#fff5f3':'#f5f5f5')+';border-radius:4px">'+t+'</div>';
+  }
+  function buildMaps(arr){
     var lMap={},pMap={},tMap={},dMap={};
     arr.forEach(function(i){
       var w=i.result==='win',m=i.result==='martin';
@@ -1965,46 +1958,103 @@ function genAI(list){
       add(dMap,i.dir==='up'?'HIGH':'LOW');
       if(i.time)add(tMap,timeSlot(i.time));
     });
+    return{lMap:lMap,pMap:pMap,tMap:tMap,dMap:dMap};
+  }
+
+  var html='';
+
+  // ===== 総合分析コメント（絵文字あり）=====
+  var tw=0,tm=0,tl=0,tt=0;
+  var lMapAll={},pMapAll={},tMapAll={},dMapAll={up:{w:0,m:0,t:0},down:{w:0,m:0,t:0}};
+  var aMap={},oMap={};
+  list.forEach(function(t){
+    t.injs.forEach(function(i){
+      if(i.result==='none')return;
+      tt++;
+      var w=i.result==='win',m=i.result==='martin';
+      if(w)tw++;else if(m)tm++;else tl++;
+      if(i.line&&i.line!=='—'){if(!lMapAll[i.name+':'+i.line])lMapAll[i.name+':'+i.line]={w:0,m:0,t:0};lMapAll[i.name+':'+i.line].t++;if(w)lMapAll[i.name+':'+i.line].w++;if(m)lMapAll[i.name+':'+i.line].m++;}
+      if(!pMapAll[i.pair])pMapAll[i.pair]={w:0,m:0,t:0};pMapAll[i.pair].t++;if(w)pMapAll[i.pair].w++;if(m)pMapAll[i.pair].m++;
+      var dk=i.dir==='up'?'up':'down';dMapAll[dk].t++;if(w)dMapAll[dk].w++;if(m)dMapAll[dk].m++;
+      if(i.time){var sl=timeSlot(i.time);if(!tMapAll[sl])tMapAll[sl]={w:0,m:0,t:0};tMapAll[sl].t++;if(w)tMapAll[sl].w++;if(m)tMapAll[sl].m++;}
+    });
+    t.anos.forEach(function(a){if(a.result==='none'||a.result==='skip')return;var k=a.time+' '+a.pair;if(!aMap[k])aMap[k]={w:0,t:0};aMap[k].t++;if(a.result==='win')aMap[k].w++;});
+    t.opts.forEach(function(o){(o.rounds||[o.result]).forEach(function(r){if(!r||r==='none'||r==='skip')return;if(!oMap[o.name])oMap[o.name]={w:0,t:0};oMap[o.name].t++;if(r==='win')oMap[o.name].w++;});});
+  });
+  var ovr=pctM(tw,tm,tt);var ovrs=pctS(tw,tt);
+  function wr2(m,k){return m[k]?Math.round((m[k].w+(m[k].m||0))/m[k].t*100):0;}
+  function best2(map,min){var e=Object.keys(map).filter(function(k){return map[k].t>=(min||2);});if(!e.length)return null;return e.sort(function(a,b){return wr2(map,b)-wr2(map,a);})[0];}
+  function worst2(map,min){var e=Object.keys(map).filter(function(k){return map[k].t>=(min||2);});if(!e.length)return null;return e.sort(function(a,b){return wr2(map,a)-wr2(map,b);})[0];}
+
+  var comments=[];
+  comments.push({icon:'📊',text:'<span class="'+(ovr>=60?'ai-good':ovr>=50?'ai-note':'ai-warn')+'">'+ovr+'%</span> — 全体の1M込み勝率です。'+(ovr>=60?'安定した成績です！':ovr>=50?'もう少しで安定ゾーン。':'戦略の見直しを検討しましょう。')});
+  var bl=best2(lMapAll,2);if(bl)comments.push({icon:'🏆',text:'最強ライン: <span class="ai-good">'+bl+'</span> — 勝率 <b>'+wr2(lMapAll,bl)+'%</b>（'+lMapAll[bl].t+'件）。優先エントリー候補です。'});
+  var wl=worst2(lMapAll,2);if(wl&&wr2(lMapAll,wl)<50)comments.push({icon:'⚠️',text:'注意ライン: <span class="ai-warn">'+wl+'</span> — 勝率 <b>'+wr2(lMapAll,wl)+'%</b>（'+lMapAll[wl].t+'件）。慎重にエントリーを。'});
+  var bt=best2(tMapAll,2);if(bt)comments.push({icon:'⏰',text:'ゴールデンタイム: <span class="ai-good">'+bt+'</span> — 勝率 <b>'+wr2(tMapAll,bt)+'%</b>（'+tMapAll[bt].t+'件）。この時間帯を狙いましょう。'});
+  var wt=worst2(tMapAll,2);if(wt&&wr2(tMapAll,wt)<50&&wt!==bt)comments.push({icon:'⏸️',text:'避けたい時間: <span class="ai-warn">'+wt+'</span> — 勝率 <b>'+wr2(tMapAll,wt)+'%</b>（'+tMapAll[wt].t+'件）。スルーも選択肢。'});
+  var upWR=dMapAll.up.t?Math.round((dMapAll.up.w+dMapAll.up.m)/dMapAll.up.t*100):0;
+  var dnWR=dMapAll.down.t?Math.round((dMapAll.down.w+dMapAll.down.m)/dMapAll.down.t*100):0;
+  if(dMapAll.up.t>1&&dMapAll.down.t>1&&Math.abs(upWR-dnWR)>=10)
+    comments.push({icon:'↕️',text:'方向バイアス: <span class="'+(upWR>dnWR?'ai-good':'ai-note')+'">'+(upWR>dnWR?'↑HIGH':'↓LOW')+'</span>が有利（↑'+upWR+'% vs ↓'+dnWR+'%）。'});
+  var bp=best2(pMapAll,2);if(bp)comments.push({icon:'💱',text:'得意通貨: <span class="ai-good">'+bp+'</span> — 勝率 <b>'+wr2(pMapAll,bp)+'%</b>（'+pMapAll[bp].t+'件）。'});
+  var ba=best2(aMap,2);if(ba)comments.push({icon:'🎯',text:'信頼度高アノマリー: <span class="ai-good">'+ba+'</span> — 勝率 <b>'+Math.round(aMap[ba].w/aMap[ba].t*100)+'%</b>（'+aMap[ba].t+'件）。'});
+  var bo=best2(oMap,2);if(bo)comments.push({icon:'⚡',text:'注目オプション: <span class="ai-good">'+bo.slice(0,16)+'</span> — 勝率 <b>'+Math.round(oMap[bo].w/oMap[bo].t*100)+'%</b>（'+oMap[bo].t+'件）。'});
+
+  html+='<div class="ai-card" style="margin-bottom:12px"><h4 style="font-size:13px;font-weight:600;margin-bottom:8px">総合分析</h4>'+
+    comments.map(function(c){return '<div class="ai-item"><span style="font-size:14px;flex-shrink:0;margin-top:1px">'+c.icon+'</span><span>'+c.text+'</span></div>';}).join('')+
+  '</div>';
+
+  // ===== インジ別詳細ランキング =====
+  ['GORILLA','IRAZU','HUNO','HUNO ALL'].forEach(function(injName){
+    var isHuno=injName==='HUNO'||injName==='HUNO ALL';
+    var arr=[];
+    list.forEach(function(t){t.injs.forEach(function(i){if(i.name===injName&&i.result!=='none')arr.push(i);});});
+    if(!arr.length)return;
+    var iw=arr.filter(function(i){return i.result==='win';}).length;
+    var im=arr.filter(function(i){return i.result==='martin';}).length;
+    var il=arr.filter(function(i){return i.result==='lose';}).length;
+    var maps=buildMaps(arr);
     var sub='単発 <b><span class="'+cls(pctS(iw,arr.length))+'">'+pctS(iw,arr.length)+'%</span></b>　1M込み <b><span class="'+cls(pctM(iw,im,arr.length))+'">'+pctM(iw,im,arr.length)+'%</span></b>　（'+iw+'勝 '+im+'M '+il+'敗 '+arr.length+'件）';
     if(isHuno){
       var sa=arr.filter(function(i){return !!i.ref;});
       if(sa.length){
         var sw=sa.filter(function(i){return i.result==='win';}).length;
         var sm=sa.filter(function(i){return i.result==='martin';}).length;
-        var sl=sa.filter(function(i){return i.result==='lose';}).length;
-        sub+='<br><span style="color:#f5a623">☆あり：単発 <b>'+pctS(sw,sa.length)+'%</b>　1M込み <b>'+pctM(sw,sm,sa.length)+'%</b>（'+sw+'勝 '+sm+'M '+sl+'敗 '+sa.length+'件）</span>';
+        var sl2=sa.filter(function(i){return i.result==='lose';}).length;
+        sub+='<br><span style="color:#f5a623">☆あり：単発 <b>'+pctS(sw,sa.length)+'%</b>　1M込み <b>'+pctM(sw,sm,sa.length)+'%</b>（'+sw+'勝 '+sm+'M '+sl2+'敗 '+sa.length+'件）</span>';
       }
     }
     var body='';
-    if(Object.keys(lMap).length)body+=subHead('ライン別勝率ランキング')+rankTable(lMap,'ライン');
-    body+=subHead('通貨ペア別勝率ランキング')+rankTable(pMap,'通貨ペア');
-    if(Object.keys(tMap).length)body+=subHead('時間帯別勝率ランキング')+rankTable(tMap,'時間帯');
-    if(Object.keys(dMap).length)body+=subHead('H/L別勝率')+rankTable(dMap,'方向');
+    if(Object.keys(maps.lMap).length){
+      body+=subHead('ベストライン')+rankTable(maps.lMap,'ライン','best',99);
+    }
+    body+=subHead('通貨ペア別勝率')+rankTable(maps.pMap,'通貨ペア','best',99);
+    if(Object.keys(maps.tMap).length){
+      body+=subHead('時間帯別勝率')+rankTable(maps.tMap,'時間帯','best',99);
+    }
+    if(Object.keys(maps.dMap).length){
+      body+=subHead('H/L別')+rankTable(maps.dMap,'方向','best',2);
+    }
     html+=section(injName,sub,body);
   });
 
   // アノマリー
-  var aMap={};
-  list.forEach(function(t){t.anos.forEach(function(a){if(a.result==='none'||a.result==='skip')return;var k=a.time+' '+a.pair;if(!aMap[k])aMap[k]={w:0,m:0,t:0};aMap[k].t++;if(a.result==='win')aMap[k].w++;});});
   if(Object.keys(aMap).length){
-    var aw=Object.values(aMap).reduce(function(s,v){return s+v.w;},0);
-    var at=Object.values(aMap).reduce(function(s,v){return s+v.t;},0);
-    html+=section('アノマリー','単発 <b><span class="'+cls(pctS(aw,at))+'">'+pctS(aw,at)+'%</span></b>（'+at+'件）',
-      subHead('時間×通貨ペア別勝率ランキング')+rankTable(aMap,'アノマリー'));
+    var aw2=Object.values(aMap).reduce(function(s,v){return s+v.w;},0);
+    var at2=Object.values(aMap).reduce(function(s,v){return s+v.t;},0);
+    var aBody=subHead('時間×通貨ペア別勝率')+rankTable(aMap,'アノマリー','best',99);
+    html+=section('アノマリー','単発 <b><span class="'+cls(pctS(aw2,at2))+'">'+pctS(aw2,at2)+'%</span></b>（'+at2+'件）',aBody);
   }
 
   // オプション
-  var oMap={};
-  list.forEach(function(t){t.opts.forEach(function(o){(o.rounds||[o.result]).forEach(function(r){if(!r||r==='none'||r==='skip')return;if(!oMap[o.name])oMap[o.name]={w:0,m:0,t:0};oMap[o.name].t++;if(r==='win')oMap[o.name].w++;});});});
   if(Object.keys(oMap).length){
-    var ow=Object.values(oMap).reduce(function(s,v){return s+v.w;},0);
-    var ot=Object.values(oMap).reduce(function(s,v){return s+v.t;},0);
-    html+=section('オプション','単発 <b><span class="'+cls(pctS(ow,ot))+'">'+pctS(ow,ot)+'%</span></b>（'+ot+'件）',
-      subHead('オプション別勝率ランキング')+rankTable(oMap,'オプション'));
+    var ow2=Object.values(oMap).reduce(function(s,v){return s+v.w;},0);
+    var ot2=Object.values(oMap).reduce(function(s,v){return s+v.t;},0);
+    var oBody=subHead('オプション別勝率')+rankTable(oMap,'オプション','best',99);
+    html+=section('オプション','単発 <b><span class="'+cls(pctS(ow2,ot2))+'">'+pctS(ow2,ot2)+'%</span></b>（'+ot2+'件）',oBody);
   }
 
-  if(!html)html='<div style="text-align:center;color:#aaa;padding:2rem">データ蓄積中です。記録を続けると分析精度が上がります。</div>';
-  return html;
+  return html||'<div style="text-align:center;color:#aaa;padding:2rem">データ蓄積中です。記録を続けると分析精度が上がります。</div>';
 }
 
 // ===== メモ =====
