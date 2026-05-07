@@ -173,8 +173,8 @@ textarea{min-height:36px;resize:vertical}
 .ana-tbl th{font-size:10px;color:#aaa;font-weight:400;padding:6px 9px;border-bottom:1px solid #f0f0f0;text-align:left;background:#fafafa}
 .ana-tbl td{padding:6px 9px;border-bottom:1px solid #f8f8f8;vertical-align:middle}
 .ana-tbl tr:last-child td{border-bottom:none}
-.bar-wrap{width:70px;background:#f0f0f0;border-radius:4px;height:6px;display:inline-block;vertical-align:middle}
-.bar-fill{height:6px;border-radius:4px;display:inline-block;background:#1aaa6a}
+.bar-wrap{width:80px;background:#f0f0f0;border-radius:4px;height:8px;display:inline-block;vertical-align:middle}
+.bar-fill{height:8px;border-radius:4px;display:inline-block}
 .bar-fill.blue{background:#5a8aee}
 .bar-fill.amber{background:#f0a020}
 .inj-hdr{background:#1a1a2e;color:#fff;border-radius:10px 10px 0 0;padding:9px 13px;font-size:13px;font-weight:500;display:flex;align-items:center;justify-content:space-between}
@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-K</span>
+  <span class="ver">v2026.05.07-L</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -1772,13 +1772,20 @@ function bulkDeleteOpt(){
 
 // ===== 分析 =====
 function acc(map,k,r){if(!map[k])map[k]={w:0,m:0,l:0,t:0};map[k].t++;if(r==='win')map[k].w++;else if(r==='martin')map[k].m++;else if(r==='lose')map[k].l++;}
+function purpleBar(pct){
+  // 紫系グラデーション：値が高いほど濃い
+  var opacity=0.2+pct/100*0.8;
+  var color='rgba(124,106,247,'+opacity.toFixed(2)+')';
+  return '<div class="bar-wrap"><div style="height:8px;border-radius:4px;width:'+pct+'%;background:'+color+'"></div></div>';
+}
+function wrClsA(v){return v===100?'wr100':v>=90?'wr90':v>=75?'wr75':v>=60?'wr60':'wrlow';}
 function mapRows(map){return Object.keys(map).filter(function(k){return map[k].t>0;}).map(function(k){var v=map[k];return{k:k,t:v.t,w:v.w,m:v.m,l:v.l,s:Math.round(v.w/v.t*100),mt:Math.round((v.w+v.m)/v.t*100)};});}
 function mkAnaTbl(title,rows,cls){
   if(!rows.length)return '<div class="ana-sec"><div class="ana-ttl">'+title+'</div><div style="background:#fff;border-radius:0 0 10px 10px;padding:12px;font-size:12px;color:#ccc;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.06)">データなし</div></div>';
   return '<div class="ana-sec"><div class="ana-ttl">'+title+'</div>'+
     '<table class="ana-tbl"><thead><tr><th>項目</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead><tbody>'+
     rows.sort(function(a,b){return b.t-a.t;}).map(function(r){
-      return '<tr><td style="font-weight:500">'+r.k+'</td><td class="win-c">'+wrl(r.s,r.w,r.l,r.t)+'</td><td class="martin-c">'+wrl(r.mt,r.w+r.m,r.l,r.t)+'</td><td><div class="bar-wrap"><div class="bar-fill '+(cls||'')+'" style="width:'+r.s+'%"></div></div></td></tr>';
+      return '<tr><td style="font-weight:500">'+r.k+'</td><td class="'+wrClsA(r.s)+'">'+wrl(r.s,r.w,r.l,r.t)+'</td><td class="'+wrClsA(r.mt)+'">'+wrl(r.mt,r.w+r.m,r.l,r.t)+'</td><td>'+purpleBar(r.mt)+'</td></tr>';
     }).join('')+'</tbody></table></div>';
 }
 function mkSub(map,label,cls){
@@ -1786,7 +1793,7 @@ function mkSub(map,label,cls){
   return '<div class="inj-sub-ttl">'+label+'</div>'+
     '<table class="ana-tbl"><thead><tr><th>項目</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead><tbody>'+
     rows.sort(function(a,b){return b.t-a.t;}).map(function(r){
-      return '<tr><td style="font-weight:500">'+r.k+'</td><td class="win-c">'+wrl(r.s,r.w,r.l,r.t)+'</td><td class="martin-c">'+wrl(r.mt,r.w+r.m,r.l,r.t)+'</td><td><div class="bar-wrap"><div class="bar-fill '+(cls||'')+'" style="width:'+r.s+'%"></div></div></td></tr>';
+      return '<tr><td style="font-weight:500">'+r.k+'</td><td class="'+wrClsA(r.s)+'">'+wrl(r.s,r.w,r.l,r.t)+'</td><td class="'+wrClsA(r.mt)+'">'+wrl(r.mt,r.w+r.m,r.l,r.t)+'</td><td>'+purpleBar(r.mt)+'</td></tr>';
     }).join('')+'</tbody></table>';
 }
 function renderAnalysis(){
@@ -1836,7 +1843,7 @@ function renderAnalysis(){
       var dk=i.dir==='up'?'up':'down';iDir[dk].t++;if(w)iDir[dk].w++;if(m)iDir[dk].m++;if(l)iDir[dk].l++;
     });});
     var dirR=[{k:'↑ HIGH',v:iDir.up},{k:'↓ LOW',v:iDir.down}].filter(function(d){return d.v.t>0;}).map(function(d){var v=d.v;return{k:d.k,t:v.t,w:v.w,m:v.m,l:v.l,s:Math.round(v.w/v.t*100),mt:Math.round((v.w+v.m)/v.t*100)};});
-    var dirHTML=dirR.length?'<div class="inj-sub-ttl">UP / DOWN 別</div><table class="ana-tbl"><thead><tr><th>方向</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead><tbody>'+dirR.map(function(r){return '<tr><td style="font-weight:500">'+r.k+'</td><td class="win-c">'+wrl(r.s,r.w,r.l,r.t)+'</td><td class="martin-c">'+wrl(r.mt,r.w+r.m,r.l,r.t)+'</td><td><div class="bar-wrap"><div class="bar-fill amber" style="width:'+r.s+'%"></div></div></td></tr>';}).join('')+'</tbody></table>':'';
+    var dirHTML=dirR.length?'<div class="inj-sub-ttl">UP / DOWN 別</div><table class="ana-tbl"><thead><tr><th>方向</th><th>単発勝率</th><th>1M込み勝率</th><th>グラフ</th></tr></thead><tbody>'+dirR.map(function(r){return '<tr><td style="font-weight:500">'+r.k+'</td><td class="'+wrClsA(r.s)+'">'+wrl(r.s,r.w,r.l,r.t)+'</td><td class="'+wrClsA(r.mt)+'">'+wrl(r.mt,r.w+r.m,r.l,r.t)+'</td><td>'+purpleBar(r.mt)+'</td></tr>';}).join('')+'</tbody></table>':'';
     injSec+='<div class="ana-sec" style="margin-bottom:14px">'+
       '<div class="inj-hdr"><span>'+iname+'</span><span style="font-size:12px;opacity:0.9">単発 <b>'+iWRs+'%</b> / 1M込 <b>'+iWRm+'%</b> ('+ir.w+'勝'+ir.l+'敗) '+ir.t+'件</span></div>'+
       mkSub(iPair,'通貨ペア別','blue')+mkSub(iTime,'時間帯別（15分単位）','blue')+mkSub(iLine,'ライン別')+dirHTML+
@@ -1887,7 +1894,7 @@ function runRanking(){
     if(!ranked.length){el.innerHTML='<div style="text-align:center;color:#aaa;font-size:13px;padding:16px">各条件3件以上でランキングが表示されます</div>';return;}
     var medals=['🥇','🥈','🥉'],cc=['gold','silver','bronze'];
     el.innerHTML=ranked.map(function(r,i){
-      return '<div class="rank-card '+(i<3?cc[i]:'')+'">'+'<div style="font-size:20px;min-width:28px;text-align:center">'+(i<3?medals[i]:i+1)+'</div>'+'<div style="flex:1"><div style="font-size:12px;font-weight:500;color:#1a1a2e;margin-bottom:3px">'+r.k+'</div><div style="font-size:11px;color:#888">'+r.w+'勝'+r.l+'敗 計'+r.t+'件</div></div>'+'<div style="font-size:16px;font-weight:600;min-width:60px;text-align:right" class="'+(r.wr>=70?'win-c':r.wr>=55?'martin-c':'lose-c')+'">'+r.wr+'%</div></div>';
+      return '<div class="rank-card '+(i<3?cc[i]:'')+'">'+'<div style="font-size:20px;min-width:28px;text-align:center">'+(i<3?medals[i]:i+1)+'</div>'+'<div style="flex:1"><div style="font-size:12px;font-weight:500;color:#1a1a2e;margin-bottom:3px">'+r.k+'</div><div style="font-size:11px;color:#888">'+r.w+'勝'+r.l+'敗 計'+r.t+'件</div></div>'+'<div style="font-size:16px;font-weight:600;min-width:60px;text-align:right" class="'+wrClsA(r.wr)+'">'+r.wr+'%</div></div>';
     }).join('');
   },600);
 }
