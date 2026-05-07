@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -266,7 +265,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-F</span>
+  <span class="ver">v2026.05.07-G</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -2025,15 +2024,52 @@ function genAI(list){
       }
     }
     var body='';
-    if(Object.keys(maps.lMap).length){
-      body+=subHead('ベストライン')+rankTable(maps.lMap,'ライン','best',99);
-    }
-    body+=subHead('通貨ペア別勝率')+rankTable(maps.pMap,'通貨ペア','best',99);
-    if(Object.keys(maps.tMap).length){
-      body+=subHead('時間帯別勝率')+rankTable(maps.tMap,'時間帯','best',99);
-    }
-    if(Object.keys(maps.dMap).length){
-      body+=subHead('H/L別')+rankTable(maps.dMap,'方向','best',2);
+    if(isHuno){
+      // ☆ありランキング（基本）
+      var starArr=arr.filter(function(i){return !!i.ref;});
+      var noStarArr=arr.filter(function(i){return !i.ref;});
+      if(starArr.length){
+        var sMaps=buildMaps(starArr);
+        var sw2=starArr.filter(function(i){return i.result==='win';}).length;
+        var sm2=starArr.filter(function(i){return i.result==='martin';}).length;
+        var sl3=starArr.filter(function(i){return i.result==='lose';}).length;
+        var starSub='単発 <b><span class="'+cls(pctS(sw2,starArr.length))+'">'+pctS(sw2,starArr.length)+'%</span></b>　1M込み <b><span class="'+cls(pctM(sw2,sm2,starArr.length))+'">'+pctM(sw2,sm2,starArr.length)+'%</span></b>　（'+sw2+'勝 '+sm2+'M '+sl3+'敗 '+starArr.length+'件）';
+        body+='<div style="background:#fffbe6;border-radius:8px;padding:8px 10px;margin-bottom:8px">'+
+          '<div style="font-size:12px;font-weight:700;color:#c8960a;margin-bottom:6px">☆ あり</div>'+
+          '<div style="font-size:11px;color:#666;margin-bottom:6px">'+starSub+'</div>';
+        if(Object.keys(sMaps.lMap).length)body+=subHead('ライン別勝率')+rankTable(sMaps.lMap,'ライン','best',99);
+        body+=subHead('通貨ペア別勝率')+rankTable(sMaps.pMap,'通貨ペア','best',99);
+        if(Object.keys(sMaps.tMap).length)body+=subHead('時間帯別勝率')+rankTable(sMaps.tMap,'時間帯','best',99);
+        if(Object.keys(sMaps.dMap).length)body+=subHead('H/L別')+rankTable(sMaps.dMap,'方向','best',2);
+        body+='</div>';
+      }
+      // ☆なしランキング（追加）
+      if(noStarArr.length){
+        var nMaps=buildMaps(noStarArr);
+        var nw=noStarArr.filter(function(i){return i.result==='win';}).length;
+        var nm=noStarArr.filter(function(i){return i.result==='martin';}).length;
+        var nl=noStarArr.filter(function(i){return i.result==='lose';}).length;
+        var noSub='単発 <b><span class="'+cls(pctS(nw,noStarArr.length))+'">'+pctS(nw,noStarArr.length)+'%</span></b>　1M込み <b><span class="'+cls(pctM(nw,nm,noStarArr.length))+'">'+pctM(nw,nm,noStarArr.length)+'%</span></b>　（'+nw+'勝 '+nm+'M '+nl+'敗 '+noStarArr.length+'件）';
+        body+='<div style="background:#f8f8f8;border-radius:8px;padding:8px 10px;margin-top:8px">'+
+          '<div style="font-size:12px;font-weight:700;color:#888;margin-bottom:6px">☆ なし（参考）</div>'+
+          '<div style="font-size:11px;color:#666;margin-bottom:6px">'+noSub+'</div>';
+        if(Object.keys(nMaps.lMap).length)body+=subHead('ライン別勝率')+rankTable(nMaps.lMap,'ライン','best',99);
+        body+=subHead('通貨ペア別勝率')+rankTable(nMaps.pMap,'通貨ペア','best',99);
+        if(Object.keys(nMaps.tMap).length)body+=subHead('時間帯別勝率')+rankTable(nMaps.tMap,'時間帯','best',99);
+        if(Object.keys(nMaps.dMap).length)body+=subHead('H/L別')+rankTable(nMaps.dMap,'方向','best',2);
+        body+='</div>';
+      }
+    } else {
+      if(Object.keys(maps.lMap).length){
+        body+=subHead('ライン別勝率')+rankTable(maps.lMap,'ライン','best',99);
+      }
+      body+=subHead('通貨ペア別勝率')+rankTable(maps.pMap,'通貨ペア','best',99);
+      if(Object.keys(maps.tMap).length){
+        body+=subHead('時間帯別勝率')+rankTable(maps.tMap,'時間帯','best',99);
+      }
+      if(Object.keys(maps.dMap).length){
+        body+=subHead('H/L別')+rankTable(maps.dMap,'方向','best',2);
+      }
     }
     html+=section(injName,sub,body);
   });
