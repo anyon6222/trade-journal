@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-Q</span>
+  <span class="ver">v2026.05.07-R</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -1967,16 +1967,19 @@ function genAI(list){
     return '<div style="font-size:11px;font-weight:700;color:'+color+';margin:10px 0 3px;padding:2px 6px;background:'+(color==='#ee6a50'?'#fff5f3':'#f5f5f5')+';border-radius:4px">'+t+'</div>';
   }
   function buildMaps(arr){
-    var lMap={},pMap={},tMap={},dMap={};
+    var lMap={},pMap={},tMap={},dMap={},ptMap={};
     arr.forEach(function(i){
       var w=i.result==='win',m=i.result==='martin';
       function add(map,k){if(!k||k==='—')return;if(!map[k])map[k]={w:0,m:0,t:0};map[k].t++;if(w)map[k].w++;if(m)map[k].m++;}
       add(lMap,i.line);if(i.line2&&i.line2!=='—')add(lMap,i.line2);
       add(pMap,i.pair);
       add(dMap,i.dir==='up'?'HIGH':'LOW');
-      if(i.time)add(tMap,timeSlot(i.time));
+      if(i.time){
+        add(tMap,timeSlot(i.time));
+        add(ptMap,i.pair+' × '+timeSlot(i.time));
+      }
     });
-    return{lMap:lMap,pMap:pMap,tMap:tMap,dMap:dMap};
+    return{lMap:lMap,pMap:pMap,tMap:tMap,dMap:dMap,ptMap:ptMap};
   }
 
   var html='';
@@ -2124,6 +2127,7 @@ function genAI(list){
         if(Object.keys(sMaps.lMap).length)body+=subHead('ライン別勝率')+rankTable(sMaps.lMap,'ライン','best',99);
         body+=subHead('通貨ペア別勝率')+rankTable(sMaps.pMap,'通貨ペア','best',99);
         if(Object.keys(sMaps.tMap).length)body+=subHead('時間帯別勝率')+rankTable(sMaps.tMap,'時間帯','best',99);
+        if(Object.keys(sMaps.ptMap).length)body+=subHead('通貨×時間 注目パターン')+rankTable(sMaps.ptMap,'通貨×時間','best',99);
         if(Object.keys(sMaps.dMap).length)body+=subHead('H/L別')+rankTable(sMaps.dMap,'方向','best',2);
         body+='</div>';
       }
@@ -2140,6 +2144,7 @@ function genAI(list){
         if(Object.keys(nMaps.lMap).length)body+=subHead('ライン別勝率')+rankTable(nMaps.lMap,'ライン','best',99);
         body+=subHead('通貨ペア別勝率')+rankTable(nMaps.pMap,'通貨ペア','best',99);
         if(Object.keys(nMaps.tMap).length)body+=subHead('時間帯別勝率')+rankTable(nMaps.tMap,'時間帯','best',99);
+        if(Object.keys(nMaps.ptMap).length)body+=subHead('通貨×時間 注目パターン')+rankTable(nMaps.ptMap,'通貨×時間','best',99);
         if(Object.keys(nMaps.dMap).length)body+=subHead('H/L別')+rankTable(nMaps.dMap,'方向','best',2);
         body+='</div>';
       }
@@ -2150,6 +2155,9 @@ function genAI(list){
       body+=subHead('通貨ペア別勝率')+rankTable(maps.pMap,'通貨ペア','best',99);
       if(Object.keys(maps.tMap).length){
         body+=subHead('時間帯別勝率')+rankTable(maps.tMap,'時間帯','best',99);
+      }
+      if(Object.keys(maps.ptMap).length){
+        body+=subHead('通貨×時間 注目パターン')+rankTable(maps.ptMap,'通貨×時間','best',99);
       }
       if(Object.keys(maps.dMap).length){
         body+=subHead('H/L別')+rankTable(maps.dMap,'方向','best',2);
