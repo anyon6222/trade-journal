@@ -195,6 +195,11 @@ textarea{min-height:36px;resize:vertical}
 .ai-good{color:#1aaa6a;font-weight:500}
 .ai-warn{color:#ee6a50;font-weight:500}
 .ai-note{color:#5a8aee;font-weight:500}
+.wr100{color:#cc0000;font-weight:700}
+.wr90{color:#e63300;font-weight:700}
+.wr75{color:#e67700;font-weight:600}
+.wr60{color:#cc9900;font-weight:600}
+.wrlow{color:#999}
 .sub-tabs{display:flex;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.06);margin-bottom:10px;overflow-x:auto}
 .sub-tab{padding:9px 14px;font-size:12px;cursor:pointer;border:none;background:#fff;color:#888;white-space:nowrap;border-right:1px solid #f0f0f0;flex-shrink:0}
 .sub-tab:last-child{border-right:none}
@@ -265,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-G</span>
+  <span class="ver">v2026.05.07-H</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -1902,7 +1907,9 @@ function runAI(){
 function genAI(list){
   function pctS(w,t){return t?Math.round(w/t*100):0;}
   function pctM(w,m,t){return t?Math.round((w+(m||0))/t*100):0;}
-  function cls(v){return v>=60?'ai-good':v>=50?'ai-note':'ai-warn';}
+  function wrCls(v){return v===100?'wr100':v>=90?'wr90':v>=75?'wr75':v>=60?'wr60':'wrlow';}
+  function wrCls(v){return wrCls(v);}
+  function wrCls2(v){return v===100?'wr100':v>=90?'wr90':v>=75?'wr75':v>=60?'wr60':'wrlow';}
 
   // ランキングテーブル（ベスト/ワースト）
   function rankTable(map,label,mode,maxN){
@@ -1923,8 +1930,8 @@ function genAI(list){
       return '<tr style="border-bottom:1px solid #f5f5f5">'+
         '<td style="padding:3px 6px;font-size:11px;color:#999;width:28px;text-align:center">'+rank+'</td>'+
         '<td style="padding:3px 6px;font-size:12px;font-weight:500;color:#1a1a2e">'+k+'</td>'+
-        '<td style="padding:3px 6px;font-size:12px;text-align:right"><span class="'+cls(s)+'">'+s+'%</span></td>'+
-        '<td style="padding:3px 6px;font-size:12px;text-align:right"><span class="'+cls(m)+'">'+m+'%</span></td>'+
+        '<td style="padding:3px 6px;font-size:12px;text-align:right"><span class="'+wrCls(s)+'">'+s+'%</span></td>'+
+        '<td style="padding:3px 6px;font-size:12px;text-align:right"><span class="'+wrCls(m)+'">'+m+'%</span></td>'+
         '<td style="padding:3px 6px;font-size:11px;color:#aaa;text-align:right;white-space:nowrap">'+d.w+'勝'+(d.m||0)+'M '+lm+'敗 '+d.t+'件</td>'+
       '</tr>';
     }).join('');
@@ -1986,7 +1993,7 @@ function genAI(list){
   function worst2(map,min){var e=Object.keys(map).filter(function(k){return map[k].t>=(min||2);});if(!e.length)return null;return e.sort(function(a,b){return wr2(map,a)-wr2(map,b);})[0];}
 
   var comments=[];
-  comments.push({icon:'📊',text:'<span class="'+(ovr>=60?'ai-good':ovr>=50?'ai-note':'ai-warn')+'">'+ovr+'%</span> — 全体の1M込み勝率です。'+(ovr>=60?'安定した成績です！':ovr>=50?'もう少しで安定ゾーン。':'戦略の見直しを検討しましょう。')});
+  comments.push({icon:'📊',text:'<span class="'+wrCls2(ovr)+'">'+ovr+'%</span> — 全体の1M込み勝率です。'+(ovr>=60?'安定した成績です！':ovr>=50?'もう少しで安定ゾーン。':'戦略の見直しを検討しましょう。')});
   var bl=best2(lMapAll,2);if(bl)comments.push({icon:'🏆',text:'最強ライン: <span class="ai-good">'+bl+'</span> — 勝率 <b>'+wr2(lMapAll,bl)+'%</b>（'+lMapAll[bl].t+'件）。優先エントリー候補です。'});
   var wl=worst2(lMapAll,2);if(wl&&wr2(lMapAll,wl)<50)comments.push({icon:'⚠️',text:'注意ライン: <span class="ai-warn">'+wl+'</span> — 勝率 <b>'+wr2(lMapAll,wl)+'%</b>（'+lMapAll[wl].t+'件）。慎重にエントリーを。'});
   var bt=best2(tMapAll,2);if(bt)comments.push({icon:'⏰',text:'ゴールデンタイム: <span class="ai-good">'+bt+'</span> — 勝率 <b>'+wr2(tMapAll,bt)+'%</b>（'+tMapAll[bt].t+'件）。この時間帯を狙いましょう。'});
@@ -1994,7 +2001,7 @@ function genAI(list){
   var upWR=dMapAll.up.t?Math.round((dMapAll.up.w+dMapAll.up.m)/dMapAll.up.t*100):0;
   var dnWR=dMapAll.down.t?Math.round((dMapAll.down.w+dMapAll.down.m)/dMapAll.down.t*100):0;
   if(dMapAll.up.t>1&&dMapAll.down.t>1&&Math.abs(upWR-dnWR)>=10)
-    comments.push({icon:'↕️',text:'方向バイアス: <span class="'+(upWR>dnWR?'ai-good':'ai-note')+'">'+(upWR>dnWR?'↑HIGH':'↓LOW')+'</span>が有利（↑'+upWR+'% vs ↓'+dnWR+'%）。'});
+    comments.push({icon:'↕️',text:'方向バイアス: <span class="'+wrCls2(upWR>dnWR?upWR:dnWR)+'">'+(upWR>dnWR?'↑HIGH':'↓LOW')+'</span>が有利（↑'+upWR+'% vs ↓'+dnWR+'%）。'});
   var bp=best2(pMapAll,2);if(bp)comments.push({icon:'💱',text:'得意通貨: <span class="ai-good">'+bp+'</span> — 勝率 <b>'+wr2(pMapAll,bp)+'%</b>（'+pMapAll[bp].t+'件）。'});
   var ba=best2(aMap,2);if(ba)comments.push({icon:'🎯',text:'信頼度高アノマリー: <span class="ai-good">'+ba+'</span> — 勝率 <b>'+Math.round(aMap[ba].w/aMap[ba].t*100)+'%</b>（'+aMap[ba].t+'件）。'});
   var bo=best2(oMap,2);if(bo)comments.push({icon:'⚡',text:'注目オプション: <span class="ai-good">'+bo.slice(0,16)+'</span> — 勝率 <b>'+Math.round(oMap[bo].w/oMap[bo].t*100)+'%</b>（'+oMap[bo].t+'件）。'});
@@ -2013,7 +2020,7 @@ function genAI(list){
     var im=arr.filter(function(i){return i.result==='martin';}).length;
     var il=arr.filter(function(i){return i.result==='lose';}).length;
     var maps=buildMaps(arr);
-    var sub='単発 <b><span class="'+cls(pctS(iw,arr.length))+'">'+pctS(iw,arr.length)+'%</span></b>　1M込み <b><span class="'+cls(pctM(iw,im,arr.length))+'">'+pctM(iw,im,arr.length)+'%</span></b>　（'+iw+'勝 '+im+'M '+il+'敗 '+arr.length+'件）';
+    var sub='単発 <b><span class="'+wrCls(pctS(iw,arr.length))+'">'+pctS(iw,arr.length)+'%</span></b>　1M込み <b><span class="'+wrCls(pctM(iw,im,arr.length))+'">'+pctM(iw,im,arr.length)+'%</span></b>　（'+iw+'勝 '+im+'M '+il+'敗 '+arr.length+'件）';
     if(isHuno){
       var sa=arr.filter(function(i){return !!i.ref;});
       if(sa.length){
@@ -2033,7 +2040,7 @@ function genAI(list){
         var sw2=starArr.filter(function(i){return i.result==='win';}).length;
         var sm2=starArr.filter(function(i){return i.result==='martin';}).length;
         var sl3=starArr.filter(function(i){return i.result==='lose';}).length;
-        var starSub='単発 <b><span class="'+cls(pctS(sw2,starArr.length))+'">'+pctS(sw2,starArr.length)+'%</span></b>　1M込み <b><span class="'+cls(pctM(sw2,sm2,starArr.length))+'">'+pctM(sw2,sm2,starArr.length)+'%</span></b>　（'+sw2+'勝 '+sm2+'M '+sl3+'敗 '+starArr.length+'件）';
+        var starSub='単発 <b><span class="'+wrCls(pctS(sw2,starArr.length))+'">'+pctS(sw2,starArr.length)+'%</span></b>　1M込み <b><span class="'+wrCls(pctM(sw2,sm2,starArr.length))+'">'+pctM(sw2,sm2,starArr.length)+'%</span></b>　（'+sw2+'勝 '+sm2+'M '+sl3+'敗 '+starArr.length+'件）';
         body+='<div style="background:#fffbe6;border-radius:8px;padding:8px 10px;margin-bottom:8px">'+
           '<div style="font-size:12px;font-weight:700;color:#c8960a;margin-bottom:6px">☆ あり</div>'+
           '<div style="font-size:11px;color:#666;margin-bottom:6px">'+starSub+'</div>';
@@ -2049,7 +2056,7 @@ function genAI(list){
         var nw=noStarArr.filter(function(i){return i.result==='win';}).length;
         var nm=noStarArr.filter(function(i){return i.result==='martin';}).length;
         var nl=noStarArr.filter(function(i){return i.result==='lose';}).length;
-        var noSub='単発 <b><span class="'+cls(pctS(nw,noStarArr.length))+'">'+pctS(nw,noStarArr.length)+'%</span></b>　1M込み <b><span class="'+cls(pctM(nw,nm,noStarArr.length))+'">'+pctM(nw,nm,noStarArr.length)+'%</span></b>　（'+nw+'勝 '+nm+'M '+nl+'敗 '+noStarArr.length+'件）';
+        var noSub='単発 <b><span class="'+wrCls(pctS(nw,noStarArr.length))+'">'+pctS(nw,noStarArr.length)+'%</span></b>　1M込み <b><span class="'+wrCls(pctM(nw,nm,noStarArr.length))+'">'+pctM(nw,nm,noStarArr.length)+'%</span></b>　（'+nw+'勝 '+nm+'M '+nl+'敗 '+noStarArr.length+'件）';
         body+='<div style="background:#f8f8f8;border-radius:8px;padding:8px 10px;margin-top:8px">'+
           '<div style="font-size:12px;font-weight:700;color:#888;margin-bottom:6px">☆ なし（参考）</div>'+
           '<div style="font-size:11px;color:#666;margin-bottom:6px">'+noSub+'</div>';
@@ -2079,7 +2086,7 @@ function genAI(list){
     var aw2=Object.values(aMap).reduce(function(s,v){return s+v.w;},0);
     var at2=Object.values(aMap).reduce(function(s,v){return s+v.t;},0);
     var aBody=subHead('時間×通貨ペア別勝率')+rankTable(aMap,'アノマリー','best',99);
-    html+=section('アノマリー','単発 <b><span class="'+cls(pctS(aw2,at2))+'">'+pctS(aw2,at2)+'%</span></b>（'+at2+'件）',aBody);
+    html+=section('アノマリー','単発 <b><span class="'+wrCls(pctS(aw2,at2))+'">'+pctS(aw2,at2)+'%</span></b>（'+at2+'件）',aBody);
   }
 
   // オプション
@@ -2087,7 +2094,7 @@ function genAI(list){
     var ow2=Object.values(oMap).reduce(function(s,v){return s+v.w;},0);
     var ot2=Object.values(oMap).reduce(function(s,v){return s+v.t;},0);
     var oBody=subHead('オプション別勝率')+rankTable(oMap,'オプション','best',99);
-    html+=section('オプション','単発 <b><span class="'+cls(pctS(ow2,ot2))+'">'+pctS(ow2,ot2)+'%</span></b>（'+ot2+'件）',oBody);
+    html+=section('オプション','単発 <b><span class="'+wrCls(pctS(ow2,ot2))+'">'+pctS(ow2,ot2)+'%</span></b>（'+ot2+'件）',oBody);
   }
 
   return html||'<div style="text-align:center;color:#aaa;padding:2rem">データ蓄積中です。記録を続けると分析精度が上がります。</div>';
