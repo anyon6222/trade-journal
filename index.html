@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-N</span>
+  <span class="ver">v2026.05.07-O</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -1777,9 +1777,12 @@ function bulkDeleteOpt(){
 // ===== 分析 =====
 function acc(map,k,r){if(!map[k])map[k]={w:0,m:0,l:0,t:0};map[k].t++;if(r==='win')map[k].w++;else if(r==='martin')map[k].m++;else if(r==='lose')map[k].l++;}
 function purpleBar(pct){
-  // 紫系グラデーション：値が高いほど濃い
-  var opacity=0.2+pct/100*0.8;
-  var color='rgba(124,106,247,'+opacity.toFixed(2)+')';
+  // 薄紫（低）→ 濃紫（高）でRGB直接変化
+  // 0%: rgb(220,215,255) / 100%: rgb(80,50,200)
+  var r=Math.round(220-(220-80)*pct/100);
+  var g=Math.round(215-(215-50)*pct/100);
+  var b=Math.round(255-(255-200)*pct/100);
+  var color='rgb('+r+','+g+','+b+')';
   return '<div class="bar-wrap"><div style="height:8px;border-radius:4px;width:'+pct+'%;background:'+color+'"></div></div>';
 }
 function wrClsA(v){return v===100?'wr100':v>=90?'wr90':v>=75?'wr75':v>=60?'wr60':'wrlow';}
