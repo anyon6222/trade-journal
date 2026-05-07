@@ -54,7 +54,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BK</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BL</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -304,17 +304,129 @@ function renderHist(){
   if(!list.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:#ccc">データがありません</div>';return;}
   var ae=[];list.forEach(function(t){ae=ae.concat(t.entries);});
   var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
-  var rows=[];
-  list.forEach(function(t){t.entries.forEach(function(e){rows.push({disp:t.disp,pair:e.pair,time:e.time,min:e.min,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo,memo:e.memo});});});
-  el.innerHTML=
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
-      '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">脳死 1M込み</div><div style="font-size:22px;font-weight:600" class="'+(sn.m>=60?'win':sn.m>=50?'mar':'lose')+'">'+sn.m+'%</div><div style="font-size:10px;color:#aaa">単発'+sn.s+'% '+sn.t+'件</div></div>'+
-      '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">裁量 1M込み</div><div style="font-size:22px;font-weight:600" class="'+(ss.m>=60?'win':ss.m>=50?'mar':'lose')+'">'+ss.m+'%</div><div style="font-size:10px;color:#aaa">単発'+ss.s+'% '+ss.t+'件</div></div>'+
-    '</div>'+
-    '<div style="overflow-x:auto;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)"><table style="min-width:440px;background:#fff">'+
-    '<thead><tr><th style="min-width:110px">日付</th><th>通貨</th><th>時間</th><th>分</th><th>H/L</th><th>脳死</th><th>裁量</th><th>メモ</th></tr></thead>'+
-    '<tbody>'+rows.map(function(r){return'<tr><td style="font-size:11px;white-space:nowrap">'+r.disp+'</td><td>'+r.pair+'</td><td>'+(r.time||'—')+'</td><td style="color:#7c6af7;font-size:11px">'+(r.min||'—')+'</td><td>'+(r.dir==='high'?'↑H':'↓L')+'</td><td>'+bdg(r.noshi)+'</td><td>'+bdg(r.sairyo)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';}).join('')+'</tbody>'+
-    '</table></div>';
+  // フィルター値取得
+  var fd1=document.getElementById('hf-d1')?document.getElementById('hf-d1').value:'';
+  var fd2=document.getElementById('hf-d2')?document.getElementById('hf-d2').value:'';
+  var fwd=document.getElementById('hf-wd')?document.getElementById('hf-wd').value:'';
+  var fpair=document.getElementById('hf-pair')?document.getElementById('hf-pair').value:'';
+  var fhl=document.getElementById('hf-hl')?document.getElementById('hf-hl').value:'';
+  var fn=document.getElementById('hf-n')?document.getElementById('hf-n').value:'';
+  var fs=document.getElementById('hf-s')?document.getElementById('hf-s').value:'';
+  var WDN=['日','月','火','水','木','金','土'];
+  // rows生成（date情報も保持）
+  var allRows=[];
+  list.forEach(function(t){
+    t.entries.forEach(function(e,ei){
+      allRows.push({id:t.id,ei:ei,date:t.date,disp:t.disp,pair:e.pair,time:e.time,min:e.min,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo,memo:e.memo});
+    });
+  });
+  // フィルター適用
+  var rows=allRows.filter(function(r){
+    if(fd1&&r.date<fd1)return false;
+    if(fd2&&r.date>fd2)return false;
+    if(fwd){var d=new Date(r.date);if(WDN[d.getDay()]+'曜'!==fwd)return false;}
+    if(fpair&&r.pair!==fpair)return false;
+    if(fhl&&r.dir!==fhl)return false;
+    if(fn&&r.noshi!==fn)return false;
+    if(fs&&r.sairyo!==fs)return false;
+    return true;
+  });
+  var fae=rows.map(function(r){return{noshi:r.noshi,sairyo:r.sairyo};});
+  var fsn=calcWR(fae,'noshi'),fss=calcWR(fae,'sairyo');
+  var WDOPTS='<option value="">曜日</option><option value="月曜">月曜</option><option value="火曜">火曜</option><option value="水曜">水曜</option><option value="木曜">木曜</option><option value="金曜">金曜</option><option value="土曜">土曜</option><option value="日曜">日曜</option>';
+  var ROPTS2='<option value="">全結果</option><option value="win">○</option><option value="martin">✕○</option><option value="lose">✕✕</option><option value="skip">－</option><option value="none">—</option>';
+  var html='';
+  // 勝率カード
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
+    '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">脳死 1M込み</div><div style="font-size:22px;font-weight:600" class="'+(sn.m>=60?'win':sn.m>=50?'mar':'lose')+'">'+sn.m+'%</div><div style="font-size:10px;color:#aaa">単発'+sn.s+'% '+sn.t+'件</div></div>'+
+    '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">裁量 1M込み</div><div style="font-size:22px;font-weight:600" class="'+(ss.m>=60?'win':ss.m>=50?'mar':'lose')+'">'+ss.m+'%</div><div style="font-size:10px;color:#aaa">単発'+ss.s+'% '+ss.t+'件</div></div>'+
+  '</div>';
+  // フィルターパネル
+  html+='<div style="background:#fff;border-radius:10px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:8px">';
+  html+='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px">';
+  html+='<input type="date" id="hf-d1" value="'+fd1+'" onchange="renderHist()" style="font-size:11px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit">';
+  html+='<span style="font-size:11px;color:#aaa">〜</span>';
+  html+='<input type="date" id="hf-d2" value="'+fd2+'" onchange="renderHist()" style="font-size:11px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit">';
+  html+='<select id="hf-wd" onchange="renderHist()" style="font-size:11px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit">'+WDOPTS+'</select>';
+  html+='</div>';
+  html+='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">';
+  html+='<select id="hf-pair" onchange="renderHist()" style="font-size:11px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit"><option value="">全通貨</option>'+PAIRS.map(function(p){return'<option value="'+p+'"'+(fpair===p?' selected':'')+'>'+p+'</option>';}).join('')+'</select>';
+  html+='<select id="hf-hl" onchange="renderHist()" style="font-size:11px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit"><option value="">全H/L</option><option value="high"'+(fhl==='high'?' selected':'')+'>↑HIGH</option><option value="low"'+(fhl==='low'?' selected':'')+'>↓LOW</option></select>';
+  html+='<select id="hf-n" onchange="renderHist()" style="font-size:11px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit">'+ROPTS2.replace('<option value="win">','<option value="win"'+(fn==='win'?' selected':'')+'>').replace('<option value="martin">','<option value="martin"'+(fn==='martin'?' selected':'')+'>').replace('<option value="lose">','<option value="lose"'+(fn==='lose'?' selected':'')+'>').replace('<option value="skip">','<option value="skip"'+(fn==='skip'?' selected':'')+'>').replace('<option value="none">','<option value="none"'+(fn==='none'?' selected':'')+'>').replace('全結果','脳死')+'</select>';
+  html+='<select id="hf-s" onchange="renderHist()" style="font-size:11px;padding:4px 6px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit">'+ROPTS2.replace('<option value="win">','<option value="win"'+(fs==='win'?' selected':'')+'>').replace('<option value="martin">','<option value="martin"'+(fs==='martin'?' selected':'')+'>').replace('<option value="lose">','<option value="lose"'+(fs==='lose'?' selected':'')+'>').replace('<option value="skip">','<option value="skip"'+(fs==='skip'?' selected':'')+'>').replace('<option value="none">','<option value="none"'+(fs==='none'?' selected':'')+'>').replace('全結果','裁量')+'</select>';
+  html+='<button onclick="clearHF()" style="font-size:11px;padding:4px 8px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#888;cursor:pointer">クリア</button>';
+  html+='</div></div>';
+  // フィルター後勝率（フィルターかかってる時だけ表示）
+  var isFiltered=fd1||fd2||fwd||fpair||fhl||fn||fs;
+  if(isFiltered){
+    html+='<div style="background:#f0f8ff;border-radius:10px;padding:8px 12px;margin-bottom:8px;font-size:12px">';
+    html+='フィルター後: <b>'+rows.length+'件</b> ／ ';
+    html+='脳死 <b class="'+(fsn.m>=60?'win':fsn.m>=50?'mar':'lose')+'">'+fsn.m+'%</b>（'+fsn.t+'件）　';
+    html+='裁量 <b class="'+(fss.m>=60?'win':fss.m>=50?'mar':'lose')+'">'+fss.m+'%</b>（'+fss.t+'件）';
+    html+='</div>';
+  }
+  // 一括削除ボタン
+  html+='<div style="margin-bottom:6px">';
+  html+='<button onclick="delCheckedHist()" style="font-size:12px;padding:5px 12px;border:1px solid #ee6a50;border-radius:7px;background:#fff;color:#ee6a50;cursor:pointer">☑ チェックした行を削除</button>';
+  html+='</div>';
+  // テーブル
+  html+='<div style="overflow-x:auto;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)">';
+  html+='<table style="min-width:500px;background:#fff;width:100%;border-collapse:collapse;font-size:12px">';
+  html+='<thead><tr style="background:#1a1a2e;color:#fff">';
+  html+='<th style="padding:7px 8px;width:28px"><input type="checkbox" id="hchk-all" onchange="toggleAllHist(this)"></th>';
+  html+='<th style="padding:7px 8px;min-width:110px;text-align:left">日付</th>';
+  html+='<th style="padding:7px 8px;text-align:left">通貨</th>';
+  html+='<th style="padding:7px 8px;text-align:left">時間</th>';
+  html+='<th style="padding:7px 8px;text-align:left">分</th>';
+  html+='<th style="padding:7px 8px;text-align:left">H/L</th>';
+  html+='<th style="padding:7px 8px;text-align:left">脳死</th>';
+  html+='<th style="padding:7px 8px;text-align:left">裁量</th>';
+  html+='<th style="padding:7px 8px;text-align:left">メモ</th>';
+  html+='</tr></thead><tbody>';
+  rows.forEach(function(r,i){
+    var bg=i%2?'#fafafa':'#fff';
+    html+='<tr style="background:'+bg+'">';
+    html+='<td style="padding:5px 8px;text-align:center"><input type="checkbox" class="hchk" data-id="'+r.id+'" data-ei="'+r.ei+'"></td>';
+    html+='<td style="padding:5px 8px;font-size:11px;white-space:nowrap">'+r.disp+'</td>';
+    html+='<td style="padding:5px 8px">'+r.pair+'</td>';
+    html+='<td style="padding:5px 8px">'+(r.time||'—')+'</td>';
+    html+='<td style="padding:5px 8px;color:#7c6af7;font-size:11px">'+(r.min||'—')+'</td>';
+    html+='<td style="padding:5px 8px">'+(r.dir==='high'?'↑H':'↓L')+'</td>';
+    html+='<td style="padding:5px 8px">'+bdg(r.noshi)+'</td>';
+    html+='<td style="padding:5px 8px">'+bdg(r.sairyo)+'</td>';
+    html+='<td style="padding:5px 8px;font-size:11px;color:#888">'+(r.memo||'')+'</td>';
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
+  // フィルター値を再セット（再描画後）
+  if(fd1)document.getElementById('hf-d1').value=fd1;
+  if(fd2)document.getElementById('hf-d2').value=fd2;
+  if(fwd)document.getElementById('hf-wd').value=fwd;
+}
+function clearHF(){
+  ['hf-d1','hf-d2','hf-wd','hf-pair','hf-hl','hf-n','hf-s'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  renderHist();
+}
+function toggleAllHist(cb){
+  document.querySelectorAll('.hchk').forEach(function(c){c.checked=cb.checked;});
+}
+function delCheckedHist(){
+  var checked=document.querySelectorAll('.hchk:checked');
+  if(!checked.length){alert('削除する行を選択してください');return;}
+  if(!confirm(checked.length+'件を削除しますか？'))return;
+  // id×eiのセットを収集
+  var toDelete=[];
+  checked.forEach(function(c){toDelete.push({id:parseInt(c.dataset.id),ei:parseInt(c.dataset.ei)});});
+  // 削除処理（ei順で降順に削除してズレを防ぐ）
+  toDelete.sort(function(a,b){return b.ei-a.ei;});
+  toDelete.forEach(function(d){
+    var rec=db.find(function(t){return t.id===d.id;});
+    if(rec){rec.entries.splice(d.ei,1);}
+  });
+  // entriesが空になったレコードを削除
+  db=db.filter(function(t){return t.entries.length>0;});
+  save();renderHist();
 }
 
 function acc2(map,k,rn,rs){
