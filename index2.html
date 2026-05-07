@@ -62,7 +62,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BS</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BT</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -352,6 +352,10 @@ function renderHist(){
       var at=a.time||'',bt=b.time||'';
       return at>bt?-1:at<bt?1:0;
     });
+  } else if(hF.sort==='inp_asc'){
+    rows.sort(function(a,b){return a.ei-b.ei;});
+  } else if(hF.sort==='inp_desc'){
+    rows.sort(function(a,b){return b.ei-a.ei;});
   }
   // sort==='inp'の場合は入力順（allRowsのまま）
   var fae=rows.map(function(r){return{noshi:r.noshi,sairyo:r.sairyo};});
@@ -379,15 +383,14 @@ function renderHist(){
   }
   html+='<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">';
   html+='<span style="font-size:11px;color:#888">並び順:</span>';
-  ['asc','desc','inp'].forEach(function(s,i){
-    var lbl=['↑ 昇順','↓ 逆順','入力順'][i];
-    var on=hF.sort===s;
-    html+='<button onclick="hF.sort=\''+s+'\';renderHist()" style="font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;border:1px solid '+(on?'#1a1a2e':'#ddd')+';background:'+(on?'#1a1a2e':'#fff')+';color:'+(on?'#fff':'#888')+'">'+lbl+'</button>';
+  [{s:'asc',l:'↑ 時間昇順'},{s:'desc',l:'↓ 時間逆順'},{s:'inp',l:'入力順'},{s:'inp_asc',l:'入力↑昇順'},{s:'inp_desc',l:'入力↓逆順'}].forEach(function(o){
+    var on=hF.sort===o.s;
+    html+='<button onclick="hF.sort=\''+o.s+'\';renderHist()" style="font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;border:1px solid '+(on?'#1a1a2e':'#ddd')+';background:'+(on?'#1a1a2e':'#fff')+';color:'+(on?'#fff':'#888')+'">'+o.l+'</button>';
   });
   html+='<button onclick="delCheckedHist()" style="margin-left:auto;font-size:12px;padding:5px 12px;border:1px solid #ee6a50;border-radius:7px;background:#fff;color:#ee6a50;cursor:pointer;font-family:inherit">🗑 チェックした行を削除</button>';
   html+='</div>';
   html+='<div class="xl-wrap"><table class="xl-table"><thead><tr>';
-  html+='<th style="width:28px"><input type="checkbox" id="hchk-all" onchange="toggleAllHist(this)"></th>';
+  html+='<th style="width:28px"></th>';
   html+='<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
     '<div style="display:flex;gap:1px"><input type="text" placeholder="05/07" value="'+(hF.d1||'')+'" onchange="hF.d1=this.value;renderHist()" style="flex:1;min-width:0"><input type="text" placeholder="05/08" value="'+(hF.d2||'')+'" onchange="hF.d2=this.value;renderHist()" style="flex:1;min-width:0"></div>'+
     '<select onchange="hF.wd=this.value;renderHist()">'+wdOpts+'</select></th>';
