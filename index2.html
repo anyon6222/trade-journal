@@ -62,7 +62,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BP</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BQ</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -348,7 +348,7 @@ function renderHist(){
   var rOptsS='<option value="">裁量(全)</option><option value="win"'+(hF.sairyo==='win'?' selected':'')+'>○</option><option value="martin"'+(hF.sairyo==='martin'?' selected':'')+'>✕○</option><option value="lose"'+(hF.sairyo==='lose'?' selected':'')+'>✕✕</option><option value="skip"'+(hF.sairyo==='skip'?' selected':'')+'>－</option>';
   var TSLOTS=['09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45','11:00','11:15','11:30','11:45','12:00','00:00','00:15','00:30','00:45','01:00','01:15','01:30','01:45','02:00','02:15','02:30','02:45','03:00','03:15','03:30','03:45','04:00','04:15','04:30','04:45','05:00','05:15','05:30','05:45','06:00','06:15','06:30','06:45','07:00','07:15','07:30','07:45','08:00','08:15','08:30','08:45','13:00','13:15','13:30','13:45','14:00','14:15','14:30','14:45','15:00','15:15','15:30','15:45','16:00','16:15','16:30','16:45'];
   var tOpts='<option value="">全時間</option>'+TSLOTS.map(function(s){return'<option value="'+s+'"'+(hF.time===s?' selected':'')+'>'+s+'</option>';}).join('');
-  var minOpts='<option value="">全分(15分単位)</option>'+TSLOTS.map(function(s){return'<option value="'+s+'"'+(hF.min===s?' selected':'')+'>'+s+'</option>';}).join('');
+  var minOpts='<option value="">全分</option>'+TSLOTS.map(function(s){return'<option value="'+s+'"'+(hF.min===s?' selected':'')+'>'+s+'</option>';}).join('');
   var wdOpts='<option value="">（曜日）</option><option value="月曜"'+(hF.wd==='月曜'?' selected':'')+'>月曜</option><option value="火曜"'+(hF.wd==='火曜'?' selected':'')+'>火曜</option><option value="水曜"'+(hF.wd==='水曜'?' selected':'')+'>水曜</option><option value="木曜"'+(hF.wd==='木曜'?' selected':'')+'>木曜</option><option value="金曜"'+(hF.wd==='金曜'?' selected':'')+'>金曜</option><option value="土曜"'+(hF.wd==='土曜'?' selected':'')+'>土曜</option><option value="日曜"'+(hF.wd==='日曜'?' selected':'')+'>日曜</option>';
   var html='';
   html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
@@ -370,9 +370,9 @@ function renderHist(){
     '<select onchange="hF.wd=this.value;renderHist()">'+wdOpts+'</select></th>';
   html+=mkTh2('通貨',mkSel2(hF.pair,'hF.pair=this.value;renderHist()',pOpts));
   html+=mkTh2('時間',mkSel2(hF.time,'hF.time=this.value;renderHist()',tOpts));
-  html+=mkTh2('分',mkSel2(hF.min,'hF.min=this.value;renderHist()',minOpts));
   html+=mkTh2('H/L',mkSel2(hF.hl,'hF.hl=this.value;renderHist()',hlOpts));
   html+=mkTh2('脳死',mkSel2(hF.noshi,'hF.noshi=this.value;renderHist()',rOptsN));
+  html+=mkTh2('分',mkSel2(hF.min,'hF.min=this.value;renderHist()',minOpts));
   html+=mkTh2('裁量',mkSel2(hF.sairyo,'hF.sairyo=this.value;renderHist()',rOptsS));
   html+=mkTh2('メモ','<input type="text" placeholder="検索" value="'+(hF.memo||'')+'" onchange="hF.memo=this.value;renderHist()" style="width:100%">');
   html+='</tr></thead><tbody>';
@@ -385,9 +385,9 @@ function renderHist(){
       html+='<td style="font-size:11px;white-space:nowrap">'+r.disp+'</td>';
       html+='<td>'+r.pair+'</td>';
       html+='<td>'+(r.time||'—')+'</td>';
-      html+='<td style="color:#7c6af7;font-size:11px">'+(r.min||'—')+'</td>';
       html+='<td>'+(r.dir==='high'?'↑H':'↓L')+'</td>';
       html+='<td>'+bdg(r.noshi)+'</td>';
+      html+='<td style="color:#7c6af7;font-size:11px">'+(r.min||'—')+'</td>';
       html+='<td>'+bdg(r.sairyo)+'</td>';
       html+='<td style="font-size:11px;color:#888">'+(r.memo||'')+'</td>';
       html+='</tr>';
