@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-U</span>
+  <span class="ver">v2026.05.07-X</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -2031,6 +2031,8 @@ function genAI(list){
       if(i.name===injName&&i.result!=='none')arr.push(i);
     });});
     if(arr.length<2)return;
+    // データ量に応じた動的閾値
+    var minT=Math.max(2,Math.round(Math.sqrt(arr.length)*0.7));
     // ライン×通貨
     var lpMap2={};
     arr.forEach(function(i){
@@ -2039,9 +2041,9 @@ function genAI(list){
       if(!lpMap2[k])lpMap2[k]={w:0,m:0,t:0};
       lpMap2[k].t++;if(i.result==='win')lpMap2[k].w++;if(i.result==='martin')lpMap2[k].m++;
     });
-    var blp=best2(lpMap2,2);
+    var blp=best2(lpMap2,minT);
     if(blp&&wr2(lpMap2,blp)>=65){
-      injPatterns.push({icon:'🏅',text:injName+' 注目: <span class="'+wrCls2(wr2(lpMap2,blp))+'">'+blp+'</span> — <b>'+wr2(lpMap2,blp)+'%</b>（'+lpMap2[blp].t+'件）'});
+      injPatterns.push({icon:'🏅',text:injName+' 注目: <span class="'+wrCls2(wr2(lpMap2,blp))+'">'+blp+'</span> — <b>'+wr2(lpMap2,blp)+'%</b>（'+lpMap2[blp].t+'件 / 基準'+minT+'件以上）'});
     }
   });
 
