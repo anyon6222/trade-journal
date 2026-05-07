@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-I</span>
+  <span class="ver">v2026.05.07-J</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -1899,7 +1899,11 @@ function runAI(){
   if(list.length<2){el.innerHTML='<div style="text-align:center;color:#aaa;padding:16px;font-size:13px">データが2件以上必要です（現在'+list.length+'件）</div>';return;}
   btn.textContent='分析中...';btn.disabled=true;
   setTimeout(function(){
-    el.innerHTML=genAI(list);
+    try{
+      el.innerHTML=genAI(list);
+    }catch(e){
+      el.innerHTML='<div style="color:#ee6a50;padding:12px;font-size:12px">分析エラー: '+e.message+'<br><small>'+e.stack+'</small></div>';
+    }
     btn.textContent='AI分析を実行する';btn.disabled=false;
   },600);
 }
