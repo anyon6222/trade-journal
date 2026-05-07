@@ -173,7 +173,7 @@ textarea{min-height:36px;resize:vertical}
 .ana-tbl th{font-size:10px;color:#aaa;font-weight:400;padding:6px 9px;border-bottom:1px solid #f0f0f0;text-align:left;background:#fafafa}
 .ana-tbl td{padding:6px 9px;border-bottom:1px solid #f8f8f8;vertical-align:middle}
 .ana-tbl tr:last-child td{border-bottom:none}
-.bar-wrap{width:80px;background:#f0f0f0;border-radius:4px;height:8px;display:inline-block;vertical-align:middle}
+.bar-wrap{width:150px;background:#f0f0f0;border-radius:4px;height:8px;display:inline-block;vertical-align:middle}
 .bar-fill{height:8px;border-radius:4px;display:inline-block}
 .bar-fill.blue{background:#5a8aee}
 .bar-fill.amber{background:#f0a020}
@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-L</span>
+  <span class="ver">v2026.05.07-N</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -283,6 +283,10 @@ textarea{min-height:36px;resize:vertical}
 <!-- 入力 -->
 <div id="tab-input" class="panel active">
   <div class="dash-grid" id="dash-grid"></div>
+  <div style="display:flex;gap:8px;margin-bottom:10px">
+    <button onclick="exportData()" style="flex:1;padding:9px;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;border:none;background:#1a1a2e;color:#fff;font-family:inherit">📥 バックアップ</button>
+    <label style="flex:1;padding:9px;font-size:13px;font-weight:500;border-radius:8px;cursor:pointer;border:2px solid #1a1a2e;background:#fff;color:#1a1a2e;font-family:inherit;text-align:center">📤 データを読み込む<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
+  </div>
   <div class="card">
     <div class="date-big" id="date-disp">日付を選択</div>
     <div class="date-wrap">
