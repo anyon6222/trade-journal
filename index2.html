@@ -54,7 +54,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.01-BH</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BK</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -84,6 +84,7 @@ tr:nth-child(even) td{background:#fafafa}
           <th style="min-width:70px">時間</th>
           <th style="min-width:80px">H/L</th>
           <th style="min-width:95px">脳死</th>
+          <th style="min-width:45px">分</th>
           <th style="min-width:95px">裁量</th>
           <th style="min-width:80px">メモ</th>
         </tr></thead>
@@ -211,6 +212,7 @@ function addRow(){
     '<td><input id="t'+r+'" type="time" class="ti"></td>'+
     '<td><select id="d'+r+'" class="si"><option value="high">↑HIGH</option><option value="low">↓LOW</option></select></td>'+
     '<td><select id="n'+r+'" class="si">'+ROPTS+'</select></td>'+
+    '<td><input id="mi'+r+'" type="text" class="ti" placeholder="--" maxlength="2" style="width:40px;text-align:center"></td>'+
     '<td><select id="s'+r+'" class="si">'+ROPTS+'</select></td>'+
     '<td><input id="m'+r+'" type="text" class="ti" placeholder="メモ"></td>';
   tbody.appendChild(tr);
@@ -231,12 +233,13 @@ function saveRec(){
   rows.forEach(function(tr){
     var r=tr.id.slice(1);
     var time=sv('t'+r);
+    var min=sv('mi'+r);
     var dir=sv('d'+r);
     var noshi=sv('n'+r)||'none';
     var sairyo=sv('s'+r)||'none';
     var memo=sv('m'+r);
     if(!time&&noshi==='none'&&sairyo==='none')return;
-    entries.push({pair:pair,time:time,dir:dir,noshi:noshi,sairyo:sairyo,memo:memo});
+    entries.push({pair:pair,time:time,min:min,dir:dir,noshi:noshi,sairyo:sairyo,memo:memo});
   });
   if(!entries.length){msg('smsg','入力データがありません','#ee6a50');return;}
   var ex=db.find(function(t){return t.date===iso&&t.pair===pair;});
@@ -280,7 +283,7 @@ function renderToday(){
   wr.style.display='block';
   wr.innerHTML='脳死: <b class="win">'+sn.s+'%</b>('+sn.ws+'勝'+sn.l+'敗 '+sn.t+'件) 1M込<b class="mar"> '+sn.m+'%</b>　裁量: <b class="win">'+ss.s+'%</b>('+ss.ws+'勝'+ss.l+'敗 '+ss.t+'件) 1M込<b class="mar"> '+ss.m+'%</b>';
   tl.innerHTML=list.map(function(t,i){
-    var lines=t.entries.map(function(e){return e.pair+' '+(e.time||'—')+' '+(e.dir==='high'?'↑H':'↓L')+' 脳死:'+bdg(e.noshi)+' 裁量:'+bdg(e.sairyo)+(e.memo?' <span style="color:#888;font-size:11px">'+e.memo+'</span>':'');});
+    var lines=t.entries.map(function(e){return e.pair+' '+(e.time||'—')+(e.min?' <span style="font-size:11px;color:#7c6af7">'+e.min+'分</span>':'')+' '+(e.dir==='high'?'↑H':'↓L')+' 脳死:'+bdg(e.noshi)+' 裁量:'+bdg(e.sairyo)+(e.memo?' <span style="color:#888;font-size:11px">'+e.memo+'</span>':'');});
     return '<div style="background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;gap:8px">'+
       '<div style="background:#1a1a2e;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">'+(i+1)+'</div>'+
       '<div style="flex:1;font-size:12px;line-height:1.7"><div style="font-size:11px;color:#888;margin-bottom:3px">'+t.disp+' '+t.pair+'</div>'+lines.join('<br>')+'</div>'+
@@ -302,15 +305,15 @@ function renderHist(){
   var ae=[];list.forEach(function(t){ae=ae.concat(t.entries);});
   var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
   var rows=[];
-  list.forEach(function(t){t.entries.forEach(function(e){rows.push({disp:t.disp,pair:e.pair,time:e.time,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo,memo:e.memo});});});
+  list.forEach(function(t){t.entries.forEach(function(e){rows.push({disp:t.disp,pair:e.pair,time:e.time,min:e.min,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo,memo:e.memo});});});
   el.innerHTML=
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">'+
       '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">脳死 1M込み</div><div style="font-size:22px;font-weight:600" class="'+(sn.m>=60?'win':sn.m>=50?'mar':'lose')+'">'+sn.m+'%</div><div style="font-size:10px;color:#aaa">単発'+sn.s+'% '+sn.t+'件</div></div>'+
       '<div style="background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.06)"><div style="font-size:11px;color:#888;margin-bottom:4px">裁量 1M込み</div><div style="font-size:22px;font-weight:600" class="'+(ss.m>=60?'win':ss.m>=50?'mar':'lose')+'">'+ss.m+'%</div><div style="font-size:10px;color:#aaa">単発'+ss.s+'% '+ss.t+'件</div></div>'+
     '</div>'+
-    '<div style="overflow-x:auto;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)"><table style="min-width:400px;background:#fff">'+
-    '<thead><tr><th style="min-width:110px">日付</th><th>通貨</th><th>時間</th><th>H/L</th><th>脳死</th><th>裁量</th><th>メモ</th></tr></thead>'+
-    '<tbody>'+rows.map(function(r){return'<tr><td style="font-size:11px;white-space:nowrap">'+r.disp+'</td><td>'+r.pair+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='high'?'↑H':'↓L')+'</td><td>'+bdg(r.noshi)+'</td><td>'+bdg(r.sairyo)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';}).join('')+'</tbody>'+
+    '<div style="overflow-x:auto;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)"><table style="min-width:440px;background:#fff">'+
+    '<thead><tr><th style="min-width:110px">日付</th><th>通貨</th><th>時間</th><th>分</th><th>H/L</th><th>脳死</th><th>裁量</th><th>メモ</th></tr></thead>'+
+    '<tbody>'+rows.map(function(r){return'<tr><td style="font-size:11px;white-space:nowrap">'+r.disp+'</td><td>'+r.pair+'</td><td>'+(r.time||'—')+'</td><td style="color:#7c6af7;font-size:11px">'+(r.min||'—')+'</td><td>'+(r.dir==='high'?'↑H':'↓L')+'</td><td>'+bdg(r.noshi)+'</td><td>'+bdg(r.sairyo)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td></tr>';}).join('')+'</tbody>'+
     '</table></div>';
 }
 
