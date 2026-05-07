@@ -62,7 +62,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BT</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BU</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -339,25 +339,36 @@ function renderHist(){
     if(hF.memo&&!(r.memo&&r.memo.indexOf(hF.memo)>=0))return false;
     return true;
   });
-  // ソート
-  if(hF.sort==='asc'){
+  // ソート（YYYY-MM-DD文字列は辞書順＝日付順で正しく比較可能）
+  var srt=hF.sort||'asc';
+  if(srt==='asc'){
     rows.sort(function(a,b){
-      if(a.date!==b.date)return a.date<b.date?-1:1;
-      var at=a.time||'',bt=b.time||'';
+      var dc=a.date<b.date?-1:a.date>b.date?1:0;
+      if(dc!==0)return dc;
+      var at=a.time||'99:99',bt=b.time||'99:99';
       return at<bt?-1:at>bt?1:0;
     });
-  } else if(hF.sort==='desc'){
+  } else if(srt==='desc'){
     rows.sort(function(a,b){
-      if(a.date!==b.date)return a.date>b.date?-1:1;
+      var dc=a.date>b.date?-1:a.date<b.date?1:0;
+      if(dc!==0)return dc;
       var at=a.time||'',bt=b.time||'';
       return at>bt?-1:at<bt?1:0;
     });
-  } else if(hF.sort==='inp_asc'){
-    rows.sort(function(a,b){return a.ei-b.ei;});
-  } else if(hF.sort==='inp_desc'){
-    rows.sort(function(a,b){return b.ei-a.ei;});
+  } else if(srt==='inp_asc'){
+    rows.sort(function(a,b){
+      var dc=a.date<b.date?-1:a.date>b.date?1:0;
+      if(dc!==0)return dc;
+      return a.ei-b.ei;
+    });
+  } else if(srt==='inp_desc'){
+    rows.sort(function(a,b){
+      var dc=a.date>b.date?-1:a.date<b.date?1:0;
+      if(dc!==0)return dc;
+      return b.ei-a.ei;
+    });
   }
-  // sort==='inp'の場合は入力順（allRowsのまま）
+  // srt==='inp'の場合は入力順（allRowsのまま）
   var fae=rows.map(function(r){return{noshi:r.noshi,sairyo:r.sairyo};});
   var fsn=calcWR(fae,'noshi'),fss=calcWR(fae,'sairyo');
   var isFiltered=hF.d1||hF.d2||hF.wd||hF.pair||hF.hl||hF.noshi||hF.sairyo||hF.time||hF.min||hF.memo;
