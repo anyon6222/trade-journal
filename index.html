@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-H</span>
+  <span class="ver">v2026.05.07-I</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -2083,16 +2083,16 @@ function genAI(list){
 
   // アノマリー
   if(Object.keys(aMap).length){
-    var aw2=Object.values(aMap).reduce(function(s,v){return s+v.w;},0);
-    var at2=Object.values(aMap).reduce(function(s,v){return s+v.t;},0);
+    var aw2=0;Object.keys(aMap).forEach(function(k){aw2+=aMap[k].w;});
+    var at2=0;Object.keys(aMap).forEach(function(k){at2+=aMap[k].t;});
     var aBody=subHead('時間×通貨ペア別勝率')+rankTable(aMap,'アノマリー','best',99);
     html+=section('アノマリー','単発 <b><span class="'+wrCls(pctS(aw2,at2))+'">'+pctS(aw2,at2)+'%</span></b>（'+at2+'件）',aBody);
   }
 
   // オプション
   if(Object.keys(oMap).length){
-    var ow2=Object.values(oMap).reduce(function(s,v){return s+v.w;},0);
-    var ot2=Object.values(oMap).reduce(function(s,v){return s+v.t;},0);
+    var ow2=0;Object.keys(oMap).forEach(function(k){ow2+=oMap[k].w;});
+    var ot2=0;Object.keys(oMap).forEach(function(k){ot2+=oMap[k].t;});
     var oBody=subHead('オプション別勝率')+rankTable(oMap,'オプション','best',99);
     html+=section('オプション','単発 <b><span class="'+wrCls(pctS(ow2,ot2))+'">'+pctS(ow2,ot2)+'%</span></b>（'+ot2+'件）',oBody);
   }
@@ -2165,7 +2165,7 @@ function exportData(){
   var a=document.createElement('a');
   a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(backup,null,2));
   a.download=fn;a.click();
-  var mc=Object.values(dailyMemos).reduce(function(s,v){return s+v.length;},0);
+  var mc=0;Object.keys(dailyMemos).forEach(function(k){mc+=dailyMemos[k].length;});
   var msg=document.getElementById('backup-msg');
   if(msg){msg.textContent='✅ '+fn+' をダウンロードしました（トレード'+trades.length+'件・メモ'+mc+'件）';setTimeout(function(){msg.textContent='';},3000);}
 }
