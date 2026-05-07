@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-J</span>
+  <span class="ver">v2026.05.07-K</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -1912,7 +1912,6 @@ function genAI(list){
   function pctS(w,t){return t?Math.round(w/t*100):0;}
   function pctM(w,m,t){return t?Math.round((w+(m||0))/t*100):0;}
   function wrCls(v){return v===100?'wr100':v>=90?'wr90':v>=75?'wr75':v>=60?'wr60':'wrlow';}
-  function wrCls(v){return wrCls(v);}
   function wrCls2(v){return v===100?'wr100':v>=90?'wr90':v>=75?'wr75':v>=60?'wr60':'wrlow';}
 
   // ランキングテーブル（ベスト/ワースト）
