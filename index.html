@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-S</span>
+  <span class="ver">v2026.05.07-T</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -2022,6 +2022,33 @@ function genAI(list){
   var ba=best2(aMap,2);if(ba)comments.push({icon:'🎯',text:'信頼度高アノマリー: <span class="ai-good">'+ba+'</span> — 勝率 <b>'+Math.round(aMap[ba].w/aMap[ba].t*100)+'%</b>（'+aMap[ba].t+'件）。'});
   var bo=best2(oMap,2);if(bo)comments.push({icon:'⚡',text:'注目オプション: <span class="ai-good">'+bo.slice(0,16)+'</span> — 勝率 <b>'+Math.round(oMap[bo].w/oMap[bo].t*100)+'%</b>（'+oMap[bo].t+'件）。'});
 
+  // インジ別注目パターン（ライン×通貨・通貨×時間）
+  var injPatterns=[];
+  ['GORILLA','IRAZU','HUNO','HUNO ALL'].forEach(function(injName){
+    var isHuno=injName==='HUNO'||injName==='HUNO ALL';
+    var arr=[];
+    list.forEach(function(t){t.injs.forEach(function(i){
+      if(i.name===injName&&i.result!=='none'){
+        // HUNOは☆ありのみ
+        if(isHuno&&!i.ref)return;
+        arr.push(i);
+      }
+    });});
+    if(arr.length<3)return;
+    // ライン×通貨
+    var lpMap2={};
+    arr.forEach(function(i){
+      if(!i.line||i.line==='—')return;
+      var k=i.line+' × '+i.pair;
+      if(!lpMap2[k])lpMap2[k]={w:0,m:0,t:0};
+      lpMap2[k].t++;if(i.result==='win')lpMap2[k].w++;if(i.result==='martin')lpMap2[k].m++;
+    });
+    var blp=best2(lpMap2,2);
+    if(blp&&wr2(lpMap2,blp)>=70){
+      injPatterns.push({icon:'🏅',text:injName+(isHuno?' ☆':'')+' 注目: <span class="'+wrCls2(wr2(lpMap2,blp))+'">'+blp+'</span> — <b>'+wr2(lpMap2,blp)+'%</b>（'+lpMap2[blp].t+'件）'});
+    }
+  });
+
   // 曜日別
   var WD2=['日','月','火','水','木','金','土'];
   var wdMap2={};
@@ -2112,6 +2139,12 @@ function genAI(list){
     '<div style="font-size:11px;font-weight:700;color:#1a1a2e;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #e8d8f0">⚡ アノマリー・オプション</div>'+
     comments.filter(function(c){return c.text.indexOf('アノマリー')>=0||c.text.indexOf('オプション')>=0;})
       .map(function(c){return '<div style="font-size:12px;padding:2px 0;color:#333">'+c.text+'</div>';}).join('')+
+    '</div>':'')+
+    // インジ別注目パターングループ
+    (injPatterns.length?
+    '<div style="margin-bottom:10px;padding:8px 10px;background:#f0fff8;border-radius:8px">'+
+    '<div style="font-size:11px;font-weight:700;color:#1a1a2e;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #d8f0e8">🏅 インジ別注目パターン（ライン×通貨）</div>'+
+    injPatterns.map(function(c){return '<div style="font-size:12px;padding:2px 0;color:#333">'+c.text+'</div>';}).join('')+
     '</div>':'')
   +'</div>';
 
