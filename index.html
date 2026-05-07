@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-R</span>
+  <span class="ver">v2026.05.07-S</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -1967,7 +1967,7 @@ function genAI(list){
     return '<div style="font-size:11px;font-weight:700;color:'+color+';margin:10px 0 3px;padding:2px 6px;background:'+(color==='#ee6a50'?'#fff5f3':'#f5f5f5')+';border-radius:4px">'+t+'</div>';
   }
   function buildMaps(arr){
-    var lMap={},pMap={},tMap={},dMap={},ptMap={};
+    var lMap={},pMap={},tMap={},dMap={},ptMap={},lpMap={};
     arr.forEach(function(i){
       var w=i.result==='win',m=i.result==='martin';
       function add(map,k){if(!k||k==='—')return;if(!map[k])map[k]={w:0,m:0,t:0};map[k].t++;if(w)map[k].w++;if(m)map[k].m++;}
@@ -1978,8 +1978,9 @@ function genAI(list){
         add(tMap,timeSlot(i.time));
         add(ptMap,i.pair+' × '+timeSlot(i.time));
       }
+      if(i.line&&i.line!=='—')add(lpMap,i.line+' × '+i.pair);
     });
-    return{lMap:lMap,pMap:pMap,tMap:tMap,dMap:dMap,ptMap:ptMap};
+    return{lMap:lMap,pMap:pMap,tMap:tMap,dMap:dMap,ptMap:ptMap,lpMap:lpMap};
   }
 
   var html='';
@@ -2086,9 +2087,33 @@ function genAI(list){
   var btw=best2(twMap,3);
   if(btw)comments.push({icon:'🎯',text:'最強パターン(曜日×時間): <span class="'+wrCls2(wr2(twMap,btw))+'">'+btw+'</span> — <b>'+wr2(twMap,btw)+'%</b>（'+twMap[btw].t+'件）。'});
 
-  html+='<div class="ai-card" style="margin-bottom:12px"><h4 style="font-size:13px;font-weight:600;margin-bottom:8px">総合分析</h4>'+
-    comments.map(function(c){return '<div class="ai-item"><span style="font-size:14px;flex-shrink:0;margin-top:1px">'+c.icon+'</span><span>'+c.text+'</span></div>';}).join('')+
-  '</div>';
+  html+='<div class="ai-card" style="margin-bottom:12px"><h4 style="font-size:13px;font-weight:600;margin-bottom:10px">総合分析</h4>'+
+    // 全体グループ
+    '<div style="margin-bottom:10px;padding:8px 10px;background:#f8f8ff;border-radius:8px">'+
+    '<div style="font-size:11px;font-weight:700;color:#1a1a2e;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #e8e8f8">📊 全体</div>'+
+    comments.filter(function(c){return ['📊','🏆','⚠️','💱'].indexOf(c.icon)>=0;})
+      .map(function(c){return '<div style="font-size:12px;padding:2px 0;color:#333">'+c.text+'</div>';}).join('')+
+    '</div>'+
+    // 時間・曜日グループ
+    '<div style="margin-bottom:10px;padding:8px 10px;background:#f8fff8;border-radius:8px">'+
+    '<div style="font-size:11px;font-weight:700;color:#1a1a2e;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #e8f0e8">⏰ 時間・曜日</div>'+
+    comments.filter(function(c){return ['⏰','⏸️','📅','🎯','↕️'].indexOf(c.icon)>=0;})
+      .map(function(c){return '<div style="font-size:12px;padding:2px 0;color:#333">'+c.text+'</div>';}).join('')+
+    '</div>'+
+    // トレンドグループ
+    '<div style="margin-bottom:10px;padding:8px 10px;background:#fffaf0;border-radius:8px">'+
+    '<div style="font-size:11px;font-weight:700;color:#1a1a2e;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #f0e8d8">📆 トレンド</div>'+
+    comments.filter(function(c){return ['📆','🔥'].indexOf(c.icon)>=0;})
+      .map(function(c){return '<div style="font-size:12px;padding:2px 0;color:#333">'+c.text+'</div>';}).join('')+
+    '</div>'+
+    // アノマリー・オプショングループ
+    (comments.filter(function(c){return ['🎯','⚡'].indexOf(c.icon)>=0&&c.text.indexOf('アノマリー')>=0||c.text.indexOf('オプション')>=0;}).length?
+    '<div style="margin-bottom:10px;padding:8px 10px;background:#f8f0ff;border-radius:8px">'+
+    '<div style="font-size:11px;font-weight:700;color:#1a1a2e;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid #e8d8f0">⚡ アノマリー・オプション</div>'+
+    comments.filter(function(c){return c.text.indexOf('アノマリー')>=0||c.text.indexOf('オプション')>=0;})
+      .map(function(c){return '<div style="font-size:12px;padding:2px 0;color:#333">'+c.text+'</div>';}).join('')+
+    '</div>':'')
+  +'</div>';
 
   // ===== インジ別詳細ランキング =====
   ['GORILLA','IRAZU','HUNO','HUNO ALL'].forEach(function(injName){
@@ -2128,6 +2153,7 @@ function genAI(list){
         body+=subHead('通貨ペア別勝率')+rankTable(sMaps.pMap,'通貨ペア','best',99);
         if(Object.keys(sMaps.tMap).length)body+=subHead('時間帯別勝率')+rankTable(sMaps.tMap,'時間帯','best',99);
         if(Object.keys(sMaps.ptMap).length)body+=subHead('通貨×時間 注目パターン')+rankTable(sMaps.ptMap,'通貨×時間','best',99);
+        if(Object.keys(sMaps.lpMap).length)body+=subHead('ライン×通貨 注目パターン')+rankTable(sMaps.lpMap,'ライン×通貨','best',99);
         if(Object.keys(sMaps.dMap).length)body+=subHead('H/L別')+rankTable(sMaps.dMap,'方向','best',2);
         body+='</div>';
       }
@@ -2145,6 +2171,7 @@ function genAI(list){
         body+=subHead('通貨ペア別勝率')+rankTable(nMaps.pMap,'通貨ペア','best',99);
         if(Object.keys(nMaps.tMap).length)body+=subHead('時間帯別勝率')+rankTable(nMaps.tMap,'時間帯','best',99);
         if(Object.keys(nMaps.ptMap).length)body+=subHead('通貨×時間 注目パターン')+rankTable(nMaps.ptMap,'通貨×時間','best',99);
+        if(Object.keys(nMaps.lpMap).length)body+=subHead('ライン×通貨 注目パターン')+rankTable(nMaps.lpMap,'ライン×通貨','best',99);
         if(Object.keys(nMaps.dMap).length)body+=subHead('H/L別')+rankTable(nMaps.dMap,'方向','best',2);
         body+='</div>';
       }
@@ -2158,6 +2185,9 @@ function genAI(list){
       }
       if(Object.keys(maps.ptMap).length){
         body+=subHead('通貨×時間 注目パターン')+rankTable(maps.ptMap,'通貨×時間','best',99);
+      }
+      if(Object.keys(maps.lpMap).length){
+        body+=subHead('ライン×通貨 注目パターン')+rankTable(maps.lpMap,'ライン×通貨','best',99);
       }
       if(Object.keys(maps.dMap).length){
         body+=subHead('H/L別')+rankTable(maps.dMap,'方向','best',2);
