@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-T</span>
+  <span class="ver">v2026.05.07-U</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -2022,19 +2022,15 @@ function genAI(list){
   var ba=best2(aMap,2);if(ba)comments.push({icon:'🎯',text:'信頼度高アノマリー: <span class="ai-good">'+ba+'</span> — 勝率 <b>'+Math.round(aMap[ba].w/aMap[ba].t*100)+'%</b>（'+aMap[ba].t+'件）。'});
   var bo=best2(oMap,2);if(bo)comments.push({icon:'⚡',text:'注目オプション: <span class="ai-good">'+bo.slice(0,16)+'</span> — 勝率 <b>'+Math.round(oMap[bo].w/oMap[bo].t*100)+'%</b>（'+oMap[bo].t+'件）。'});
 
-  // インジ別注目パターン（ライン×通貨・通貨×時間）
+  // インジ別注目パターン（ライン×通貨）
   var injPatterns=[];
   ['GORILLA','IRAZU','HUNO','HUNO ALL'].forEach(function(injName){
     var isHuno=injName==='HUNO'||injName==='HUNO ALL';
     var arr=[];
     list.forEach(function(t){t.injs.forEach(function(i){
-      if(i.name===injName&&i.result!=='none'){
-        // HUNOは☆ありのみ
-        if(isHuno&&!i.ref)return;
-        arr.push(i);
-      }
+      if(i.name===injName&&i.result!=='none')arr.push(i);
     });});
-    if(arr.length<3)return;
+    if(arr.length<2)return;
     // ライン×通貨
     var lpMap2={};
     arr.forEach(function(i){
@@ -2044,8 +2040,8 @@ function genAI(list){
       lpMap2[k].t++;if(i.result==='win')lpMap2[k].w++;if(i.result==='martin')lpMap2[k].m++;
     });
     var blp=best2(lpMap2,2);
-    if(blp&&wr2(lpMap2,blp)>=70){
-      injPatterns.push({icon:'🏅',text:injName+(isHuno?' ☆':'')+' 注目: <span class="'+wrCls2(wr2(lpMap2,blp))+'">'+blp+'</span> — <b>'+wr2(lpMap2,blp)+'%</b>（'+lpMap2[blp].t+'件）'});
+    if(blp&&wr2(lpMap2,blp)>=65){
+      injPatterns.push({icon:'🏅',text:injName+' 注目: <span class="'+wrCls2(wr2(lpMap2,blp))+'">'+blp+'</span> — <b>'+wr2(lpMap2,blp)+'%</b>（'+lpMap2[blp].t+'件）'});
     }
   });
 
