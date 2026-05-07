@@ -270,7 +270,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-P</span>
+  <span class="ver">v2026.05.07-Q</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -2017,6 +2017,71 @@ function genAI(list){
   var bp=best2(pMapAll,2);if(bp)comments.push({icon:'💱',text:'得意通貨: <span class="ai-good">'+bp+'</span> — 勝率 <b>'+wr2(pMapAll,bp)+'%</b>（'+pMapAll[bp].t+'件）。'});
   var ba=best2(aMap,2);if(ba)comments.push({icon:'🎯',text:'信頼度高アノマリー: <span class="ai-good">'+ba+'</span> — 勝率 <b>'+Math.round(aMap[ba].w/aMap[ba].t*100)+'%</b>（'+aMap[ba].t+'件）。'});
   var bo=best2(oMap,2);if(bo)comments.push({icon:'⚡',text:'注目オプション: <span class="ai-good">'+bo.slice(0,16)+'</span> — 勝率 <b>'+Math.round(oMap[bo].w/oMap[bo].t*100)+'%</b>（'+oMap[bo].t+'件）。'});
+
+  // 曜日別
+  var WD2=['日','月','火','水','木','金','土'];
+  var wdMap2={};
+  list.forEach(function(t){
+    var wd=WD2[new Date(toIso(t.date)+'T00:00:00').getDay()]+'曜';
+    t.injs.forEach(function(i){
+      if(i.result==='none')return;
+      if(!wdMap2[wd])wdMap2[wd]={w:0,m:0,t:0};
+      wdMap2[wd].t++;
+      if(i.result==='win')wdMap2[wd].w++;
+      if(i.result==='martin')wdMap2[wd].m++;
+    });
+  });
+  var bwd=best2(wdMap2,2);var wwd=worst2(wdMap2,2);
+  if(bwd)comments.push({icon:'📅',text:'得意曜日: <span class="'+wrCls2(wr2(wdMap2,bwd))+'">'+bwd+'</span> — <b>'+wr2(wdMap2,bwd)+'%</b>（'+wdMap2[bwd].t+'件）'+(wwd&&wwd!==bwd?' / 苦手: <span class="wrlow">'+wwd+'</span> '+wr2(wdMap2,wwd)+'%':'')+'。'});
+
+  // 月別トレンド
+  var mMap={};
+  list.forEach(function(t){
+    var iso=toIso(t.date);var ym=iso.slice(0,7);
+    t.injs.forEach(function(i){
+      if(i.result==='none')return;
+      if(!mMap[ym])mMap[ym]={w:0,m:0,t:0};
+      mMap[ym].t++;if(i.result==='win')mMap[ym].w++;if(i.result==='martin')mMap[ym].m++;
+    });
+  });
+  var months=Object.keys(mMap).sort();
+  if(months.length>=2){
+    var mRows=months.map(function(m){return{m:m,wr:wr2(mMap,m),t:mMap[m].t};});
+    var mTrend=mRows[mRows.length-1].wr-mRows[mRows.length-2].wr;
+    var mText=months.map(function(m){var p=m.split('-');return p[1]+'月: <span class="'+wrCls2(wr2(mMap,m))+'">'+wr2(mMap,m)+'%</span>('+mMap[m].t+'件)';}).join(' → ');
+    var trendMark=mTrend>5?'📈 上昇トレンド！':mTrend<-5?'📉 下降注意':'➡️ 横ばい';
+    comments.push({icon:'📆',text:'月別トレンド: '+mText+'　'+trendMark});
+  }
+
+  // 直近7日・14日・30日の調子
+  var now=new Date();
+  [7,14,30].forEach(function(days){
+    var cutoff=new Date(now);cutoff.setDate(cutoff.getDate()-days);
+    var cutStr=cutoff.toISOString().slice(0,10);
+    var recent=list.filter(function(t){return toIso(t.date)>=cutStr;});
+    if(!recent.length)return;
+    var rw=0,rm=0,rt=0;
+    recent.forEach(function(t){t.injs.forEach(function(i){if(i.result==='none')return;rt++;if(i.result==='win')rw++;if(i.result==='martin')rm++;});});
+    if(rt<3)return;
+    var rwr=Math.round((rw+rm)/rt*100);
+    var diff=rwr-ovr;
+    var diffStr=diff>0?'<span style="color:#e63300">+'+diff+'%</span>':diff<0?'<span style="color:#aaa">'+diff+'%</span>':'±0%';
+    comments.push({icon:'🔥',text:'直近'+days+'日の調子: <span class="'+wrCls2(rwr)+'">'+rwr+'%</span>（'+rt+'件）　全体比 '+diffStr+(rwr>ovr?' — 好調！':rwr<ovr-10?' — やや不調。':'')});
+  });
+
+  // 時間帯×曜日
+  var twMap={};
+  list.forEach(function(t){
+    var wd=WD2[new Date(toIso(t.date)+'T00:00:00').getDay()]+'曜';
+    t.injs.forEach(function(i){
+      if(i.result==='none'||!i.time)return;
+      var k=wd+' '+timeSlot(i.time);
+      if(!twMap[k])twMap[k]={w:0,m:0,t:0};
+      twMap[k].t++;if(i.result==='win')twMap[k].w++;if(i.result==='martin')twMap[k].m++;
+    });
+  });
+  var btw=best2(twMap,3);
+  if(btw)comments.push({icon:'🎯',text:'最強パターン(曜日×時間): <span class="'+wrCls2(wr2(twMap,btw))+'">'+btw+'</span> — <b>'+wr2(twMap,btw)+'%</b>（'+twMap[btw].t+'件）。'});
 
   html+='<div class="ai-card" style="margin-bottom:12px"><h4 style="font-size:13px;font-weight:600;margin-bottom:8px">総合分析</h4>'+
     comments.map(function(c){return '<div class="ai-item"><span style="font-size:14px;flex-shrink:0;margin-top:1px">'+c.icon+'</span><span>'+c.text+'</span></div>';}).join('')+
