@@ -62,7 +62,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BQ</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BR</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -338,6 +338,12 @@ function renderHist(){
     } else if(hF.min&&!r.min)return false;
     if(hF.memo&&!(r.memo&&r.memo.indexOf(hF.memo)>=0))return false;
     return true;
+  });
+  // 日付→時間の昇順ソート
+  rows.sort(function(a,b){
+    if(a.date!==b.date)return a.date<b.date?-1:1;
+    var at=a.time||'',bt=b.time||'';
+    return at<bt?-1:at>bt?1:0;
   });
   var fae=rows.map(function(r){return{noshi:r.noshi,sairyo:r.sairyo};});
   var fsn=calcWR(fae,'noshi'),fss=calcWR(fae,'sairyo');
