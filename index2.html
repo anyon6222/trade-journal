@@ -62,7 +62,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BU</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BV</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -323,8 +323,8 @@ function renderHist(){
     });
   });
   var rows=allRows.filter(function(r){
-    if(hF.d1&&r.date<hF.d1)return false;
-    if(hF.d2&&r.date>hF.d2)return false;
+    if(hF.d1){var _d1=hF.d1.replace(/\//g,'-');if(_d1.length===5)_d1='2026-'+_d1;else if(_d1.length===7)_d1=_d1.slice(0,4)+'-'+_d1.slice(5,7)+'-01';if(r.date<_d1)return false;}
+    if(hF.d2){var _d2=hF.d2.replace(/\//g,'-');if(_d2.length===5)_d2='2026-'+_d2;else if(_d2.length===7)_d2=_d2.slice(0,4)+'-'+_d2.slice(5,7)+'-31';if(r.date>_d2)return false;}
     if(hF.wd){var d=new Date(r.date+'T00:00:00');if(WDN[d.getDay()]+'曜'!==hF.wd)return false;}
     if(hF.pair&&r.pair!==hF.pair)return false;
     if(hF.hl&&r.dir!==hF.hl)return false;
@@ -403,7 +403,7 @@ function renderHist(){
   html+='<div class="xl-wrap"><table class="xl-table"><thead><tr>';
   html+='<th style="width:28px"></th>';
   html+='<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
-    '<div style="display:flex;gap:1px"><input type="text" placeholder="05/07" value="'+(hF.d1||'')+'" onchange="hF.d1=this.value;renderHist()" style="flex:1;min-width:0"><input type="text" placeholder="05/08" value="'+(hF.d2||'')+'" onchange="hF.d2=this.value;renderHist()" style="flex:1;min-width:0"></div>'+
+    '<div style="display:flex;gap:1px"><input type="text" placeholder="2025/01/05" value="'+(hF.d1||'')+'" onchange="hF.d1=this.value;renderHist()" style="flex:1;min-width:0;font-size:9px"><input type="text" placeholder="2026/05/08" value="'+(hF.d2||'')+'" onchange="hF.d2=this.value;renderHist()" style="flex:1;min-width:0;font-size:9px"></div>'+
     '<select onchange="hF.wd=this.value;renderHist()">'+wdOpts+'</select></th>';
   html+=mkTh2('通貨',mkSel2(hF.pair,'hF.pair=this.value;renderHist()',pOpts));
   html+=mkTh2('時間',mkSel2(hF.time,'hF.time=this.value;renderHist()',tOpts));
