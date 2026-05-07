@@ -62,7 +62,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BR</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BS</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -177,7 +177,7 @@ var hp='all';
 var ap='all';
 var rid=0;
 var csvRows=[];
-var hF={d1:"",d2:"",wd:"",pair:"",hl:"",noshi:"",sairyo:"",time:"",min:"",memo:""};
+var hF={d1:"",d2:"",wd:"",pair:"",hl:"",noshi:"",sairyo:"",time:"",min:"",memo:"",sort:"asc"};
 
 function pad2(n){return('0'+n).slice(-2);}
 function today(){var d=new Date();return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());}
@@ -339,12 +339,21 @@ function renderHist(){
     if(hF.memo&&!(r.memo&&r.memo.indexOf(hF.memo)>=0))return false;
     return true;
   });
-  // 日付→時間の昇順ソート
-  rows.sort(function(a,b){
-    if(a.date!==b.date)return a.date<b.date?-1:1;
-    var at=a.time||'',bt=b.time||'';
-    return at<bt?-1:at>bt?1:0;
-  });
+  // ソート
+  if(hF.sort==='asc'){
+    rows.sort(function(a,b){
+      if(a.date!==b.date)return a.date<b.date?-1:1;
+      var at=a.time||'',bt=b.time||'';
+      return at<bt?-1:at>bt?1:0;
+    });
+  } else if(hF.sort==='desc'){
+    rows.sort(function(a,b){
+      if(a.date!==b.date)return a.date>b.date?-1:1;
+      var at=a.time||'',bt=b.time||'';
+      return at>bt?-1:at<bt?1:0;
+    });
+  }
+  // sort==='inp'の場合は入力順（allRowsのまま）
   var fae=rows.map(function(r){return{noshi:r.noshi,sairyo:r.sairyo};});
   var fsn=calcWR(fae,'noshi'),fss=calcWR(fae,'sairyo');
   var isFiltered=hF.d1||hF.d2||hF.wd||hF.pair||hF.hl||hF.noshi||hF.sairyo||hF.time||hF.min||hF.memo;
@@ -368,7 +377,15 @@ function renderHist(){
     html+='<button onclick="clearHF()" style="margin-left:auto;font-size:11px;padding:3px 8px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#888;cursor:pointer">フィルタークリア</button>';
     html+='</div>';
   }
-  html+='<div style="margin-bottom:6px"><button onclick="delCheckedHist()" style="font-size:12px;padding:5px 12px;border:1px solid #ee6a50;border-radius:7px;background:#fff;color:#ee6a50;cursor:pointer;font-family:inherit">🗑 チェックした行を削除</button></div>';
+  html+='<div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">';
+  html+='<span style="font-size:11px;color:#888">並び順:</span>';
+  ['asc','desc','inp'].forEach(function(s,i){
+    var lbl=['↑ 昇順','↓ 逆順','入力順'][i];
+    var on=hF.sort===s;
+    html+='<button onclick="hF.sort=\''+s+'\';renderHist()" style="font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;border:1px solid '+(on?'#1a1a2e':'#ddd')+';background:'+(on?'#1a1a2e':'#fff')+';color:'+(on?'#fff':'#888')+'">'+lbl+'</button>';
+  });
+  html+='<button onclick="delCheckedHist()" style="margin-left:auto;font-size:12px;padding:5px 12px;border:1px solid #ee6a50;border-radius:7px;background:#fff;color:#ee6a50;cursor:pointer;font-family:inherit">🗑 チェックした行を削除</button>';
+  html+='</div>';
   html+='<div class="xl-wrap"><table class="xl-table"><thead><tr>';
   html+='<th style="width:28px"><input type="checkbox" id="hchk-all" onchange="toggleAllHist(this)"></th>';
   html+='<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
@@ -402,7 +419,7 @@ function renderHist(){
   html+='</tbody></table></div>';
   el.innerHTML=html;
 }
-function clearHF(){hF={d1:'',d2:'',wd:'',pair:'',hl:'',noshi:'',sairyo:'',time:'',min:'',memo:''};renderHist();}
+function clearHF(){var s=hF.sort;hF={d1:'',d2:'',wd:'',pair:'',hl:'',noshi:'',sairyo:'',time:'',min:'',memo:'',sort:s};renderHist();}
 function toggleAllHist(cb){document.querySelectorAll('.hchk').forEach(function(c){c.checked=cb.checked;});}
 function delCheckedHist(){
   var checked=document.querySelectorAll('.hchk:checked');
