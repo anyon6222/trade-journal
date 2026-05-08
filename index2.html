@@ -62,7 +62,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BX</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BY</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -209,15 +209,23 @@ function fp(list,p){
 
 var ROPTS='<option value="none">—</option><option value="win">○</option><option value="martin">✕○</option><option value="lose">✕✕</option><option value="skip">－</option>';
 
+function fmtTime(inp){
+  // 4桁入力されたら自動的にHH:MM形式に変換
+  var v=inp.value.replace(/[^0-9]/g,'');
+  if(v.length===4){
+    var hh=v.slice(0,2),mm=v.slice(2,4);
+    if(parseInt(hh)<24&&parseInt(mm)<60){
+      inp.value=hh+':'+mm;
+    }
+  }
+}
 function nextTimeFocus(cur){
-  // 次の行のtime入力欄にフォーカス
   var rows=document.querySelectorAll('#tbody tr');
   var ids=Array.from(rows).map(function(tr){return tr.id.replace('r','');});
   var idx=ids.indexOf(String(cur));
-  if(idx>=0 && idx<ids.length-1){
-    var nextId='t'+ids[idx+1];
-    var next=document.getElementById(nextId);
-    if(next)next.focus();
+  if(idx>=0&&idx<ids.length-1){
+    var next=document.getElementById('t'+ids[idx+1]);
+    if(next){next.focus();next.select();}
   }
 }
 function addRows(n){for(var i=0;i<n;i++)addRow();}
@@ -229,7 +237,7 @@ function addRow(){
   tr.id='r'+r;
   tr.innerHTML=
     '<td style="text-align:center;color:#ccc;font-size:11px">'+num+'</td>'+
-    '<td><input id="t'+r+'" type="time" class="ti" onchange="nextTimeFocus('+r+')" onkeydown="if(event.key===\'Enter\'){event.preventDefault();nextTimeFocus('+r+')}"></td>'+
+    '<td style="display:flex;align-items:center;gap:2px"><input id="t'+r+'" type="text" class="ti" placeholder="1536" maxlength="4" style="width:48px;text-align:center" oninput="fmtTime(this)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();nextTimeFocus('+r+')}"><span style="font-size:10px;color:#aaa">⏱</span></td>'+
     '<td><select id="d'+r+'" class="si"><option value="high">↑HIGH</option><option value="low">↓LOW</option></select></td>'+
     '<td><select id="n'+r+'" class="si">'+ROPTS+'</select></td>'+
     '<td><input id="mi'+r+'" type="text" class="ti" placeholder="--" maxlength="2" style="width:40px;text-align:center"></td>'+
