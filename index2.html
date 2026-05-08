@@ -62,7 +62,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.08-BY</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.09-BZ</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -209,13 +209,14 @@ function fp(list,p){
 
 var ROPTS='<option value="none">—</option><option value="win">○</option><option value="martin">✕○</option><option value="lose">✕✕</option><option value="skip">－</option>';
 
-function fmtTime(inp){
-  // 4桁入力されたら自動的にHH:MM形式に変換
+function fmtTime(inp,r){
   var v=inp.value.replace(/[^0-9]/g,'');
+  inp.value=v;
   if(v.length===4){
-    var hh=v.slice(0,2),mm=v.slice(2,4);
-    if(parseInt(hh)<24&&parseInt(mm)<60){
-      inp.value=hh+':'+mm;
+    var hh=parseInt(v.slice(0,2)),mm=parseInt(v.slice(2,4));
+    if(hh<24&&mm<60){
+      inp.value=('0'+hh).slice(-2)+':'+('0'+mm).slice(-2);
+      setTimeout(function(){nextTimeFocus(r);},50);
     }
   }
 }
