@@ -62,7 +62,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.09-CD</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.09-CE</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -375,20 +375,25 @@ function renderHist(){
       var at=a.time||'',bt=b.time||'';
       return at>bt?-1:at<bt?1:0;
     });
+  } else if(srt==='inp'){
+    // 入力順（新しい順）= riが小さい順
+    rows.sort(function(a,b){
+      if(a.ri!==b.ri)return a.ri-b.ri;
+      return a.ei-b.ei;
+    });
   } else if(srt==='inp_asc'){
-    // 入力順の昇順（古い入力から）= riが大きい順（unshiftなので大きいほど古い）
+    // 入力↑昇順（古い入力から）= riが大きい順
     rows.sort(function(a,b){
       if(a.ri!==b.ri)return b.ri-a.ri;
       return a.ei-b.ei;
     });
   } else if(srt==='inp_desc'){
-    // 入力順の逆順（新しい入力から）= riが小さい順
+    // 入力↓逆順（新しい入力から）= riが小さい順
     rows.sort(function(a,b){
       if(a.ri!==b.ri)return a.ri-b.ri;
       return b.ei-a.ei;
     });
   }
-  // srt==='inp'の場合は入力順（新しい順＝unshift順）
   var fae=rows.map(function(r){return{noshi:r.noshi,sairyo:r.sairyo};});
   var fsn=calcWR(fae,'noshi'),fss=calcWR(fae,'sairyo');
   var isFiltered=hF.d1||hF.d2||hF.wd||hF.pair||hF.hl||hF.noshi||hF.sairyo||hF.time||hF.min||hF.memo;
@@ -870,6 +875,12 @@ function runAI(){
     btn.textContent='✨ AI分析を実行する';btn.disabled=false;
   },600);
 }
+</script>
+<button id="totop" onclick="window.scrollTo({top:0,behavior:'smooth'})" style="display:none;position:fixed;bottom:20px;right:16px;width:42px;height:42px;border-radius:50%;background:#1a1a2e;color:#fff;border:none;font-size:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25);z-index:999;line-height:1">↑</button>
+<script>
+window.addEventListener('scroll',function(){
+  document.getElementById('totop').style.display=window.scrollY>200?'block':'none';
+});
 </script>
 </body>
 </html>
