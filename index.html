@@ -265,12 +265,25 @@ textarea{min-height:36px;resize:vertical}
 @media(max-width:600px){
   .main-tab{padding:9px 8px;font-size:11px}
 }
+
+/* ↑ トップに戻るボタン */
+#scroll-top-btn{
+  position:fixed;bottom:22px;right:18px;z-index:999;
+  width:44px;height:44px;border-radius:50%;
+  background:#1a1a2e;color:#fff;font-size:20px;
+  border:none;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,0.25);
+  display:none;align-items:center;justify-content:center;
+  transition:opacity 0.2s,transform 0.2s;
+  font-family:inherit;line-height:1;
+}
+#scroll-top-btn:hover{background:#5a8aee;transform:scale(1.08);}
+#scroll-top-btn.visible{display:flex;}
 </style>
 </head>
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.07-X</span>
+  <span class="ver">v2026.05.13-G</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -387,6 +400,7 @@ textarea{min-height:36px;resize:vertical}
     <button class="sub-tab" onclick="showSub('hunoall')">HUNO ALL</button>
     <button class="sub-tab" onclick="showSub('ano')">アノマリー</button>
     <button class="sub-tab" onclick="showSub('opt')">オプション</button>
+    <button class="sub-tab" onclick="showSub('all')" style="background:#f0f4ff;color:#5a8aee;font-weight:600">📋 全履歴</button>
   </div>
   <div class="ptabs" id="hist-ptabs">
     <button class="ptab active" onclick="setPeriod('all','hist')">累計</button>
@@ -481,7 +495,7 @@ ANOMALIES.forEach(function(a){a.pairs.forEach(function(p){ANO_LABELS.push(a.time
 // ===== 状態 =====
 var trades=[],dailyMemos={},anoState={},optBlocks=[],injEntries={0:[],1:[],2:[],3:[]},entList=[];
 var curDateIso='',dateMode='picker',histPeriod='all',anaPeriod='all',curSub='summary';
-var injF={pair:'',line:'',dir:'',result:''},anoF={result:''},optF={name:''};
+// injF/anoF/optF は下で定義
 
 // ===== 日付ユーティリティ =====
 function todayIso(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
@@ -528,29 +542,60 @@ var injF={pair:'',line:'',dir:'',result:'',time:'',weekday:'',dateStr:'',memo:''
 
 var anoF={result:'',weekday:'',dateStr:'',time:'',dir:'',pair:'',memo:'',dateFrom:'',dateTo:''};
 var optF={name:'',result:'',weekday:'',dateStr:'',memo:'',dateFrom:'',dateTo:''};
-// ===== カレンダーフィルター =====  // {id: {year,month,selected:Set}}
+// 並び順: 'time_asc'|'time_desc'|'input_asc'|'input_desc'|'input_orig'
+var injSort='input_orig', anoSort='input_orig', optSort='input_orig';
+function isInjFiltered(){return !!(injF.pair||injF.line||injF.dir||injF.result||injF.time||injF.weekday||injF.dateStr||injF.memo||injF.dateFrom||injF.dateTo);}
+function isAnoFiltered(){return !!(anoF.result||anoF.weekday||anoF.dateStr||anoF.time||anoF.dir||anoF.pair||anoF.memo||anoF.dateFrom||anoF.dateTo);}
+function isOptFiltered(){return !!(optF.name||optF.result||optF.weekday||optF.dateStr||optF.memo||optF.dateFrom||optF.dateTo);}
+var allF={cat:'',pair:'',time:'',dir:'',result:'',weekday:'',memo:'',dateFrom:'',dateTo:''};
+var allSort='input_orig';
+function isAllFiltered(){return !!(allF.cat||allF.pair||allF.time||allF.dir||allF.result||allF.weekday||allF.memo||allF.dateFrom||allF.dateTo);}
+function mkSortBtns(cur,setCmd){
+  var btns=[
+    {v:'time_asc',l:'↑時間昇順'},
+    {v:'time_desc',l:'↓時間逆順'},
+    {v:'input_orig',l:'入力順'},
+    {v:'input_asc',l:'入力↑昇順'},
+    {v:'input_desc',l:'入力↓逆順'}
+  ];
+  return '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px">'+
+    '<span style="font-size:11px;color:#888;line-height:26px;margin-right:2px">並び順:</span>'+
+    btns.map(function(b){
+      var act=cur===b.v;
+      return '<button onclick="'+setCmd+'=\''+b.v+'\';renderHistory()" style="padding:3px 9px;font-size:11px;border-radius:6px;cursor:pointer;border:1px solid '+(act?'#5a8aee':'#ddd')+';background:'+(act?'#eef2ff':'#fff')+';color:'+(act?'#5a8aee':'#888')+';font-family:inherit">'+b.l+'</button>';
+    }).join('')+
+  '</div>';
+}
+function applySortRows(rows,sortKey,getTime,getIdx){
+  var r=rows.slice();
+  if(sortKey==='time_asc')r.sort(function(a,b){return (getTime(a)||'').localeCompare(getTime(b)||'');});
+  else if(sortKey==='time_desc')r.sort(function(a,b){return (getTime(b)||'').localeCompare(getTime(a)||'');});
+  else if(sortKey==='input_asc')r.sort(function(a,b){return getIdx(a)-getIdx(b);});
+  else if(sortKey==='input_desc')r.sort(function(a,b){return getIdx(b)-getIdx(a);});
+  // input_orig: そのまま
+  return r;
+}
+// ===== 日付範囲フィルター（年付き対応）=====
 function matchDateRange(dateDisp,from,to){
   if(!from&&!to)return true;
+  // dateDisp例: "2025年04月25日（金）"
   var yr=dateDisp.match(/(\d{4})/);
   var mndy=dateDisp.match(/(\d{2})月(\d{2})/);
   if(!yr||!mndy)return true;
-  var d=yr[1]+'/'+mndy[1]+'/'+mndy[2];
-  if(from){
-    var fp=from.split('/');
-    if(fp.length===2){
-      var fd=yr[1]+'/'+('0'+fp[0]).slice(-2)+'/'+('0'+fp[1]).slice(-2);
-      // 終了日なし=その日だけ
-      if(!to)return d===fd;
-      if(d<fd)return false;
-    }
+  var d=yr[1]+'/'+mndy[1]+'/'+mndy[2]; // YYYY/MM/DD
+  function parseF(s){
+    if(!s)return null;
+    s=s.trim();
+    var m3=s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+    if(m3)return m3[1]+'/'+('0'+m3[2]).slice(-2)+'/'+('0'+m3[3]).slice(-2);
+    var m2=s.match(/^(\d{1,2})[\/\-](\d{1,2})$/);
+    if(m2)return yr[1]+'/'+('0'+m2[1]).slice(-2)+'/'+('0'+m2[2]).slice(-2);
+    return null;
   }
-  if(to){
-    var tp=to.split('/');
-    if(tp.length===2){
-      var td=yr[1]+'/'+('0'+tp[0]).slice(-2)+'/'+('0'+tp[1]).slice(-2);
-      if(d>td)return false;
-    }
-  }
+  var fd=parseF(from),td=parseF(to);
+  if(fd&&!td)return d===fd;
+  if(fd&&d<fd)return false;
+  if(td&&d>td)return false;
   return true;
 }
 function showSub(s){
@@ -568,38 +613,6 @@ function showMain(t){
   if(t==='analysis')renderAnalysis();
   if(t==='memo')renderMemos();
   if(t==='bulk')initBulk();
-}
-// ===== カレンダーフィルター =====  // {id: {year,month,selected:Set}}
-function matchDateRange(dateDisp,from,to){
-  if(!from&&!to)return true;
-  var yr=dateDisp.match(/(\d{4})/);
-  var mndy=dateDisp.match(/(\d{2})月(\d{2})/);
-  if(!yr||!mndy)return true;
-  var d=yr[1]+'/'+mndy[1]+'/'+mndy[2];
-  if(from){
-    var fp=from.split('/');
-    if(fp.length===2){
-      var fd=yr[1]+'/'+('0'+fp[0]).slice(-2)+'/'+('0'+fp[1]).slice(-2);
-      // 終了日なし=その日だけ
-      if(!to)return d===fd;
-      if(d<fd)return false;
-    }
-  }
-  if(to){
-    var tp=to.split('/');
-    if(tp.length===2){
-      var td=yr[1]+'/'+('0'+tp[0]).slice(-2)+'/'+('0'+tp[1]).slice(-2);
-      if(d>td)return false;
-    }
-  }
-  return true;
-}
-function showSub(s){
-  curSub=s;
-  document.querySelectorAll('#hist-stabs .sub-tab').forEach(function(b){
-    b.classList.toggle('active',b.getAttribute('onclick')==="showSub('"+s+"')");
-  });
-  renderHistory();
 }
 function setPeriod(p,tab){
   var lbl={all:'累計',today:'本日',week:'1週間',month:'月間',year:'年間'};
@@ -1467,6 +1480,7 @@ function renderHistory(){
   else if(curSub==='hunoall')el.innerHTML=renderInjTab(list,'HUNO ALL');
   else if(curSub==='ano')el.innerHTML=renderAnoTab(list);
   else if(curSub==='opt')el.innerHTML=renderOptTab(list);
+  else if(curSub==='all')el.innerHTML=renderAllTab(list);
 }
 function fmtSk(sk,t){return sk?'['+sk+'ス '+(t+sk)+'件]':'';}
 function fmtWRs(pct,w,l,t,sk){return '<span class="win-c">単発<b>'+pct+'%</b>('+w+'勝'+l+'敗 '+t+'件'+fmtSk(sk,t)+')</span>';}
@@ -1552,10 +1566,15 @@ function renderInjTab(list,injName){
     if(!matchDateRange(r.date,injF.dateFrom,injF.dateTo))return false;
     return true;
   });
-  var ws=filtered.filter(function(r){return r.result==='win';}).length;
-  var wm=filtered.filter(function(r){return r.result==='win'||r.result==='martin';}).length;
-  var l=filtered.filter(function(r){return r.result==='lose'||r.result==='martin';}).length;
-  var t=filtered.length;
+  // 並び順ソート
+  var sortedF=applySortRows(filtered,injSort,
+    function(r){return r.time||'';},
+    function(r){return filtered.indexOf(r);}
+  );
+  var ws=sortedF.filter(function(r){return r.result==='win';}).length;
+  var wm=sortedF.filter(function(r){return r.result==='win'||r.result==='martin';}).length;
+  var l=sortedF.filter(function(r){return r.result==='lose'||r.result==='martin';}).length;
+  var t=sortedF.length;
   var wr=t?Math.round(ws/t*100):0,wrm=t?Math.round(wm/t*100):0;
   var lOpts='<option value="">全ライン</option>'+inj.lines.filter(function(x){return x!=='—';}).map(function(x){return '<option value="'+x+'" '+(injF.line===x?'selected':'')+'>'+x+'</option>';}).join('');
   var pOpts='<option value="">全通貨</option>'+PAIRS.map(function(p){return '<option value="'+p+'" '+(injF.pair===p?'selected':'')+'>'+p+'</option>';}).join('');
@@ -1564,10 +1583,10 @@ function renderInjTab(list,injName){
   var tOpts='<option value="">全時間</option>'+ts.map(function(v){return '<option value="'+v+'" '+(injF.time===v?'selected':'')+'>'+v+'</option>';}).join('');
   var wdOpts='<option value="">（曜日を選択）</option>'+WD.map(function(d){return '<option value="'+d+'" '+(injF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
   var mOpts='<option value="">全</option><option value="1" '+(injF.memo==='1'?'selected':'')+'>あり</option>';
-  var rows_html=filtered.length?filtered.map(function(r,ri){
+  var rows_html=sortedF.length?sortedF.map(function(r,ri){
     var delBtn='<button onclick="deleteInjRow('+r.tradeId+',\''+injName+'\',\''+r.pair+'\',\''+r.time+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" title="削除" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
     var chk='<input type="checkbox" class="bulk-chk-inj" data-tradeid="'+r.tradeId+'" data-inj="'+injName+'" data-pair="'+r.pair+'" data-time="'+r.time+'" style="cursor:pointer;width:14px;height:14px">';
-    var refBadge=r.ref?"<span style='font-size:11px;color:#f5a623;margin-left:3px'>☆</span>":'';
+    var refBadge=r.ref?'<span style="font-size:11px;color:#f5a623;margin-left:3px">☆</span>':'';
     return '<tr'+(r.ref?'':' style="opacity:0.8"')+'><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td>'+r.pair+refBadge+'</td><td>'+(r.time||'—')+'</td><td>'+(r.dir==='up'?'↑HIGH':'↓LOW')+'</td><td>'+r.line+'</td><td>'+badge(r.result)+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
   }).join(''):'<tr><td colspan="9" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   var bulkDelBtn='<button onclick="bulkDeleteInj(\''+injName+'\')" style="margin-top:6px;padding:5px 14px;font-size:12px;border-radius:7px;cursor:pointer;border:1px solid #ee6a50;background:#fff;color:#ee6a50;font-family:inherit">🗑 チェックした行を削除</button>';
@@ -1579,13 +1598,19 @@ function renderInjTab(list,injName){
   var statHtml='<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">'+injName+'</span>'+modeUI+
     '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件)</span>'+
     '<span class="martin-c" style="font-weight:600">1M込'+wrm+'%('+wm+'勝'+(t-wm)+'敗 '+t+'件)</span></div>';
-  return statHtml+bulkDelBtn+
+  var filterStat=isInjFiltered()?
+    '<div style="background:#fffbe6;border:1px solid #f5c842;border-radius:8px;padding:7px 12px;margin-bottom:7px;font-size:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">'+
+    '<span style="color:#a07000;font-weight:600">🔍 フィルター中</span>'+
+    '<span class="win-c">単発<b>'+wr+'%</b>('+ws+'勝'+l+'敗 '+t+'件)</span>'+
+    '<span class="martin-c">1M込<b>'+wrm+'%</b>('+wm+'勝'+(t-wm)+'敗 '+t+'件)</span>'+
+    '</div>':'';
+  return statHtml+mkSortBtns(injSort,'injSort')+filterStat+bulkDelBtn+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
     '<th style="width:28px;background:#111827"></th>'+
     '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
       '<div style="display:flex;gap:1px">'+
-        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/25" value="'+(injF.dateFrom||'')+'" onchange="injF.dateFrom=this.value;renderHistory()">'+
-        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/28" value="'+(injF.dateTo||'')+'" onchange="injF.dateTo=this.value;renderHistory()">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="MM/DDまたはYYYY/MM/DD" value="'+(injF.dateFrom||'')+'" onchange="injF.dateFrom=this.value;renderHistory()">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="MM/DDまたはYYYY/MM/DD" value="'+(injF.dateTo||'')+'" onchange="injF.dateTo=this.value;renderHistory()">'+
       '</div>'+
       '<select class="xl-fi" style="font-size:9px;padding:1px 2px" onchange="injF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('通貨',mkSel(injF.pair,'injF.pair=this.value;renderHistory()',pOpts))+
@@ -1597,6 +1622,7 @@ function renderInjTab(list,injName){
     '<th style="width:32px;background:#2a2a3e"></th>'+
     '</tr></thead><tbody>'+rows_html+'</tbody></table></div>';
 }
+
 
 // ===== 履歴削除関数 =====
 function deleteInjRow(tradeId,injName,pair,time){
@@ -1652,15 +1678,20 @@ function renderAnoTab(list){
     if(anoF.memo&&!r.memo)return false;
     return true;
   });
-  var ws=filtered.filter(function(r){return r.result==='win';}).length;
-  var sk=filtered.filter(function(r){return r.result==='skip';}).length;
-  var t=filtered.length-sk;var l=t-ws;var wr=t?Math.round(ws/t*100):0;
+  // 並び順ソート（アノマリーはtimeフィールドでソート）
+  var sortedF=applySortRows(filtered,anoSort,
+    function(r){return r.time||'';},
+    function(r){return filtered.indexOf(r);}
+  );
+  var ws=sortedF.filter(function(r){return r.result==='win';}).length;
+  var sk=sortedF.filter(function(r){return r.result==='skip';}).length;
+  var t=sortedF.length-sk;var l=t-ws;var wr=t?Math.round(ws/t*100):0;
   var rOpts='<option value="">全結果</option><option value="win" '+(anoF.result==='win'?'selected':'')+'>○</option><option value="lose" '+(anoF.result==='lose'?'selected':'')+'>✕</option><option value="skip" '+(anoF.result==='skip'?'selected':'')+'>－</option>';
   var wdOpts='<option value="">（曜日を選択）</option>'+WD.map(function(d){return '<option value="'+d+'" '+(anoF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
   var tOpts='<option value="">全時間</option>'+times.map(function(v){return '<option value="'+v+'" '+(anoF.time===v?'selected':'')+'>'+v+'</option>';}).join('');
   var dOpts='<option value="">全H/L</option><option value="↑" '+(anoF.dir==='↑'?'selected':'')+'>↑</option><option value="↓" '+(anoF.dir==='↓'?'selected':'')+'>↓</option><option value="↑↓" '+(anoF.dir==='↑↓'?'selected':'')+'>↑↓</option>';
   var pOpts='<option value="">全通貨</option>'+pairs.map(function(p){return '<option value="'+p+'" '+(anoF.pair===p?'selected':'')+'>'+p+'</option>';}).join('');
-  var tbody=filtered.length?filtered.map(function(r){
+  var tbody=sortedF.length?sortedF.map(function(r){
     var delBtn='<button onclick="deleteAnoRow('+r.tradeId+',\''+r.time+'\',\''+r.dir+'\',\''+r.pair+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
     var chk='<input type="checkbox" class="bulk-chk-ano" data-tradeid="'+r.tradeId+'" data-time="'+r.time+'" data-dir="'+r.dir+'" data-pair="'+r.pair+'" style="cursor:pointer;width:14px;height:14px">';
     var starBadge=r.star?'<span style="font-size:10px;background:'+(r.star==='3'?'#fff0e0':'#fff8e0')+';color:'+(r.star==='3'?'#c06000':'#c8960a')+';border-radius:4px;padding:1px 5px;margin-left:3px">☆'+r.star+'</span>':'';
@@ -1672,13 +1703,19 @@ function renderAnoTab(list){
       var active=starMode===o.m;
       return '<button onclick="window._anoStarMode=\''+o.m+'\';renderHistory()" style="padding:3px 10px;font-size:11px;border-radius:6px;cursor:pointer;border:1px solid '+(active?'#f5a623':'#ddd')+';background:'+(active?'#fff8e0':'#fff')+';color:'+(active?'#c06000':'#888')+';font-family:inherit">'+o.l+'</button>';
     }).join('')+'</span>';
-  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span>'+starUI+fmtWRs(wr,ws,l,t,sk)+'</div>'+bulkDelBtnA+
+  var filterStatA=isAnoFiltered()?
+    '<div style="background:#fffbe6;border:1px solid #f5c842;border-radius:8px;padding:7px 12px;margin-bottom:7px;font-size:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">'+
+    '<span style="color:#a07000;font-weight:600">🔍 フィルター中</span>'+
+    '<span class="win-c">単発<b>'+wr+'%</b>('+ws+'勝'+l+'敗 '+t+'件)</span>'+
+    '</div>':'';
+  return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">アノマリー</span>'+starUI+fmtWRs(wr,ws,l,t,sk)+'</div>'+
+    mkSortBtns(anoSort,'anoSort')+filterStatA+bulkDelBtnA+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
     '<th style="width:28px;background:#111827"></th>'+
     '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
       '<div style="display:flex;gap:1px">'+
-        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/25" value="'+(anoF.dateFrom||'')+'" onchange="anoF.dateFrom=this.value;renderHistory()">'+
-        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/28" value="'+(anoF.dateTo||'')+'" onchange="anoF.dateTo=this.value;renderHistory()">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="MM/DDまたはYYYY/MM/DD" value="'+(anoF.dateFrom||'')+'" onchange="anoF.dateFrom=this.value;renderHistory()">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="MM/DDまたはYYYY/MM/DD" value="'+(anoF.dateTo||'')+'" onchange="anoF.dateTo=this.value;renderHistory()">'+
       '</div>'+
       '<select class="xl-fi" style="font-size:9px;padding:1px 2px" onchange="anoF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('時間',mkSel(anoF.time,'anoF.time=this.value;renderHistory()',tOpts))+
@@ -1689,6 +1726,8 @@ function renderAnoTab(list){
     '<th style="width:32px;background:#2a2a3e"></th>'+
     '</tr></thead><tbody>'+tbody+'</tbody></table></div>';
 }
+
+
 function renderOptTab(list){
   var rows=[];
   list.forEach(function(t){t.opts.forEach(function(o){var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});if(!rs.length)return;rows.push({date:t.dateDisplay||t.date,tradeId:t.id,name:o.name,rounds:rs,memo:o.memo});});});
@@ -1703,28 +1742,39 @@ function renderOptTab(list){
     if(!matchDateRange(r.date,optF.dateFrom,optF.dateTo))return false;
     return true;
   });
+  // 並び順ソート（オプションはdateでソート、timeなし）
+  var sortedF=applySortRows(filtered,optSort,
+    function(r){return r.date||'';},
+    function(r){return filtered.indexOf(r);}
+  );
   var ws=0,l=0,sk=0;
-  filtered.forEach(function(r){r.rounds.forEach(function(v){if(v==='win')ws++;else if(v==='lose')l++;else if(v==='skip')sk++;});});
+  sortedF.forEach(function(r){r.rounds.forEach(function(v){if(v==='win')ws++;else if(v==='lose')l++;else if(v==='skip')sk++;});});
   var t=ws+l;var wr=t?Math.round(ws/t*100):0;
   var nOpts='<option value="">全オプション</option>'+names.map(function(n){return '<option value="'+n+'" '+(optF.name===n?'selected':'')+'>'+n.slice(0,18)+'</option>';}).join('');
   var rOpts='<option value="">全結果</option><option value="win" '+(optF.result==='win'?'selected':'')+'>○</option><option value="lose" '+(optF.result==='lose'?'selected':'')+'>✕</option><option value="skip" '+(optF.result==='skip'?'selected':'')+'>－</option>';
   var wdOpts='<option value="">（曜日を選択）</option>'+WD.map(function(d){return '<option value="'+d+'" '+(optF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
   var mOpts='<option value="">全</option><option value="1" '+(optF.memo==='1'?'selected':'')+'>あり</option>';
   var skStr=sk?'['+sk+'ス '+(t+sk)+'件]':'';
-  var rows_html=filtered.length?filtered.map(function(r){
+  var rows_html=sortedF.length?sortedF.map(function(r){
     var delBtn='<button onclick="deleteOptRow('+r.tradeId+',\''+r.name+'\')" style="font-size:10px;padding:2px 6px;border:1px solid #eee;border-radius:4px;background:#fff;color:#ddd;cursor:pointer" onmouseover="this.style.color=\'#ee6a50\';this.style.borderColor=\'#ee6a50\'" onmouseout="this.style.color=\'#ddd\';this.style.borderColor=\'#eee\'">🗑</button>';
     var chk='<input type="checkbox" class="bulk-chk-opt" data-tradeid="'+r.tradeId+'" data-name="'+r.name+'" style="cursor:pointer;width:14px;height:14px">';
     return '<tr><td style="text-align:center">'+chk+'</td><td style="font-size:11px;white-space:nowrap">'+r.date+'</td><td style="font-size:11px">'+r.name+'</td><td>'+r.rounds.map(function(v){return badge2(v);}).join(' ')+'</td><td style="font-size:11px;color:#888">'+(r.memo||'')+'</td><td>'+delBtn+'</td></tr>';
   }).join(''):'<tr><td colspan="6" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
   var bulkDelBtnO='<button onclick="bulkDeleteOpt()" style="margin-top:6px;padding:5px 14px;font-size:12px;border-radius:7px;cursor:pointer;border:1px solid #ee6a50;background:#fff;color:#ee6a50;font-family:inherit">🗑 チェックした行を削除</button>';
+  var filterStatO=isOptFiltered()?
+    '<div style="background:#fffbe6;border:1px solid #f5c842;border-radius:8px;padding:7px 12px;margin-bottom:7px;font-size:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">'+
+    '<span style="color:#a07000;font-weight:600">🔍 フィルター中</span>'+
+    '<span class="win-c">単発<b>'+wr+'%</b>('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span>'+
+    '</div>':'';
   return '<div class="xl-stat"><span style="font-size:14px;font-weight:600;color:#1a1a2e">オプション</span>'+
-    '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span></div>'+bulkDelBtnO+
+    '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span></div>'+
+    mkSortBtns(optSort,'optSort')+filterStatO+bulkDelBtnO+
     '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
     '<th style="width:28px;background:#111827"></th>'+
     '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
       '<div style="display:flex;gap:1px">'+
-        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/25" value="'+(optF.dateFrom||'')+'" onchange="optF.dateFrom=this.value;renderHistory()">'+
-        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="04/28" value="'+(optF.dateTo||'')+'" onchange="optF.dateTo=this.value;renderHistory()">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="MM/DDまたはYYYY/MM/DD" value="'+(optF.dateFrom||'')+'" onchange="optF.dateFrom=this.value;renderHistory()">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="MM/DDまたはYYYY/MM/DD" value="'+(optF.dateTo||'')+'" onchange="optF.dateTo=this.value;renderHistory()">'+
       '</div>'+
       '<select class="xl-fi" style="font-size:9px;padding:1px 2px" onchange="optF.weekday=this.value;renderHistory()">'+wdOpts+'</select></th>'+
     mkTh('オプション名',mkSel(optF.name,'optF.name=this.value;renderHistory()',nOpts))+
@@ -1733,6 +1783,144 @@ function renderOptTab(list){
     '<th style="width:32px;background:#2a2a3e"></th>'+
     '</tr></thead><tbody>'+rows_html+'</tbody></table></div>';
 }
+
+
+// ===== 全履歴タブ =====
+function renderAllTab(list){
+  var WD=['月','火','水','木','金','土','日'];
+  var ts=['07:00','07:15','07:30','07:45','08:00','08:15','08:30','08:45',
+          '09:00','09:15','09:30','09:45','10:00','10:15','10:30','10:45',
+          '11:00','11:15','11:30','11:45','14:45','15:00','15:45','16:00',
+          '16:45','17:00','17:45'];
+  // 全行フラット化
+  var rows=[];
+  list.forEach(function(t){
+    var dateStr=t.dateDisplay||t.date;
+    // インジ
+    t.injs.forEach(function(i){
+      if(i.result==='none')return;
+      rows.push({date:dateStr,tradeId:t.id,cat:i.name,pair:i.pair,time:i.time,
+        dir:i.dir==='up'?'↑HIGH':'↓LOW',result:i.result,memo:i.memo,_type:'inj',
+        _inj:i.name,_pair:i.pair,_time:i.time});
+    });
+    // アノマリー
+    t.anos.forEach(function(a){
+      if(a.result==='none')return;
+      rows.push({date:dateStr,tradeId:t.id,cat:'アノマリー',pair:a.pair,time:a.time,
+        dir:a.dir,result:a.result,memo:a.memo,_type:'ano',
+        _atime:a.time,_adir:a.dir,_apair:a.pair});
+    });
+    // オプション
+    t.opts.forEach(function(o){
+      var rs=(o.rounds||[o.result]).filter(function(r){return r&&r!=='none';});
+      if(!rs.length)return;
+      rows.push({date:dateStr,tradeId:t.id,cat:'オプション',pair:'—',time:'—',
+        dir:'—',result:rs[0],memo:o.memo,_type:'opt',_oname:o.name,_rounds:rs});
+    });
+  });
+  // フィルター
+  var filtered=rows.filter(function(r){
+    if(allF.cat&&r.cat!==allF.cat)return false;
+    if(allF.pair&&r.pair!==allF.pair)return false;
+    if(allF.time&&r.time!==allF.time)return false;
+    if(allF.dir&&r.dir!==allF.dir)return false;
+    if(allF.result){
+      if(r._type==='opt'){var has=r._rounds&&r._rounds.some(function(v){return v===allF.result;});if(!has)return false;}
+      else if(r.result!==allF.result)return false;
+    }
+    if(allF.weekday&&!r.date.includes('（'+allF.weekday+'）'))return false;
+    if(allF.memo&&!r.memo)return false;
+    if(!matchDateRange(r.date,allF.dateFrom,allF.dateTo))return false;
+    return true;
+  });
+  // 並び順
+  var sortedF=applySortRows(filtered,allSort,
+    function(r){return r.time||'';},
+    function(r){return filtered.indexOf(r);}
+  );
+  // 集計
+  var ws=0,wm=0,l=0,sk=0;
+  sortedF.forEach(function(r){
+    if(r._type==='inj'){
+      if(r.result==='win'){ws++;wm++;}
+      else if(r.result==='martin'){wm++;l++;}
+      else if(r.result==='lose')l++;
+    } else if(r._type==='ano'){
+      if(r.result==='win')ws++;
+      else if(r.result==='lose')l++;
+      else if(r.result==='skip')sk++;
+    } else if(r._type==='opt'){
+      if(r._rounds){r._rounds.forEach(function(v){if(v==='win')ws++;else if(v==='lose')l++;else if(v==='skip')sk++;});}
+    }
+  });
+  var t=sortedF.length-sk;
+  var wr=t?Math.round(ws/t*100):0;
+  var wrm=t?Math.round(wm/t*100):0;
+  // カテゴリ選択肢
+  var cats=['GORILLA','IRAZU','HUNO','HUNO ALL','アノマリー','オプション'];
+  var cOpts='<option value="">全カテゴリ</option>'+cats.map(function(c){return '<option value="'+c+'" '+(allF.cat===c?'selected':'')+'>'+c+'</option>';}).join('');
+  var pOpts='<option value="">全通貨</option>'+PAIRS.map(function(p){return '<option value="'+p+'" '+(allF.pair===p?'selected':'')+'>'+p+'</option>';}).join('');
+  var tOpts='<option value="">全時間</option>'+ts.map(function(v){return '<option value="'+v+'" '+(allF.time===v?'selected':'')+'>'+v+'</option>';}).join('');
+  var dOpts='<option value="">全H/L</option><option value="↑HIGH" '+(allF.dir==='↑HIGH'?'selected':'')+'>↑HIGH</option><option value="↓LOW" '+(allF.dir==='↓LOW'?'selected':'')+'>↓LOW</option>';
+  var rOpts='<option value="">全結果</option><option value="win" '+(allF.result==='win'?'selected':'')+'>○</option><option value="martin" '+(allF.result==='martin'?'selected':'')+'>✕○</option><option value="lose" '+(allF.result==='lose'?'selected':'')+'>✕✕/✕</option><option value="skip" '+(allF.result==='skip'?'selected':'')+'>－スキップ</option>';
+  var wdOpts='<option value="">（曜日）</option>'+WD.map(function(d){return '<option value="'+d+'" '+(allF.weekday===d?'selected':'')+'>'+d+'曜</option>';}).join('');
+  var mOpts='<option value="">全</option><option value="1" '+(allF.memo==='1'?'selected':'')+'>あり</option>';
+  // カテゴリ色
+  function catColor(cat){
+    if(cat==='GORILLA')return '#7c6af7';
+    if(cat==='IRAZU')return '#5a8aee';
+    if(cat==='HUNO')return '#1aaa6a';
+    if(cat==='HUNO ALL')return '#00997a';
+    if(cat==='アノマリー')return '#f0a020';
+    if(cat==='オプション')return '#ee6a50';
+    return '#888';
+  }
+  var skStr=sk?'['+sk+'ス '+(t+sk)+'件]':'';
+  var tbody=sortedF.length?sortedF.map(function(r){
+    var catBadge='<span style="font-size:10px;background:'+catColor(r.cat)+'22;color:'+catColor(r.cat)+';border-radius:4px;padding:1px 5px;white-space:nowrap">'+r.cat+'</span>';
+    var resultBadge=r._type==='inj'?badge(r.result):(r._type==='opt'&&r._rounds?r._rounds.map(function(v){return badge2(v);}).join(' '):badge2(r.result));
+    var dirDisp=r._type==='opt'?'—':r.dir;
+    return '<tr><td style="white-space:nowrap;font-size:11px">'+r.date+'</td>'+
+      '<td>'+catBadge+'</td>'+
+      '<td>'+(r.pair||'—')+'</td>'+
+      '<td style="font-size:11px">'+(r.time||'—')+'</td>'+
+      '<td style="font-size:11px;color:#666">'+dirDisp+'</td>'+
+      '<td>'+resultBadge+'</td>'+
+      '<td style="font-size:11px;color:#888;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(r.memo||'')+'</td>'+
+    '</tr>';
+  }).join(''):'<tr><td colspan="7" style="text-align:center;padding:2rem;color:#ccc">データなし</td></tr>';
+  var filterStatAll=isAllFiltered()?
+    '<div style="background:#fffbe6;border:1px solid #f5c842;border-radius:8px;padding:7px 12px;margin-bottom:7px;font-size:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">'+
+    '<span style="color:#a07000;font-weight:600">🔍 フィルター中</span>'+
+    '<span style="color:#333"><b>'+sortedF.length+'件</b></span>'+
+    '<span class="win-c">単発<b>'+wr+'%</b>('+ws+'勝'+l+'敗'+skStr+')</span>'+
+    (wm>0?'<span class="martin-c">1M込<b>'+wrm+'%</b></span>':'')+
+    '<button onclick="allF={cat:\'\',pair:\'\',time:\'\',dir:\'\',result:\'\',weekday:\'\',memo:\'\',dateFrom:\'\',dateTo:\'\'};renderHistory()" style="margin-left:auto;padding:3px 10px;font-size:11px;border-radius:6px;cursor:pointer;border:1px solid #ccc;background:#fff;color:#888;font-family:inherit">✕ クリア</button>'+
+    '</div>':'';
+  var statHtml='<div class="xl-stat">'+
+    '<span style="font-size:14px;font-weight:600;color:#1a1a2e">📋 全履歴</span>'+
+    '<span style="color:#666;font-size:12px">'+sortedF.length+'件</span>'+
+    '<span class="win-c" style="font-weight:600">単発'+wr+'%('+ws+'勝'+l+'敗 '+t+'件'+skStr+')</span>'+
+    (wm>0?'<span class="martin-c" style="font-weight:600">1M込'+wrm+'%('+wm+'勝'+(t-wm)+'敗 '+t+'件)</span>':'')+
+    '</div>';
+  return statHtml+mkSortBtns(allSort,'allSort')+filterStatAll+
+    '<div class="xl-wrap"><table class="xl-table"><thead><tr>'+
+    '<th style="min-width:90px;width:90px"><div style="font-size:9px;margin-bottom:1px">📅開始のみ=特定日</div>'+
+      '<div style="display:flex;gap:1px">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="MM/DDまたはYYYY/MM/DD" value="'+(allF.dateFrom||'')+'" onchange="allF.dateFrom=this.value;renderHistory()">'+
+        '<input type="text" class="xl-fi" style="margin-top:0;padding:1px 2px;font-size:9px;flex:1;min-width:0" placeholder="MM/DD" value="'+(allF.dateTo||'')+'" onchange="allF.dateTo=this.value;renderHistory()">'+
+      '</div>'+
+      '<select class="xl-fi" style="font-size:9px;padding:1px 2px" onchange="allF.weekday=this.value;renderHistory()">'+wdOpts+'</select>'+
+    '</th>'+
+    '<th>'+mkSel(allF.cat,'allF.cat=this.value;renderHistory()',cOpts)+'</th>'+
+    '<th>'+mkSel(allF.pair,'allF.pair=this.value;renderHistory()',pOpts)+'</th>'+
+    '<th>'+mkSel(allF.time,'allF.time=this.value;renderHistory()',tOpts)+'</th>'+
+    '<th>'+mkSel(allF.dir,'allF.dir=this.value;renderHistory()',dOpts)+'</th>'+
+    '<th>'+mkSel(allF.result,'allF.result=this.value;renderHistory()',rOpts)+'</th>'+
+    '<th>'+mkSel(allF.memo,'allF.memo=this.value;renderHistory()',mOpts)+'</th>'+
+    '</tr></thead><tbody>'+tbody+'</tbody></table></div>';
+}
+
 
 function bulkDeleteInj(injName){
   var chks=document.querySelectorAll('.bulk-chk-inj:checked');
@@ -2022,17 +2210,19 @@ function genAI(list){
   var ba=best2(aMap,2);if(ba)comments.push({icon:'🎯',text:'信頼度高アノマリー: <span class="ai-good">'+ba+'</span> — 勝率 <b>'+Math.round(aMap[ba].w/aMap[ba].t*100)+'%</b>（'+aMap[ba].t+'件）。'});
   var bo=best2(oMap,2);if(bo)comments.push({icon:'⚡',text:'注目オプション: <span class="ai-good">'+bo.slice(0,16)+'</span> — 勝率 <b>'+Math.round(oMap[bo].w/oMap[bo].t*100)+'%</b>（'+oMap[bo].t+'件）。'});
 
-  // インジ別注目パターン（ライン×通貨）
+  // インジ別注目パターン（ライン×通貨・通貨×時間）
   var injPatterns=[];
   ['GORILLA','IRAZU','HUNO','HUNO ALL'].forEach(function(injName){
     var isHuno=injName==='HUNO'||injName==='HUNO ALL';
     var arr=[];
     list.forEach(function(t){t.injs.forEach(function(i){
-      if(i.name===injName&&i.result!=='none')arr.push(i);
+      if(i.name===injName&&i.result!=='none'){
+        // HUNOは☆ありのみ
+        if(isHuno&&!i.ref)return;
+        arr.push(i);
+      }
     });});
-    if(arr.length<2)return;
-    // データ量に応じた動的閾値
-    var minT=Math.max(2,Math.round(Math.sqrt(arr.length)*0.7));
+    if(arr.length<3)return;
     // ライン×通貨
     var lpMap2={};
     arr.forEach(function(i){
@@ -2041,9 +2231,9 @@ function genAI(list){
       if(!lpMap2[k])lpMap2[k]={w:0,m:0,t:0};
       lpMap2[k].t++;if(i.result==='win')lpMap2[k].w++;if(i.result==='martin')lpMap2[k].m++;
     });
-    var blp=best2(lpMap2,minT);
-    if(blp&&wr2(lpMap2,blp)>=65){
-      injPatterns.push({icon:'🏅',text:injName+' 注目: <span class="'+wrCls2(wr2(lpMap2,blp))+'">'+blp+'</span> — <b>'+wr2(lpMap2,blp)+'%</b>（'+lpMap2[blp].t+'件 / 基準'+minT+'件以上）'});
+    var blp=best2(lpMap2,2);
+    if(blp&&wr2(lpMap2,blp)>=70){
+      injPatterns.push({icon:'🏅',text:injName+(isHuno?' ☆':'')+' 注目: <span class="'+wrCls2(wr2(lpMap2,blp))+'">'+blp+'</span> — <b>'+wr2(lpMap2,blp)+'%</b>（'+lpMap2[blp].t+'件）'});
     }
   });
 
@@ -2348,6 +2538,17 @@ updateDateDisp(ti);
 buildInj();buildAno();buildOpt();
 loadData();loadMemos();
 renderDash();renderTodayList();
+</script>
+
+<!-- ↑ トップに戻るボタン -->
+<button id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="トップへ戻る">↑</button>
+<script>
+(function(){
+  var btn=document.getElementById('scroll-top-btn');
+  window.addEventListener('scroll',function(){
+    btn.classList.toggle('visible',window.scrollY>300);
+  },{passive:true});
+})();
 </script>
 </body>
 </html>
