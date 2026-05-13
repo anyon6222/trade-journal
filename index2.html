@@ -62,7 +62,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.09-CE</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.09-CF</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -376,21 +376,21 @@ function renderHist(){
       return at>bt?-1:at<bt?1:0;
     });
   } else if(srt==='inp'){
-    // 入力順（新しい順）= riが小さい順
+    // 入力順（新しい順）= idが大きい順（Date.now()なので大きいほど新しい）
     rows.sort(function(a,b){
-      if(a.ri!==b.ri)return a.ri-b.ri;
+      if(a.id!==b.id)return b.id-a.id;
       return a.ei-b.ei;
     });
   } else if(srt==='inp_asc'){
-    // 入力↑昇順（古い入力から）= riが大きい順
+    // 入力↑昇順（古い入力から）= idが小さい順
     rows.sort(function(a,b){
-      if(a.ri!==b.ri)return b.ri-a.ri;
+      if(a.id!==b.id)return a.id-b.id;
       return a.ei-b.ei;
     });
   } else if(srt==='inp_desc'){
-    // 入力↓逆順（新しい入力から）= riが小さい順
+    // 入力↓逆順（新しい入力から）= idが大きい順
     rows.sort(function(a,b){
-      if(a.ri!==b.ri)return a.ri-b.ri;
+      if(a.id!==b.id)return b.id-a.id;
       return b.ei-a.ei;
     });
   }
