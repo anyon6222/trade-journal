@@ -283,7 +283,7 @@ textarea{min-height:36px;resize:vertical}
 <body>
 <div class="header">
   <h1>トレード記録帳</h1>
-  <span class="ver">v2026.05.13-G</span>
+  <span class="ver">v2026.05.13-H</span>
 </div>
 <div class="main-tabs">
   <button class="main-tab active" onclick="showMain('input')">入力</button>
@@ -566,12 +566,32 @@ function mkSortBtns(cur,setCmd){
     }).join('')+
   '</div>';
 }
+function parseDateKey(dateDisp){
+  // "2026年04月22日（水）" → "2026/04/22" でソートキー生成
+  var yr=dateDisp.match(/(\d{4})/);
+  var md=dateDisp.match(/(\d{2})月(\d{2})/);
+  if(yr&&md)return yr[1]+'/'+md[1]+'/'+md[2];
+  return dateDisp||'';
+}
 function applySortRows(rows,sortKey,getTime,getIdx){
   var r=rows.slice();
-  if(sortKey==='time_asc')r.sort(function(a,b){return (getTime(a)||'').localeCompare(getTime(b)||'');});
-  else if(sortKey==='time_desc')r.sort(function(a,b){return (getTime(b)||'').localeCompare(getTime(a)||'');});
-  else if(sortKey==='input_asc')r.sort(function(a,b){return getIdx(a)-getIdx(b);});
-  else if(sortKey==='input_desc')r.sort(function(a,b){return getIdx(b)-getIdx(a);});
+  if(sortKey==='time_asc'){
+    r.sort(function(a,b){
+      var da=parseDateKey(a.date||''), db=parseDateKey(b.date||'');
+      if(da!==db)return da.localeCompare(db);
+      return (getTime(a)||'').localeCompare(getTime(b)||'');
+    });
+  } else if(sortKey==='time_desc'){
+    r.sort(function(a,b){
+      var da=parseDateKey(a.date||''), db=parseDateKey(b.date||'');
+      if(da!==db)return db.localeCompare(da);
+      return (getTime(b)||'').localeCompare(getTime(a)||'');
+    });
+  } else if(sortKey==='input_asc'){
+    r.sort(function(a,b){return getIdx(a)-getIdx(b);});
+  } else if(sortKey==='input_desc'){
+    r.sort(function(a,b){return getIdx(b)-getIdx(a);});
+  }
   // input_orig: そのまま
   return r;
 }
