@@ -62,7 +62,7 @@ tr:nth-child(even) td{background:#fafafa}
 </style>
 </head>
 <body>
-<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.09-CC</span></div>
+<div class="hdr"><h1>2ND トレード記録</h1><span style="font-size:10px;opacity:.4">v2026.05.09-CD</span></div>
 <div class="tabs">
   <button class="tab on" onclick="showTab('inp')">入力</button>
   <button class="tab" onclick="showTab('hist')">履歴</button>
@@ -337,9 +337,9 @@ function renderHist(){
   var sn=calcWR(ae,'noshi'),ss=calcWR(ae,'sairyo');
   var WDN=['日','月','火','水','木','金','土'];
   var allRows=[];
-  list.forEach(function(t){
+  list.forEach(function(t,ri){
     t.entries.forEach(function(e,ei){
-      allRows.push({id:t.id,ei:ei,date:t.date,disp:t.disp,pair:e.pair,time:e.time,min:e.min,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo,memo:e.memo});
+      allRows.push({id:t.id,ri:ri,ei:ei,date:t.date,disp:t.disp,pair:e.pair,time:e.time,min:e.min,dir:e.dir,noshi:e.noshi,sairyo:e.sairyo,memo:e.memo});
     });
   });
   var rows=allRows.filter(function(r){
@@ -376,19 +376,19 @@ function renderHist(){
       return at>bt?-1:at<bt?1:0;
     });
   } else if(srt==='inp_asc'){
+    // 入力順の昇順（古い入力から）= riが大きい順（unshiftなので大きいほど古い）
     rows.sort(function(a,b){
-      var dc=a.date<b.date?-1:a.date>b.date?1:0;
-      if(dc!==0)return dc;
+      if(a.ri!==b.ri)return b.ri-a.ri;
       return a.ei-b.ei;
     });
   } else if(srt==='inp_desc'){
+    // 入力順の逆順（新しい入力から）= riが小さい順
     rows.sort(function(a,b){
-      var dc=a.date>b.date?-1:a.date<b.date?1:0;
-      if(dc!==0)return dc;
+      if(a.ri!==b.ri)return a.ri-b.ri;
       return b.ei-a.ei;
     });
   }
-  // srt==='inp'の場合は入力順（allRowsのまま）
+  // srt==='inp'の場合は入力順（新しい順＝unshift順）
   var fae=rows.map(function(r){return{noshi:r.noshi,sairyo:r.sairyo};});
   var fsn=calcWR(fae,'noshi'),fss=calcWR(fae,'sairyo');
   var isFiltered=hF.d1||hF.d2||hF.wd||hF.pair||hF.hl||hF.noshi||hF.sairyo||hF.time||hF.min||hF.memo;
